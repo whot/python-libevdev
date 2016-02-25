@@ -220,7 +220,6 @@ class Libevdev(_LibraryWrapper):
     def name(self):
         """
         A string with the device's kernel name.
-        See libevdev_get_name()
         """
         return self._get_name(self._ctx)
 
@@ -232,7 +231,6 @@ class Libevdev(_LibraryWrapper):
     def phys(self):
         """
         A string with the device's kernel phys.
-        See libevdev_get_phys()
         """
         return self._get_phys(self._ctx)
 
@@ -244,7 +242,6 @@ class Libevdev(_LibraryWrapper):
     def uniq(self):
         """
         A string with the device's kernel uniq.
-        See libevdev_get_uniq()
         """
         return self._get_uniq(self._ctx)
 
@@ -255,8 +252,7 @@ class Libevdev(_LibraryWrapper):
     @property
     def driver_version(self):
         """
-        Read-only. Return the driver version, see
-        libevdev_get_driver_version()
+        :note: Read-only
         """
         return self._get_driver_version(self._ctx)
 
@@ -264,8 +260,13 @@ class Libevdev(_LibraryWrapper):
     def id(self):
         """
         A dict with the keys 'bustype', 'vendor', 'product', 'version'.
-        See libevdev_get_id_busytype(), libevdev_get_id_vendor(),
-        libevdev_get_id_product(), libevdev_get_id_version()
+        When used as a setter, only existing keys are applied to the device.
+
+        This is a combined version of the libevdev calls
+        ``libevdev_get_id_busytype()``, ``libevdev_get_id_vendor()``,
+        ``libevdev_get_id_product()``, ``libevdev_get_id_version()`` and the
+        respective setters.
+
         """
         bus = self._get_id_bustype(self._ctx)
         vdr = self._get_id_vendor(self._ctx)
@@ -290,7 +291,5 @@ class Libevdev(_LibraryWrapper):
         """
         :param clock: time.CLOCK_MONOTONIC
         :return: a negative errno on failure or 0 on success.
-
-        See libevdev_set_clock_id()
         """
         return self._set_clock_id(self._ctx, clock)

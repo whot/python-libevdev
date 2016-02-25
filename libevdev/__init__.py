@@ -214,10 +214,11 @@ class Libevdev(_LibraryWrapper):
             raise AttributeError(msg.format(type(self).__name__, name))
 
     def __setattr__(self, name, value):
-        if name.startswith("_"):
-            self.__dict__[name] =  value
-        else:
-            try:
-                self._setters[name](self._ctx, value)
-            except KeyError:
-                self.__setitem__(name, value)
+        # Try calling the setter function first if we have any. If that
+        # fails, call into the base class, this magically calls our actual
+        # @property hooks or just assigns the attribute as a normal
+        # self.foo = bar would. See __setattr__ documentation.
+        try:
+            self._setters[name](self._ctx, value)
+        except KeyError:
+            _LibraryWrapper.__setattr__(self, name, value)

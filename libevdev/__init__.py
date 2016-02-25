@@ -35,27 +35,7 @@ class _LibraryWrapper(object):
             #   "argtypes": [c_void_p, c_char_p, etc. ], # arguments
             #   "restype": c_void_p, # return type
             #   "restype": c_void_p, # return type
-            #   "name" : "foo", # override default name taken from libevdev
-            # If a type is specified, it can be:
-            #   "getter" ... automatically makes the function an attribute
-            #   "setter" ... automatically makes the function setable attribute
-            #   "type" : <type>
             # }
-    }
-
-    # List of all API calls starting with libevdev_get_. These are mapped
-    # into attributes (see __getattr__), libevdev_get_name becomes
-    # foo = Libevdev().name
-    _getters = {
-            # name : func
-    }
-
-    # List of all API calls starting with libevdev_set_. These are mapped
-    # into attributes (see __setattr__), libevdev_set_name becomes
-    # foo = Libevdev()
-    # foo.name = somename
-    _setters = {
-            # name : func
     }
 
     def __init__(self):
@@ -72,19 +52,13 @@ class _LibraryWrapper(object):
             func = getattr(cls._lib, name)
             func.argtypes = attrs["argtypes"]
             func.restype = attrs["restype"]
-            # getters and setters have special treatment
-            # http://stackoverflow.com/questions/412951/how-to-implement-property-with-dynamic-name-in-python
-            t = attrs.get("type", None)
-            if t == "getter":
-                pyname = name.split("libevdev_get_")[1]
-                cls._getters[pyname] = func
-            elif t == "setter":
-                pyname = name.split("libevdev_set_")[1]
-                cls._setters[pyname] = func
-            else:
-                # default name is the libevdev name minus the libevdev_ prefix
-                pyname = dict.get(attrs, "name", name[len("libevdev_"):])
-                setattr(cls, pyname, func)
+
+            # default name is the libevdev name minus the libevdev prefix
+            # This makes all functions hidden and require
+            # one-by-one-mapping
+            prefix = len("libevdev")
+            pyname = dict.get(attrs, "name", name[prefix:])
+            setattr(cls, pyname, func)
 
         return cls._lib
 
@@ -140,61 +114,97 @@ class Libevdev(_LibraryWrapper):
         "libevdev_new": {
             "argtypes": (),
             "restype": c_void_p,
-            "name" : "_new",
             },
         #struct libevdev *libevdev_free(struct libevdev *);
         "libevdev_free": {
             "argtypes": (c_void_p,),
             "restype": None,
-            "name" : "_free",
             },
+        ###############################
+        # Simple getters and setters  #
+        ###############################
         #const char * libevdev_get_name(struct libevdev *);
         "libevdev_get_name": {
             "argtypes": (c_void_p,),
             "restype": c_char_p,
-            "type" : "getter",
             },
         #void libevdev_set_name(struct libevdev *, const char*);
         "libevdev_set_name": {
             "argtypes": (c_void_p, c_char_p),
             "restype": None,
-            "type" : "setter",
             },
         #const char * libevdev_get_phys(struct libevdev *);
         "libevdev_get_phys": {
             "argtypes": (c_void_p,),
             "restype": c_char_p,
-            "type" : "getter",
             },
         #void libevdev_set_phys(struct libevdev *, const char*);
         "libevdev_set_phys": {
             "argtypes": (c_void_p, c_char_p),
             "restype": None,
-            "type" : "setter",
             },
         #const char * libevdev_get_uniq(struct libevdev *);
         "libevdev_get_uniq": {
             "argtypes": (c_void_p,),
             "restype": c_char_p,
-            "type" : "getter",
             },
         #void libevdev_set_uniq(struct libevdev *, const char*);
         "libevdev_set_uniq": {
             "argtypes": (c_void_p, c_char_p),
             "restype": None,
-            "type" : "setter",
             },
         #int libevdev_get_driver_version(struct libevdev *);
         "libevdev_get_driver_version": {
             "argtypes": (c_void_p, ),
             "restype": c_int,
-            "type" : "getter",
             },
         #void libevdev_set_clock_id(struct libevdev *, int)
         "libevdev_set_clock_id": {
             "argtypes": (c_void_p, c_int),
             "restype": None,
-            "type" : "setter",
+            },
+        ###############################
+        # Custom getters and setters  #
+        ###############################
+        #int libevdev_get_id_bustype(struct libevdev *)
+        "libevdev_get_id_bustype": {
+            "argtypes": (c_void_p,),
+            "restype": int,
+            },
+        #int libevdev_get_id_vendor(struct libevdev *)
+        "libevdev_get_id_vendor": {
+            "argtypes": (c_void_p,),
+            "restype": int,
+            },
+        #int libevdev_get_id_product(struct libevdev *)
+        "libevdev_get_id_product": {
+            "argtypes": (c_void_p,),
+            "restype": int,
+            },
+        #int libevdev_get_id_version(struct libevdev *)
+        "libevdev_get_id_version": {
+            "argtypes": (c_void_p,),
+            "restype": int,
+            },
+        #void libevdev_set_id_bustype(struct libevdev *, int)
+        "libevdev_set_id_bustype": {
+            "argtypes": (c_void_p, c_int),
+            "restype": None,
+            },
+        #void libevdev_set_id_vendor(struct libevdev *, int)
+        "libevdev_set_id_vendor": {
+            "argtypes": (c_void_p, c_int),
+            "restype": None,
+            },
+        #void libevdev_set_id_product(struct libevdev *, int)
+        "libevdev_set_id_product": {
+            "argtypes": (c_void_p, c_int),
+            "restype": None,
+            },
+        #void libevdev_set_id_version(struct libevdev *, int)
+        "libevdev_set_id_version": {
+            "argtypes": (c_void_p, c_int),
+            "restype": None,
             },
         }
 
@@ -206,19 +216,41 @@ class Libevdev(_LibraryWrapper):
         if hasattr(self, "_ctx"):
             self._free(self._ctx)
 
-    def __getattr__(self, name):
-        try:
-            return self._getters[name](self._ctx)
-        except KeyError:
-            msg = "'{0}' object has no attribute '{1}'"
-            raise AttributeError(msg.format(type(self).__name__, name))
+    @property
+    def name(self):
+        """
+        A string with the device's kernel name.
+        See libevdev_get_name()
+        """
+        return self._get_name(self._ctx)
 
-    def __setattr__(self, name, value):
-        # Try calling the setter function first if we have any. If that
-        # fails, call into the base class, this magically calls our actual
-        # @property hooks or just assigns the attribute as a normal
-        # self.foo = bar would. See __setattr__ documentation.
-        try:
-            self._setters[name](self._ctx, value)
-        except KeyError:
-            _LibraryWrapper.__setattr__(self, name, value)
+    @name.setter
+    def name(self, name):
+        return self._set_name(self._ctx, name)
+
+    @property
+    def id(self):
+        """
+        A dict with the keys 'bustype', 'vendor', 'product', 'version'.
+        See libevdev_get_id_busytype(), libevdev_get_id_vendor(),
+        libevdev_get_id_product(), libevdev_get_id_version()
+        """
+        bus = self._get_id_bustype(self._ctx)
+        vdr = self._get_id_vendor(self._ctx)
+        pro = self._get_id_product(self._ctx)
+        ver = self._get_id_version(self._ctx)
+        return { "bustype" : bus,
+                 "vendor" : vdr,
+                 "product" : pro,
+                 "version" : ver }
+    @id.setter
+    def id(self, vals):
+        if vals.has_key("bustype"):
+            self._set_id_bustype(self._ctx, vals["bustype"])
+        if vals.has_key("vendor"):
+            self._set_id_vendor(self._ctx, vals["vendor"])
+        if vals.has_key("product"):
+            self._set_id_product(self._ctx, vals["product"])
+        if vals.has_key("version"):
+            self._set_id_version(self._ctx, vals["version"])
+

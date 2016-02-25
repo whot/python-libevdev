@@ -206,11 +206,36 @@ class Libevdev(_LibraryWrapper):
             "argtypes": (c_void_p, c_int),
             "restype": None,
             },
+        # int libevdev_set_fd(struct libevdev *, int)
+        "libevdev_set_fd" : {
+            "argtypes" : (c_void_p, c_int),
+            "restype" : c_int,
+        },
+        # int libevdev_change_fd(struct libevdev *, int)
+        "libevdev_change_fd" : {
+            "argtypes" : (c_void_p, c_int),
+            "restype" : c_int,
+        },
+        # int libevdev_get_fd(struct libevdev *)
+        "libevdev_get_fd" : {
+            "argtypes" : (c_void_p, ),
+            "restype" : c_int,
+        },
         }
 
-    def __init__(self):
+    def __init__(self, fd=None):
+        """
+        :param fd: A file-like object
+
+        Create a new libevdev instance. If a file is given this call is
+        equivalent to ``libevdev_new_from_fd()``, otherwise it is equivalent
+        to ``libevdev_new()``.
+        """
         super(Libevdev, self).__init__()
         self._ctx = self._new()
+        self._file = None
+        if fd != None:
+            self.fd = fd
 
     def __del__(self):
         if hasattr(self, "_ctx"):
@@ -293,3 +318,36 @@ class Libevdev(_LibraryWrapper):
         :return: a negative errno on failure or 0 on success.
         """
         return self._set_clock_id(self._ctx, clock)
+
+    @property
+    def fd(self):
+        """
+        The file-like object used during constructor or in the most recent
+        assignment to self.fd.
+
+        When assigned the first time and no file has been passed to the
+        constructor, the assignment is equivalent to ``libevdev_set_fd()``.
+
+        Subsequently, any assignments are equivalent to
+        ``libevdev_change_fd``.
+
+        :note: libevdev uses the fileno() of the object.
+        """
+        return self._file
+
+    @fd.setter
+    def fd(self, fileobj):
+        fd = fileobj.fileno()
+        if self._file == None:
+            r = self._set_fd(self._ctx, fd)
+        else:
+            r = self._change_fd(self._ctx, fd)
+
+        if r != 0:
+            print("FIXME: this should be an exception")
+
+        # sanity check:
+        if self._get_fd(self._ctx) != fd:
+            print("FIXME: fileno() != get_fd()")
+
+        self._file = fileobj

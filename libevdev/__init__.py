@@ -286,3 +286,11 @@ class Libevdev(_LibraryWrapper):
         if vals.has_key("version"):
             self._set_id_version(self._ctx, vals["version"])
 
+    def set_clock_id(self, clock):
+        """
+        :param clock: time.CLOCK_MONOTONIC
+        :return: a negative errno on failure or 0 on success.
+
+        See libevdev_set_clock_id()
+        """
+        return self._set_clock_id(self._ctx, clock)

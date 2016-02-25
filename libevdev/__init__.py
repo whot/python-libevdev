@@ -229,6 +229,38 @@ class Libevdev(_LibraryWrapper):
         return self._set_name(self._ctx, name)
 
     @property
+    def phys(self):
+        """
+        A string with the device's kernel phys.
+        See libevdev_get_phys()
+        """
+        return self._get_phys(self._ctx)
+
+    @phys.setter
+    def phys(self, phys):
+        return self._set_phys(self._ctx, phys)
+
+    @property
+    def uniq(self):
+        """
+        A string with the device's kernel uniq.
+        See libevdev_get_uniq()
+        """
+        return self._get_uniq(self._ctx)
+
+    @uniq.setter
+    def uniq(self, uniq):
+        return self._set_uniq(self._ctx, uniq)
+
+    @property
+    def driver_version(self):
+        """
+        Read-only. Return the driver version, see
+        libevdev_get_driver_version()
+        """
+        return self._get_driver_version(self._ctx)
+
+    @property
     def id(self):
         """
         A dict with the keys 'bustype', 'vendor', 'product', 'version'.

@@ -221,6 +221,11 @@ class Libevdev(_LibraryWrapper):
             "argtypes" : (c_void_p, ),
             "restype" : c_int,
         },
+        # int libevdev_grab(struct libevdev *)
+        "libevdev_grab": {
+            "argtypes" : (c_void_p, c_int),
+            "restype" : c_int,
+        },
         }
 
     def __init__(self, fd=None):
@@ -351,3 +356,16 @@ class Libevdev(_LibraryWrapper):
             print("FIXME: fileno() != get_fd()")
 
         self._file = fileobj
+
+    def grab(self, enable_grab = True):
+        """
+        :param enable_grab: True to grab, False to ungrab
+        :return: 0 on success or a negative errno on failure
+        """
+        # libevdev doesn't use 0/1 here but numbered values
+        if enable_grab:
+            mode = 3
+        else:
+            mode = 4
+        r = self._grab(self._ctx, mode)
+        return r

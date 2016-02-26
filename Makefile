@@ -6,5 +6,6 @@ doc:
 
 test:
 	PYTHONPATH=. python -m unittest test
+	PYTHONPATH=. python3 -m unittest test
 
 .PHONY: doc test

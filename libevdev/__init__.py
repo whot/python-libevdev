@@ -169,7 +169,7 @@ class Libevdev(_LibraryWrapper):
         #void libevdev_set_clock_id(struct libevdev *, int)
         "libevdev_set_clock_id": {
             "argtypes": (c_void_p, c_int),
-            "restype": None,
+            "restype": c_int,
             },
         ###############################
         # Custom getters and setters  #
@@ -177,22 +177,22 @@ class Libevdev(_LibraryWrapper):
         #int libevdev_get_id_bustype(struct libevdev *)
         "libevdev_get_id_bustype": {
             "argtypes": (c_void_p,),
-            "restype": int,
+            "restype": c_int,
             },
         #int libevdev_get_id_vendor(struct libevdev *)
         "libevdev_get_id_vendor": {
             "argtypes": (c_void_p,),
-            "restype": int,
+            "restype": c_int,
             },
         #int libevdev_get_id_product(struct libevdev *)
         "libevdev_get_id_product": {
             "argtypes": (c_void_p,),
-            "restype": int,
+            "restype": c_int,
             },
         #int libevdev_get_id_version(struct libevdev *)
         "libevdev_get_id_version": {
             "argtypes": (c_void_p,),
-            "restype": int,
+            "restype": c_int,
             },
         #void libevdev_set_id_bustype(struct libevdev *, int)
         "libevdev_set_id_bustype": {

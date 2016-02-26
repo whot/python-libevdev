@@ -287,41 +287,47 @@ class Libevdev(_LibraryWrapper):
         """
         A string with the device's kernel name.
         """
-        return self._get_name(self._ctx)
+        return self._get_name(self._ctx).decode("iso8859-1")
 
     @name.setter
     def name(self, name):
         if name == None:
             name = ''
-        return self._set_name(self._ctx, name)
+        return self._set_name(self._ctx, name.encode("iso8859-1"))
 
     @property
     def phys(self):
         """
         A string with the device's kernel phys.
         """
-        return self._get_phys(self._ctx)
+        phys = self._get_phys(self._ctx)
+        if not phys:
+            return None
+        return phys.decode("iso8859-1")
 
     @phys.setter
     def phys(self, phys):
         # libevdev issue: phys may be NULL, but can't be set to NULL
         if phys == None:
             phys = ''
-        return self._set_phys(self._ctx, phys)
+        return self._set_phys(self._ctx, phys.encode("iso8859-1"))
 
     @property
     def uniq(self):
         """
         A string with the device's kernel uniq.
         """
-        return self._get_uniq(self._ctx)
+        uniq = self._get_uniq(self._ctx)
+        if not uniq:
+            return None
+        return uniq.decode("iso8859-1")
 
     @uniq.setter
     def uniq(self, uniq):
         # libevdev issue: uniq may be NULL, but can't be set to NULL
         if uniq == None:
             uniq = ''
-        return self._set_uniq(self._ctx, uniq)
+        return self._set_uniq(self._ctx, uniq.encode("iso8859-1"))
 
     @property
     def driver_version(self):
@@ -466,7 +472,7 @@ class Libevdev(_LibraryWrapper):
         name = self._property_get_name(prop)
         if not name:
             return None
-        return name
+        return name.decode("iso8859-1")
 
     def property_value(self, prop):
         """
@@ -496,7 +502,7 @@ class Libevdev(_LibraryWrapper):
             name = self._event_type_get_name(event_type)
         if not name:
             return None
-        return name
+        return name.decode("iso8859-1")
 
     def event_value(self, event_type, event_code=None):
         """
@@ -511,9 +517,9 @@ class Libevdev(_LibraryWrapper):
         if event_code != None:
             if not isinstance(event_type, int):
                 event_type = self.event_value(event_type)
-            v = self._event_code_from_name(event_type, event_code)
+            v = self._event_code_from_name(event_type, event_code.encode("iso8859-1"))
         else:
-            v = self._event_type_from_name(event_type)
+            v = self._event_type_from_name(event_type.encode("iso8859-1"))
         if v == -1:
             return None
         return v

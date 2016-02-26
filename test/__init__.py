@@ -78,7 +78,7 @@ class TestNameConversion(unittest.TestCase):
         l = Libevdev()
         v = l.event_value("foo")
         self.assertIsNone(v)
-        with self.assertRaises(ctypes.ArgumentError):
+        with self.assertRaises(AttributeError):
             v = l.event_value(0)
 
     def test_code_value(self):
@@ -123,10 +123,11 @@ class TestLibevdevDevice(unittest.TestCase):
         self.assertEqual(uniq, "foo")
 
         # libevdev issue: phys may be NULL (unlike the name) but we can't
-        # set it to NULL
+        # set it to NULL. But the conversion code returns None for the empty
+        # string, so let's test for that
         l.uniq = None
         uniq = l.uniq
-        self.assertEqual(uniq, "")
+        self.assertEqual(uniq, None)
 
     def test_set_get_phys(self):
         l = Libevdev()
@@ -138,10 +139,11 @@ class TestLibevdevDevice(unittest.TestCase):
         self.assertEqual(phys, "foo")
 
         # libevdev issue: phys may be NULL (unlike the name) but we can't
-        # set it to NULL
+        # set it to NULL. But the conversion code returns None for the empty
+        # string, so let's test for that
         l.phys = None
         phys = l.phys
-        self.assertEqual(phys, "")
+        self.assertEqual(phys, None)
 
     def test_get_driver_version(self):
         l = Libevdev()

@@ -247,6 +247,21 @@ class Libevdev(_LibraryWrapper):
             "argtypes" : (c_void_p, ctypes.POINTER(_InputAbsinfo)),
             "restype" : (c_int)
         },
+        ##########################
+        # Various has_ functions #
+        ##########################
+        "libevdev_has_property" : {
+            "argtypes" : (c_void_p, c_int),
+            "restype" : (c_int)
+        },
+        "libevdev_has_event_type" : {
+            "argtypes" : (c_void_p, c_int),
+            "restype" : (c_int)
+        },
+        "libevdev_has_event_code" : {
+            "argtypes" : (c_void_p, c_int, c_int),
+            "restype" : (c_int)
+        },
         }
 
     def __init__(self, fd=None):
@@ -432,3 +447,31 @@ class Libevdev(_LibraryWrapper):
                  "fuzz" : absinfo.contents.fuzz,
                  "flat" : absinfo.contents.flat,
                  "flat" : absinfo.contents.resolution }
+
+    def has_property(self, prop):
+        """
+        :param prop: a property, either as integer or string
+        :return: True if the device has the property, False otherwise
+        """
+        if not isinstance(prop, int):
+            prop = self.property_value(prop)
+        r = self._has_property(self._ctx, prop)
+        return bool(r)
+
+    def has_event(self, event_type,  event_code=None):
+        """
+        :param event_type: the event type, either as integer or as string
+        :param event_code: optional, the event code, either as integer or as
+                           string
+        :return: True if the device has the type and/or code, False otherwise
+        """
+        if not isinstance(event_type, int):
+            event_type = self.event_value(event_type)
+
+        if event_code == None:
+            r = self._has_event_type(self._ctx, event_type)
+        else:
+            if not isinstance(event_code, int):
+                event_code = self.event_value(event_type, event_code)
+            r = self._has_event_code(self._ctx, event_type, event_code)
+        return bool(r)

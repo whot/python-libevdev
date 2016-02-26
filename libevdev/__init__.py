@@ -352,13 +352,13 @@ class Libevdev(_LibraryWrapper):
                  "version" : ver }
     @id.setter
     def id(self, vals):
-        if vals.has_key("bustype"):
+        if "bustype" in vals:
             self._set_id_bustype(self._ctx, vals["bustype"])
-        if vals.has_key("vendor"):
+        if "vendor" in vals:
             self._set_id_vendor(self._ctx, vals["vendor"])
-        if vals.has_key("product"):
+        if "product" in vals:
             self._set_id_product(self._ctx, vals["product"])
-        if vals.has_key("version"):
+        if "version" in vals:
             self._set_id_version(self._ctx, vals["version"])
 
     def set_clock_id(self, clock):
@@ -430,17 +430,17 @@ class Libevdev(_LibraryWrapper):
         """
         absinfo = self._get_abs_info(self._ctx, code)
         if new_values != None:
-            if new_values.has_key("minimum"):
+            if "minimum" in new_values:
                 absinfo.contents.minimum = new_values["minimum"]
-            if new_values.has_key("maximum"):
+            if "maximum" in new_values:
                 absinfo.contents.maximum = new_values["maximum"]
-            if new_values.has_key("value"):
+            if "value" in new_values:
                 absinfo.contents.value = new_values["value"]
-            if new_values.has_key("fuzz"):
+            if "fuzz" in new_values:
                 absinfo.contents.fuzz = new_values["fuzz"]
-            if new_values.has_key("flat"):
+            if "flat" in new_values:
                 absinfo.contents.flat = new_values["flat"]
-            if new_values.has_key("resolution"):
+            if "resolution" in new_values:
                 absinfo.contents.resolution = new_values["resolution"]
 
             if kernel:

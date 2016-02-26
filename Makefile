@@ -1,7 +1,10 @@
-all: doc
+all: doc test
 
 doc:
 	sphinx-apidoc -f -o doc/source libevdev
 	sphinx-build -b html doc/source doc/html
 
-.PHONY: doc
+test:
+	PYTHONPATH=. python -m unittest test
+
+.PHONY: doc test

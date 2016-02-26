@@ -181,6 +181,75 @@ class TestLibevdevDevice(unittest.TestCase):
         self.assertEqual(id["product"], 3)
         self.assertEqual(id["version"], 5)
 
+class TestRealDevice(unittest.TestCase):
+    """
+    Tests various things against /dev/input/event3 which is usually the
+    keyboard. Requires root rights though.
+    """
+    def __init__(self, arg):
+        super(TestRealDevice, self).__init__(arg)
+        self.fd = open("/dev/input/event3")
+
+    def test_set_fd(self):
+        l = Libevdev()
+        l.fd = self.fd
+        fd = l.fd
+        self.assertEqual(self.fd, fd)
+
+        fd2 = open("/dev/input/event3")
+        l.fd = fd2
+        fd = l.fd
+        self.assertEqual(fd, fd2)
+
+    def test_init_fd(self):
+        l = Libevdev(self.fd)
+        fd = l.fd
+        self.assertEqual(self.fd, fd)
+
+        fd2 = open("/dev/input/event3")
+        l.fd = fd2
+        fd = l.fd
+        self.assertEqual(fd, fd2)
+
+    def test_ids(self):
+        l = Libevdev(self.fd)
+        id = l.id
+        self.assertNotEqual(id["bustype"], 0)
+        self.assertNotEqual(id["vendor"], 0)
+        self.assertNotEqual(id["product"], 0)
+        self.assertNotEqual(id["version"], 0)
+
+    def test_name(self):
+        l = Libevdev(self.fd)
+        name = l.name
+        self.assertNotEqual(name, "")
+
+    def test_driver_version(self):
+        l = Libevdev(self.fd)
+        v = l.driver_version
+        self.assertEqual(v, 0x010001)
+
+    def test_set_clock_id(self):
+        l = Libevdev(self.fd)
+        try:
+            import time
+            clock = time.CLOCK_MONOTONIC
+        except AttributeError:
+            clock = 1
+        rc = l.set_clock_id(clock)
+        self.assertEqual(rc, 0)
+
+    def test_grab(self):
+        l = Libevdev(self.fd)
+        rc = l.grab()
+        self.assertEqual(rc, 0)
+
+        rc = l.grab(False)
+        self.assertEqual(rc, 0)
+
+        rc = l.grab(True)
+        self.assertEqual(rc, 0)
+
 if __name__ == '__main__':
     unittest.main()
 

@@ -188,9 +188,11 @@ class TestRealDevice(unittest.TestCase):
     Tests various things against /dev/input/event3 which is usually the
     keyboard. Requires root rights though.
     """
-    def __init__(self, arg):
-        super(TestRealDevice, self).__init__(arg)
-        self.fd = open("/dev/input/event3")
+    def setUp(self):
+        self.fd = open("/dev/input/event3", "rb")
+
+    def tearDown(self):
+        self.fd.close()
 
     def test_set_fd(self):
         l = Libevdev()
@@ -198,20 +200,22 @@ class TestRealDevice(unittest.TestCase):
         fd = l.fd
         self.assertEqual(self.fd, fd)
 
-        fd2 = open("/dev/input/event3")
+        fd2 = open("/dev/input/event3", "rb")
         l.fd = fd2
         fd = l.fd
         self.assertEqual(fd, fd2)
+        fd2.close()
 
     def test_init_fd(self):
         l = Libevdev(self.fd)
         fd = l.fd
         self.assertEqual(self.fd, fd)
 
-        fd2 = open("/dev/input/event3")
+        fd2 = open("/dev/input/event3", "rb")
         l.fd = fd2
         fd = l.fd
         self.assertEqual(fd, fd2)
+        fd2.close()
 
     def test_ids(self):
         l = Libevdev(self.fd)

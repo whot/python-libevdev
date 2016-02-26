@@ -1,0 +1,5 @@
+doc/html/
+doc/source/libevdev.rst
+doc/source/modules.rst
+*.swp
+*.pyc

@@ -23,6 +23,14 @@
 import ctypes
 from ctypes import c_char_p, c_int, c_uint, c_void_p, c_long, c_int32, c_uint16
 
+class _InputAbsinfo(ctypes.Structure):
+    _fields_ = [("value", c_int32),
+                ("minimum", c_int32),
+                ("maximum", c_int32),
+                ("fuzz", c_int32),
+                ("flat", c_int32),
+                ("resolution", c_int32)]
+
 class _LibraryWrapper(object):
     """
     Base class for wrapping a shared library. Do not use directly.
@@ -226,6 +234,19 @@ class Libevdev(_LibraryWrapper):
             "argtypes" : (c_void_p, c_int),
             "restype" : c_int,
         },
+        # const struct input_absinfo *libevdev_get_abs_info(struct libevdev*,  int code)
+        "libevdev_get_abs_info" : {
+            "argtypes" : (c_void_p, c_int),
+            "restype" : ctypes.POINTER(_InputAbsinfo),
+        },
+        # We don't need to wrap libevdev_set_abs_info(), we get the same
+        # using get_abs_info and overwrite the values.
+        #
+        # const struct input_absinfo *libevdev_get_abs_info(struct libevdev*,  int code)
+        "libevdev_kernel_set_abs_info" : {
+            "argtypes" : (c_void_p, ctypes.POINTER(_InputAbsinfo)),
+            "restype" : (c_int)
+        },
         }
 
     def __init__(self, fd=None):
@@ -369,3 +390,45 @@ class Libevdev(_LibraryWrapper):
             mode = 4
         r = self._grab(self._ctx, mode)
         return r
+
+    def absinfo(self, code, new_values=None, kernel=False):
+        """
+        :param new_values: a dict with the same keys as the return values.
+        :param kernel: If true, assigning new values corresponds to ``libevdev_kernel_set_abs_info``
+        :return: a dictionary with the keys "value", "min", "max",
+                 "resolution", "fuzz", "flat"; ``None`` if the code does not exist on
+                 this device
+
+        :note: The returned value is a copy of the value returned by
+               libevdev. Changing a value in the dictionary does not change the
+               matching property. To change the device, reassign the
+               dictionary to the absinfo code.
+               This is different to the libevdev behavior.
+        """
+        absinfo = self._get_abs_info(self._ctx, code)
+        if new_values != None:
+            if new_values.has_key("minimum"):
+                absinfo.contents.minimum = new_values["minimum"]
+            if new_values.has_key("maximum"):
+                absinfo.contents.maximum = new_values["maximum"]
+            if new_values.has_key("value"):
+                absinfo.contents.value = new_values["value"]
+            if new_values.has_key("fuzz"):
+                absinfo.contents.fuzz = new_values["fuzz"]
+            if new_values.has_key("flat"):
+                absinfo.contents.flat = new_values["flat"]
+            if new_values.has_key("resolution"):
+                absinfo.contents.resolution = new_values["resolution"]
+
+            if kernel:
+                self._kernel_set_abs_info(self._ctx, absinfo)
+
+        if not absinfo:
+            return None
+
+        return { "value" : absinfo.contents.value,
+                 "minimum" : absinfo.contents.minimum,
+                 "maximum" : absinfo.contents.maximum,
+                 "fuzz" : absinfo.contents.fuzz,
+                 "flat" : absinfo.contents.flat,
+                 "flat" : absinfo.contents.resolution }

@@ -291,6 +291,8 @@ class Libevdev(_LibraryWrapper):
 
     @name.setter
     def name(self, name):
+        if name == None:
+            name = ''
         return self._set_name(self._ctx, name)
 
     @property
@@ -302,6 +304,9 @@ class Libevdev(_LibraryWrapper):
 
     @phys.setter
     def phys(self, phys):
+        # libevdev issue: phys may be NULL, but can't be set to NULL
+        if phys == None:
+            phys = ''
         return self._set_phys(self._ctx, phys)
 
     @property
@@ -313,6 +318,9 @@ class Libevdev(_LibraryWrapper):
 
     @uniq.setter
     def uniq(self, uniq):
+        # libevdev issue: uniq may be NULL, but can't be set to NULL
+        if uniq == None:
+            uniq = ''
         return self._set_uniq(self._ctx, uniq)
 
     @property

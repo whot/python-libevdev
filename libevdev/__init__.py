@@ -448,6 +448,68 @@ class Libevdev(_LibraryWrapper):
                  "flat" : absinfo.contents.flat,
                  "flat" : absinfo.contents.resolution }
 
+    def property_name(self, prop):
+        """
+        :param prop: the numerical property value
+        :returns: A string with the property name or None
+
+        This function is the equivalent to ``libevdev_property_get_name()``
+        """
+        name = self._property_get_name(prop)
+        if not name:
+            return None
+        return name
+
+    def property_value(self, prop):
+        """
+        :param prop: the property name as string
+        :returns: The numerical property value or None
+
+        This function is the equivalent to ``libevdev_property_from_name()``
+        """
+        v = self._property_from_name(prop)
+        if v == -1:
+            return None
+        return v
+
+    def event_name(self, event_type, event_code=None):
+        """
+        :param event_type: the numerical event type value
+        :param event_code: optional, the numerical event code value
+        :return: the event code name if a code is given otherwise the event
+                 type name.
+
+        This function is the equivalent to ``libevdev_event_code_get_name()``
+        and ``libevdev_event_type_get_name()``
+        """
+        if event_code != None:
+            name = self._event_code_get_name(event_type, event_code)
+        else:
+            name = self._event_type_get_name(event_type)
+        if not name:
+            return None
+        return name
+
+    def event_value(self, event_type, event_code=None):
+        """
+        :param event_type: the event type as string
+        :param event_code: optional, the event code as string
+        :return: the event code value if a code is given otherwise the event
+                 type value.
+
+        This function is the equivalent to ``libevdev_event_code_from_name()``
+        and ``libevdev_event_type_from_name()``
+        """
+        if event_code != None:
+            if not isinstance(event_type, int):
+                event_type = self.event_value(event_type)
+            v = self._event_code_from_name(event_type, event_code)
+        else:
+            v = self._event_type_from_name(event_type)
+        if v == -1:
+            return None
+        return v
+
     def has_property(self, prop):
         """
         :param prop: a property, either as integer or string

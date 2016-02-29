@@ -376,6 +376,28 @@ class TestAbsDevice(unittest.TestCase):
         v = l.event_value(0x03, 0x600, new_value=300)
         self.assertIsNone(v)
 
+    def test_enable_event_code(self):
+        l = Libevdev(self.fd)
+
+        self.assertFalse(l.has_event("EV_REL", "REL_RY"))
+        l.enable("EV_REL", "REL_RY")
+        self.assertTrue(l.has_event("EV_REL", "REL_RY"))
+        l.disable("EV_REL", "REL_RY")
+        self.assertFalse(l.has_event("EV_REL", "REL_RY"))
+
+        data = { "minimum" : 100,
+                 "maximum" : 200,
+                 "value" : 300,
+                 "fuzz" : 400,
+                 "flat" : 500,
+                 "resolution" : 600 }
+        self.assertFalse(l.has_event("EV_ABS", "ABS_RY"))
+        l.enable("EV_ABS", "ABS_RY", data)
+        self.assertTrue(l.has_event("EV_ABS", "ABS_RY"))
+        l.disable("EV_ABS", "ABS_RY")
+        self.assertFalse(l.has_event("EV_ABS", "ABS_RY"))
+
+
 if __name__ == '__main__':
     unittest.main()
 

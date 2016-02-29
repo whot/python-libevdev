@@ -273,6 +273,22 @@ class Libevdev(_LibraryWrapper):
             "argtypes" : (c_void_p, c_int, c_int),
             "restype" : (c_int),
         },
+        "libevdev_enable_event_type" : {
+            "argtypes" : (c_void_p, c_int),
+            "restype" : (c_int),
+        },
+        "libevdev_enable_event_code" : {
+            "argtypes" : (c_void_p, c_int, c_int, c_void_p),
+            "restype" : (c_int),
+        },
+        "libevdev_disable_event_type" : {
+            "argtypes" : (c_void_p, c_int),
+            "restype" : (c_int),
+        },
+        "libevdev_disable_event_code" : {
+            "argtypes" : (c_void_p, c_int, c_int),
+            "restype" : (c_int),
+        },
         }
 
     def __init__(self, fd=None):
@@ -580,7 +596,7 @@ class Libevdev(_LibraryWrapper):
         """
         if not isinstance(t, int):
             t = self.event_to_value(t)
-        if not isinstance(c, int):
+        if c is not None and not isinstance(c, int):
             c = self.event_to_value(t, c)
         return (t, c)
 
@@ -602,3 +618,38 @@ class Libevdev(_LibraryWrapper):
 
         v = self._get_event_value(self._ctx, t, c)
         return v
+
+    def enable(self, event_type, event_code = None, data = None):
+        """
+        :param event_type: the event type, either as integer or as string
+        :param event_code: optional, the event code, either as integer or as string
+        :param data: if event_code is not None, data points to the
+                     code-specific information.
+
+        If event_type is EV_ABS, then data must be a dictionary as returned
+        from absinfo. If event_type is EV_REP, then data must be an integer.
+        """
+        t, c = self._code(event_type, event_code)
+        if c is None:
+            self._enable_event_type(self._ctx, t)
+        else:
+            if t == 0x03: # EV_ABS
+                data = _InputAbsinfo(data["value"], \
+                                     data["minimum"], data["maximum"], \
+                                     data["fuzz"], data["flat"], \
+                                     data["resolution"])
+                data = ctypes.pointer(data)
+            elif t == 0x14: #EV_REP
+                data = ctypes.pointer(data)
+            self._enable_event_code(self._ctx, t, c, data)
+
+    def disable(self, event_type, event_code = None):
+        """
+        :param event_type: the event type, either as integer or as string
+        :param event_code: optional, the event code, either as integer or as string
+        """
+        t, c = self._code(event_type, event_code)
+        if c is None:
+            self._disable_event_type(self._ctx, t)
+        else:
+            self._disable_event_code(self._ctx, t, c)

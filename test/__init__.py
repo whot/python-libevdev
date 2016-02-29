@@ -360,6 +360,22 @@ class TestAbsDevice(unittest.TestCase):
         # FIXME: yeah, nah, not testing that on a random device...
         pass
 
+    def test_get_set_event_value(self):
+        l = Libevdev(self.fd)
+        v = l.event_value("EV_ABS", "ABS_Y")
+        self.assertIsNotNone(v)
+        v = l.event_value(0x03, 0x01, new_value=300)
+        self.assertEqual(v, 300)
+        v = l.event_value(0x03, 0x01)
+        self.assertEqual(v, 300)
+
+    def test_get_set_event_value_invalid(self):
+        l = Libevdev(self.fd)
+        v = l.event_value("EV_ABS", 0x600)
+        self.assertIsNone(v)
+        v = l.event_value(0x03, 0x600, new_value=300)
+        self.assertIsNone(v)
+
 if __name__ == '__main__':
     unittest.main()
 

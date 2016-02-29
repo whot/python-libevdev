@@ -262,6 +262,17 @@ class Libevdev(_LibraryWrapper):
             "argtypes" : (c_void_p, c_int, c_int),
             "restype" : (c_int)
         },
+        ##########################
+        # Other functions        #
+        ##########################
+        "libevdev_set_event_value" : {
+            "argtypes" : (c_void_p, c_int, c_int, c_int),
+            "restype" : (c_int)
+        },
+        "libevdev_get_event_value" : {
+            "argtypes" : (c_void_p, c_int, c_int),
+            "restype" : (c_int),
+        },
         }
 
     def __init__(self, fd=None):
@@ -561,3 +572,33 @@ class Libevdev(_LibraryWrapper):
                 event_code = self.event_to_value(event_type, event_code)
             r = self._has_event_code(self._ctx, event_type, event_code)
         return bool(r)
+
+    def _code(self, t, c):
+        """
+        Resolves a type+code tuple, either of which could be integer or
+        string. Returns a (t, c) tuple in integers
+        """
+        if not isinstance(t, int):
+            t = self.event_to_value(t)
+        if not isinstance(c, int):
+            c = self.event_to_value(t, c)
+        return (t, c)
+
+    def event_value(self, event_type, event_code, new_value=None):
+        """
+        :param event_type: the event type, either as integer or as string
+        :param event_code: the event code, either as integer or as string
+        :param new_value: optional, the value to set to
+        :return: the current value of type + code, or None if it doesn't
+                 exist on this device
+        """
+        t, c = self._code(event_type, event_code)
+
+        if not self.has_event(t, c):
+            return None
+
+        if new_value != None:
+            self._set_event_value(self._ctx, t, c, new_value)
+
+        v = self._get_event_value(self._ctx, t, c)
+        return v

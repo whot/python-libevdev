@@ -466,7 +466,7 @@ class Libevdev(_LibraryWrapper):
                  "maximum" : absinfo.contents.maximum,
                  "fuzz" : absinfo.contents.fuzz,
                  "flat" : absinfo.contents.flat,
-                 "flat" : absinfo.contents.resolution }
+                 "resolution" : absinfo.contents.resolution }
 
     @classmethod
     def property_name(cls, prop):

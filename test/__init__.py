@@ -9,89 +9,79 @@ from libevdev import *
 
 class TestNameConversion(unittest.TestCase):
     def test_prop_name(self):
-        l = Libevdev()
-        name = l.property_name(0)
+        name = Libevdev.property_name(0)
         self.assertEqual(name, "INPUT_PROP_POINTER")
 
         prevname = None
         for i in range(0, 5):
-            name = l.property_name(i)
+            name = Libevdev.property_name(i)
             self.assertIsNotNone(name)
             self.assertTrue(name.startswith("INPUT_PROP_"))
             self.assertNotEqual(prevname, name)
             prevname = name
 
     def test_prop_name_invalid(self):
-        l = Libevdev()
-        name = l.property_name(-1)
+        name = Libevdev.property_name(-1)
         self.assertIsNone(name)
-        name = l.property_name(100)
+        name = Libevdev.property_name(100)
         self.assertIsNone(name)
         with self.assertRaises(ctypes.ArgumentError):
-            name = l.property_name("foo")
+            name = Libevdev.property_name("foo")
 
     def test_type_name(self):
-        l = Libevdev()
-        name = l.event_name(1)
+        name = Libevdev.event_name(1)
         self.assertEqual(name, "EV_KEY")
 
         prevname = None
         for i in range(0, 5):
-            name = l.event_name(i)
+            name = Libevdev.event_name(i)
             self.assertIsNotNone(name)
             self.assertTrue(name.startswith("EV_"))
             self.assertNotEqual(prevname, name)
             prename = name
 
     def test_type_name_invalid(self):
-        l = Libevdev()
-        name = l.event_name(-1)
+        name = Libevdev.event_name(-1)
         self.assertIsNone(name)
-        name = l.event_name(100)
+        name = Libevdev.event_name(100)
         self.assertIsNone(name)
         with self.assertRaises(ctypes.ArgumentError):
-            name = l.event_name("foo")
+            name = Libevdev.event_name("foo")
 
     def test_code_name(self):
-        l = Libevdev()
-        name = l.event_name(0, 0)
+        name = Libevdev.event_name(0, 0)
         self.assertEqual(name, "SYN_REPORT")
 
-        name = l.event_name(1, 1)
+        name = Libevdev.event_name(1, 1)
         self.assertEqual(name, "KEY_ESC")
 
     def test_code_name_invalid(self):
-        l = Libevdev()
-        name = l.event_name(0, 1000)
+        name = Libevdev.event_name(0, 1000)
         self.assertIsNone(name)
-        name = l.event_name(0, -1)
+        name = Libevdev.event_name(0, -1)
         self.assertIsNone(name)
         with self.assertRaises(ctypes.ArgumentError):
-            name = l.event_name(0, "foo")
+            name = Libevdev.event_name(0, "foo")
 
     def test_type_value(self):
-        l = Libevdev()
-        v = l.event_value("EV_REL")
+        v = Libevdev.event_value("EV_REL")
         self.assertEqual(v, 2)
 
     def test_type_value_invalid(self):
-        l = Libevdev()
-        v = l.event_value("foo")
+        v = Libevdev.event_value("foo")
         self.assertIsNone(v)
         with self.assertRaises(AttributeError):
-            v = l.event_value(0)
+            v = Libevdev.event_value(0)
 
     def test_code_value(self):
-        l = Libevdev()
-        v = l.event_value("EV_REL", "REL_Y")
+        v = Libevdev.event_value("EV_REL", "REL_Y")
         self.assertEqual(v, 1)
 
-        v = l.event_value(0, "SYN_DROPPED")
+        v = Libevdev.event_value(0, "SYN_DROPPED")
         self.assertEqual(v, 3)
 
     def test_code_value_invalid(self):
-        l = Libevdev()
-        v = l.event_value("EV_REL", "KEY_ESC")
+        v = Libevdev.event_value("EV_REL", "KEY_ESC")
         self.assertIsNone(v)
 
 

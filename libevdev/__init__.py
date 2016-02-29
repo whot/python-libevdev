@@ -462,31 +462,34 @@ class Libevdev(_LibraryWrapper):
                  "flat" : absinfo.contents.flat,
                  "flat" : absinfo.contents.resolution }
 
-    def property_name(self, prop):
+    @classmethod
+    def property_name(cls, prop):
         """
         :param prop: the numerical property value
         :returns: A string with the property name or None
 
         This function is the equivalent to ``libevdev_property_get_name()``
         """
-        name = self._property_get_name(prop)
+        name = cls._property_get_name(prop)
         if not name:
             return None
         return name.decode("iso8859-1")
 
-    def property_value(self, prop):
+    @classmethod
+    def property_value(cls, prop):
         """
         :param prop: the property name as string
         :returns: The numerical property value or None
 
         This function is the equivalent to ``libevdev_property_from_name()``
         """
-        v = self._property_from_name(prop)
+        v = cls._property_from_name(prop)
         if v == -1:
             return None
         return v
 
-    def event_name(self, event_type, event_code=None):
+    @classmethod
+    def event_name(cls, event_type, event_code=None):
         """
         :param event_type: the numerical event type value
         :param event_code: optional, the numerical event code value
@@ -497,14 +500,15 @@ class Libevdev(_LibraryWrapper):
         and ``libevdev_event_type_get_name()``
         """
         if event_code != None:
-            name = self._event_code_get_name(event_type, event_code)
+            name = cls._event_code_get_name(event_type, event_code)
         else:
-            name = self._event_type_get_name(event_type)
+            name = cls._event_type_get_name(event_type)
         if not name:
             return None
         return name.decode("iso8859-1")
 
-    def event_value(self, event_type, event_code=None):
+    @classmethod
+    def event_value(cls, event_type, event_code=None):
         """
         :param event_type: the event type as string
         :param event_code: optional, the event code as string
@@ -516,10 +520,10 @@ class Libevdev(_LibraryWrapper):
         """
         if event_code != None:
             if not isinstance(event_type, int):
-                event_type = self.event_value(event_type)
-            v = self._event_code_from_name(event_type, event_code.encode("iso8859-1"))
+                event_type = cls.event_value(event_type)
+            v = cls._event_code_from_name(event_type, event_code.encode("iso8859-1"))
         else:
-            v = self._event_type_from_name(event_type.encode("iso8859-1"))
+            v = cls._event_type_from_name(event_type.encode("iso8859-1"))
         if v == -1:
             return None
         return v

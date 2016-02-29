@@ -285,6 +285,81 @@ class TestRealDevice(unittest.TestCase):
                 pass
         self.assertGreater(props_supported, 0)
 
+class TestAbsDevice(unittest.TestCase):
+    """
+    Tests various things against the first device with EV_ABS.
+    We're relying on that this device has ABS_Y, this tests against a code
+    that's nonzero and is the most common ABS anyway.
+    Requires root rights.
+    """
+    def setUp(self):
+        want_fd = None
+        for i in range(0, 20):
+            try:
+                fd = open("/dev/input/event{}".format(i), "rb")
+                l = Libevdev(fd)
+                if l.has_event("EV_ABS", "ABS_Y"):
+                    want_fd = fd
+                    break
+                fd.close()
+            except IOError:
+                # Not all eventX nodes are guaranteed to exist
+                pass
+
+        self.assertIsNotNone(want_fd)
+        self.fd = want_fd
+
+    def tearDown(self):
+        self.fd.close()
+
+    def test_absinfo(self):
+        l = Libevdev(self.fd)
+        a = l.absinfo("ABS_Y")
+        self.assertTrue("minimum" in a)
+        self.assertTrue("maximum" in a)
+        self.assertTrue("resolution" in a)
+        self.assertTrue("fuzz" in a)
+        self.assertTrue("flat" in a)
+        self.assertTrue("value" in a)
+
+    def test_set_absinfo(self):
+        l = Libevdev(self.fd)
+        real_a = l.absinfo("ABS_Y")
+        a = l.absinfo("ABS_Y")
+        a["minimum"] = 100
+        a["maximum"] = 200
+        a["fuzz"] = 300
+        a["flat"] = 400
+        a["resolution"] = 500
+        a["value"] = 600
+
+        a = l.absinfo("ABS_Y", new_values=a)
+        self.assertEqual(a["minimum"], 100)
+        self.assertEqual(a["maximum"], 200)
+        self.assertEqual(a["fuzz"], 300)
+        self.assertEqual(a["flat"], 400)
+        self.assertEqual(a["resolution"], 500)
+        self.assertEqual(a["value"], 600)
+
+        l2 = Libevdev(self.fd)
+        a2 = l2.absinfo("ABS_Y")
+        self.assertNotEqual(a["minimum"], real_a["minimum"])
+        self.assertNotEqual(a["maximum"], real_a["maximum"])
+        self.assertNotEqual(a["fuzz"], real_a["fuzz"])
+        self.assertNotEqual(a["flat"], real_a["flat"])
+        self.assertNotEqual(a["resolution"], real_a["resolution"])
+        self.assertEqual(a2["value"], real_a["value"])
+        self.assertEqual(a2["minimum"], real_a["minimum"])
+        self.assertEqual(a2["maximum"], real_a["maximum"])
+        self.assertEqual(a2["fuzz"], real_a["fuzz"])
+        self.assertEqual(a2["flat"], real_a["flat"])
+        self.assertEqual(a2["resolution"], real_a["resolution"])
+        self.assertEqual(a2["value"], real_a["value"])
+
+    def test_set_absinfo_kernel(self):
+        # FIXME: yeah, nah, not testing that on a random device...
+        pass
+
 if __name__ == '__main__':
     unittest.main()
 

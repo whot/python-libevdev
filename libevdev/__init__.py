@@ -653,3 +653,12 @@ class Libevdev(_LibraryWrapper):
             self._disable_event_type(self._ctx, t)
         else:
             self._disable_event_code(self._ctx, t, c)
+
+    def set_led(self, led, on):
+        """
+        :param led: the LED_<*> name
+        :on: True to turn the LED on, False to turn it off
+        """
+        t, c = self._code("EV_LED", led)
+        which = 3 if on else 4
+        self._set_led_value(self._ctx, c, which)

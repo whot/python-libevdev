@@ -439,7 +439,7 @@ class Libevdev(_LibraryWrapper):
             if not code.startswith("ABS_"):
                 # FIXME: throw an exception here
                 return None
-            code = self.event_value("EV_ABS", code)
+            code = self.event_to_value("EV_ABS", code)
         absinfo = self._get_abs_info(self._ctx, code)
         if new_values != None:
             if "minimum" in new_values:
@@ -469,7 +469,7 @@ class Libevdev(_LibraryWrapper):
                  "resolution" : absinfo.contents.resolution }
 
     @classmethod
-    def property_name(cls, prop):
+    def property_to_name(cls, prop):
         """
         :param prop: the numerical property value
         :returns: A string with the property name or None
@@ -482,7 +482,7 @@ class Libevdev(_LibraryWrapper):
         return name.decode("iso8859-1")
 
     @classmethod
-    def property_value(cls, prop):
+    def property_to_value(cls, prop):
         """
         :param prop: the property name as string
         :returns: The numerical property value or None
@@ -495,7 +495,7 @@ class Libevdev(_LibraryWrapper):
         return v
 
     @classmethod
-    def event_name(cls, event_type, event_code=None):
+    def event_to_name(cls, event_type, event_code=None):
         """
         :param event_type: the numerical event type value
         :param event_code: optional, the numerical event code value
@@ -514,7 +514,7 @@ class Libevdev(_LibraryWrapper):
         return name.decode("iso8859-1")
 
     @classmethod
-    def event_value(cls, event_type, event_code=None):
+    def event_to_value(cls, event_type, event_code=None):
         """
         :param event_type: the event type as string
         :param event_code: optional, the event code as string
@@ -526,7 +526,7 @@ class Libevdev(_LibraryWrapper):
         """
         if event_code != None:
             if not isinstance(event_type, int):
-                event_type = cls.event_value(event_type)
+                event_type = cls.event_to_value(event_type)
             v = cls._event_code_from_name(event_type, event_code.encode("iso8859-1"))
         else:
             v = cls._event_type_from_name(event_type.encode("iso8859-1"))
@@ -552,12 +552,12 @@ class Libevdev(_LibraryWrapper):
         :return: True if the device has the type and/or code, False otherwise
         """
         if not isinstance(event_type, int):
-            event_type = self.event_value(event_type)
+            event_type = self.event_to_value(event_type)
 
         if event_code == None:
             r = self._has_event_type(self._ctx, event_type)
         else:
             if not isinstance(event_code, int):
-                event_code = self.event_value(event_type, event_code)
+                event_code = self.event_to_value(event_type, event_code)
             r = self._has_event_code(self._ctx, event_type, event_code)
         return bool(r)

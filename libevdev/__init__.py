@@ -422,6 +422,7 @@ class Libevdev(_LibraryWrapper):
 
     def absinfo(self, code, new_values=None, kernel=False):
         """
+        :param code: the ABS_<*> code as integer or as string
         :param new_values: a dict with the same keys as the return values.
         :param kernel: If true, assigning new values corresponds to ``libevdev_kernel_set_abs_info``
         :return: a dictionary with the keys "value", "min", "max",
@@ -434,6 +435,11 @@ class Libevdev(_LibraryWrapper):
                dictionary to the absinfo code.
                This is different to the libevdev behavior.
         """
+        if not isinstance(code, int):
+            if not code.startswith("ABS_"):
+                # FIXME: throw an exception here
+                return None
+            code = self.event_value("EV_ABS", code)
         absinfo = self._get_abs_info(self._ctx, code)
         if new_values != None:
             if "minimum" in new_values:

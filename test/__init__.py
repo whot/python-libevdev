@@ -246,6 +246,45 @@ class TestRealDevice(unittest.TestCase):
         rc = l.grab(True)
         self.assertEqual(rc, 0)
 
+    def test_has_event(self):
+        l = Libevdev(self.fd)
+        self.assertTrue(l.has_event("EV_SYN", "SYN_REPORT"))
+
+        type_supported = -1
+        for i in range(1, 5):
+            if l.has_event(i):
+                type_supported = i
+                break;
+
+        self.assertGreater(type_supported, 0)
+
+        codes_supported = 0
+        for i in range(0, 150):
+            if l.has_event(type_supported, i):
+                codes_supported += 1
+
+        self.assertGreater(codes_supported, 0)
+
+    def test_has_property(self):
+        """
+        Let's assume at least one between event0 and event10 is a device
+        with at least one property set. May cause false negatives.
+        """
+
+        props_supported = 0
+        for i in range(0, 10):
+            try:
+                with open("/dev/input/event{}".format(i), "rb") as fd:
+                    l = Libevdev(fd)
+
+                    for p in range(0, 6):
+                        if l.has_property(p):
+                            props_supported += 1
+            except IOError:
+                # Not all eventX nodes are guaranteed to exist
+                pass
+        self.assertGreater(props_supported, 0)
+
 if __name__ == '__main__':
     unittest.main()
 

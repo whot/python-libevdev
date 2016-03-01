@@ -91,8 +91,10 @@ class _LibraryWrapper(object):
 class Libevdev(_LibraryWrapper):
     """
     This class provides a wrapper around the libevdev C library.
+
     The API is modelled closely after the C API, use the C library
     documentation for details on the API.
+
     https://www.freedesktop.org/software/libevdev/doc/latest/
     """
 
@@ -306,6 +308,22 @@ class Libevdev(_LibraryWrapper):
             "argtypes" : (c_void_p, c_uint, ctypes.POINTER(_InputEvent)),
             "restype" : c_int,
         },
+        "libevdev_get_num_slots" : {
+            "argtypes" : (c_void_p,),
+            "restype" : c_int,
+        },
+        "libevdev_get_current_slot" : {
+            "argtypes" : (c_void_p,),
+            "restype" : c_int,
+        },
+        "libevdev_get_slot_value" : {
+            "argtypes" : (c_void_p, c_uint, c_uint),
+            "restype" : c_int,
+        },
+        "libevdev_set_slot_value" : {
+            "argtypes" : (c_void_p, c_uint, c_uint, c_int),
+            "restype" : c_int,
+        },
         }
 
     def __init__(self, fd=None):
@@ -516,7 +534,7 @@ class Libevdev(_LibraryWrapper):
     def property_to_name(cls, prop):
         """
         :param prop: the numerical property value
-        :returns: A string with the property name or None
+        :returns: A string with the property name or ``None``
 
         This function is the equivalent to ``libevdev_property_get_name()``
         """
@@ -529,7 +547,7 @@ class Libevdev(_LibraryWrapper):
     def property_to_value(cls, prop):
         """
         :param prop: the property name as string
-        :returns: The numerical property value or None
+        :returns: The numerical property value or ``None``
 
         This function is the equivalent to ``libevdev_property_from_name()``
         """
@@ -622,7 +640,7 @@ class Libevdev(_LibraryWrapper):
         :param event_type: the event type, either as integer or as string
         :param event_code: the event code, either as integer or as string
         :param new_value: optional, the value to set to
-        :return: the current value of type + code, or None if it doesn't
+        :return: the current value of type + code, or ``None`` if it doesn't
                  exist on this device
         """
         t, c = self._code(event_type, event_code)
@@ -636,11 +654,49 @@ class Libevdev(_LibraryWrapper):
         v = self._get_event_value(self._ctx, t, c)
         return v
 
+    @property
+    def num_slots(self):
+        """
+        :return: the number of slots on this device or ``None`` if this device
+                 does not support slots
+
+        :note: Read-only
+        """
+        s = self._get_num_slots(self._ctx)
+        return s if s >= 0 else None
+
+    @property
+    def current_slot(self):
+        """
+        :return: the current of slots on this device or ``None`` if this device
+                 does not support slots
+
+        :note: Read-only
+        """
+        s = self._get_current_slot(self._ctx)
+        return s if s >= 0 else None
+
+    def slot_value(self, slot, event_code, new_value = None):
+        """
+        :param slot: the numeric slot number
+        :param event_code: the ABS_<*> event code, either as integer or string
+        :param new_value: optional, the value to set this slot to
+        :return: the current value of the slot's code, or ``None`` if it doesn't
+                 exist on this device
+        """
+        t, c = self._code("EV_ABS", event_code)
+
+        if new_value is not None:
+            self._set_slot_value(self._ctx, slot, c, new_value)
+
+        v = self._get_slot_value(self._ctx, slot, c)
+        return v
+
     def enable(self, event_type, event_code = None, data = None):
         """
         :param event_type: the event type, either as integer or as string
         :param event_code: optional, the event code, either as integer or as string
-        :param data: if event_code is not None, data points to the
+        :param data: if event_code is not ``None``, data points to the
                      code-specific information.
 
         If event_type is EV_ABS, then data must be a dictionary as returned
@@ -684,7 +740,7 @@ class Libevdev(_LibraryWrapper):
         """
         :param flags: a set of libevdev read flags. May be omitted to use
                       the normal mode.
-        :return: the next event or None if no event is available
+        :return: the next event or ``None`` if no event is available
 
         If the event is the SYN_DROPPED picked up before a sync is need, the
         InputEvent.sync_needed returns true. Event processing should look

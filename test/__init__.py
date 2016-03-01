@@ -285,6 +285,13 @@ class TestRealDevice(unittest.TestCase):
                 pass
         self.assertGreater(props_supported, 0)
 
+    def test_num_slots(self):
+        """
+        Let's assume that our device doesn't have slots
+        """
+        l = Libevdev(self.fd)
+        self.assertIsNone(l.num_slots)
+
 class TestAbsDevice(unittest.TestCase):
     """
     Tests various things against the first device with EV_ABS.
@@ -397,6 +404,54 @@ class TestAbsDevice(unittest.TestCase):
         l.disable("EV_ABS", "ABS_RY")
         self.assertFalse(l.has_event("EV_ABS", "ABS_RY"))
 
+class TestMTDevice(unittest.TestCase):
+    """
+    Tests various things against the first MT device found.
+    Requires root rights.
+    """
+    def setUp(self):
+        want_fd = None
+        for i in range(0, 20):
+            try:
+                fd = open("/dev/input/event{}".format(i), "rb")
+                l = Libevdev(fd)
+                if l.num_slots is not None:
+                    want_fd = fd
+                    break
+                fd.close()
+            except IOError:
+                # Not all eventX nodes are guaranteed to exist
+                pass
+
+        self.assertIsNotNone(want_fd)
+        self.fd = want_fd
+
+    def tearDown(self):
+        self.fd.close()
+
+    def test_num_slots(self):
+        l = Libevdev(self.fd)
+        self.assertGreater(l.num_slots, 0)
+
+    def test_current_slot(self):
+        l = Libevdev(self.fd)
+        self.assertGreaterEqual(l.current_slot, 0)
+
+    def test_slot_value(self):
+        l = Libevdev(self.fd)
+        a = l.absinfo("ABS_MT_POSITION_X")
+        v = l.slot_value(l.current_slot, "ABS_MT_POSITION_X")
+        self.assertLessEqual(a["minimum"], v)
+        self.assertGreaterEqual(a["maximum"], v)
+
+    def test_set_slot_value(self):
+        l = Libevdev(self.fd)
+        v = l.slot_value(l.current_slot, "ABS_MT_POSITION_X")
+        v += 10
+        v2 = l.slot_value(l.current_slot, "ABS_MT_POSITION_X", v)
+        self.assertEqual(v, v2)
+        v2 = l.slot_value(l.current_slot, "ABS_MT_POSITION_X")
+        self.assertEqual(v, v2)
 
 if __name__ == '__main__':
     unittest.main()

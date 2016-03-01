@@ -8,6 +8,12 @@ from libevdev import *
 # correctly
 
 class TestNameConversion(unittest.TestCase):
+    def test_type_max(self):
+        for t in ["REL", "ABS"]:
+            c = Libevdev.event_to_value("EV_{}".format(t), "{}_MAX".format(t))
+            max = Libevdev.type_max("EV_{}".format(t))
+            self.assertEqual(c, max)
+
     def test_prop_name(self):
         name = Libevdev.property_to_name(0)
         self.assertEqual(name, "INPUT_PROP_POINTER")

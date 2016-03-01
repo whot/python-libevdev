@@ -136,6 +136,11 @@ class Libevdev(_LibraryWrapper):
             "argtypes": (c_char_p,),
             "restype": c_int
             },
+        #void libevdev_event_type_get_max(int)
+        "libevdev_event_type_get_max": {
+            "argtypes": (c_int, ),
+            "restype": c_int,
+            },
         #struct libevdev *libevdev_new(void);
         "libevdev_new": {
             "argtypes": (),
@@ -581,6 +586,18 @@ class Libevdev(_LibraryWrapper):
         if v == -1:
             return None
         return v
+
+    @classmethod
+    def type_max(cls, type):
+        """
+        :param type: the EV_<*> event type
+        :return: the maximum code for this type or ``None`` if the type is
+                 invalid
+        """
+        if not isinstance(type, int):
+            type = cls.event_to_value(type)
+        m =  cls._event_type_get_max(type)
+        return m if m > -1 else None
 
     @classmethod
     def event_to_name(cls, event_type, event_code=None):

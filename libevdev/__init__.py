@@ -21,7 +21,13 @@
 # DEALINGS IN THE SOFTWARE.
 
 import ctypes
+import errno
 from ctypes import c_char_p, c_int, c_uint, c_void_p, c_long, c_int32, c_uint16
+
+READ_FLAG_SYNC = 0x1
+READ_FLAG_NORMAL = 0x2
+READ_FLAG_FORCE_SYNC = 0x4
+READ_FLAG_BLOCKING = 0x8
 
 class _InputAbsinfo(ctypes.Structure):
     _fields_ = [("value", c_int32),
@@ -30,6 +36,13 @@ class _InputAbsinfo(ctypes.Structure):
                 ("fuzz", c_int32),
                 ("flat", c_int32),
                 ("resolution", c_int32)]
+
+class _InputEvent(ctypes.Structure):
+    _fields_ = [("sec", c_long),
+                ("usec", c_long),
+                ("type", c_uint16),
+                ("code", c_uint16),
+                ("value", c_int32)]
 
 class _LibraryWrapper(object):
     """
@@ -288,6 +301,10 @@ class Libevdev(_LibraryWrapper):
         "libevdev_disable_event_code" : {
             "argtypes" : (c_void_p, c_int, c_int),
             "restype" : (c_int),
+        },
+        "libevdev_next_event" : {
+            "argtypes" : (c_void_p, c_uint, ctypes.POINTER(_InputEvent)),
+            "restype" : c_int,
         },
         }
 
@@ -662,3 +679,77 @@ class Libevdev(_LibraryWrapper):
         t, c = self._code("EV_LED", led)
         which = 3 if on else 4
         self._set_led_value(self._ctx, c, which)
+
+    def next_event(self, flags = READ_FLAG_NORMAL):
+        """
+        :param flags: a set of libevdev read flags. May be omitted to use
+                      the normal mode.
+        :return: the next event or None if no event is available
+
+        If the event is the SYN_DROPPED picked up before a sync is need, the
+        InputEvent.sync_needed returns true. Event processing should look
+        like this::
+
+            fd = open("/dev/input/event0", "rb")
+            ctx = libevdev.Libevdev(fd)
+            ev = ctx.next_event()
+            if ev is None:
+                print("no event available right now")
+            elif ev.sync_needed:
+                print("This is a SYN_DROPPED event")
+                sync_ev = ctx.next_event(libevdev.READ_FLAG_SYNC)
+                while ev is not None:
+                    print("First event in sync sequence")
+                    sync_ev = ctx.next_event(libevdev.READ_FLAG_SYNC)
+                print("sync complete")
+
+        """
+        ev = _InputEvent()
+        rc = self._next_event(self._ctx, flags, ctypes.byref(ev))
+        if rc < -errno.EAGAIN:
+            return None
+
+        e = InputEvent(ev.sec, ev.usec, ev.type, ev.code, ev.value)
+        if rc == 1: # READ_STATUS_SYNC
+            assert(e.sync_needed)
+        return e
+
+class InputEvent(object):
+    """
+    Represents one input event of type struct input_event as defined in
+    linux/input.h and returned by libevdev_next_event().
+    """
+    def __init__(self, sec, usec, type, code, value):
+        self.sec = sec
+        self.usec = usec
+        self.type = type
+        self.code = code
+        self.value = value;
+
+    def matches(self, type, code = None):
+        """
+        :param type: the event type, one of EV_<*> as string or integer
+        :param code: optional, the event code as string or integer
+        :return: True if the type matches this event's type and this event's
+                 code matches the given code (if any)
+        """
+        if not isinstance(type, int):
+            type = Libevdev.event_to_value(type)
+
+        if type != self.type:
+            return False
+        elif code is None:
+            return True
+
+        if not isinstance(code, int):
+            code = Libevdev.event_to_value(type, code)
+
+        return code == self.code
+
+    @property
+    def sync_needed(self):
+        """
+        :return: True if this event is a SYN_DROPPED event and the caller
+                 should sync the device.
+        """
+        return self.matches("EV_SYN", "SYN_DROPPED")

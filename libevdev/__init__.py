@@ -852,3 +852,17 @@ class InputEvent(object):
                  should sync the device.
         """
         return self.matches("EV_SYN", "SYN_DROPPED")
+
+    @property
+    def type_name(self):
+        """
+        :return: The type name as string
+        """
+        return Libevdev.event_to_name(self.type)
+
+    @property
+    def code_name(self):
+        """
+        :return: The code name as string
+        """
+        return Libevdev.event_to_name(self.type, self.code)

@@ -29,3 +29,12 @@ libevdev-python is licensed under the MIT license.
 
 See the [COPYING](http://github.com/whot/libevdev-python/blob/master/COPYING)
 file for the full license information.
+
+TODO
+----
+
+* logging hooks and logging priority
+* all the uinput stuff
+* libevdev_has_event_pending
+* libevdev_get_repeat
+* error handling is almost nonexistent

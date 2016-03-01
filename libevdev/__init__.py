@@ -92,10 +92,13 @@ class Libevdev(_LibraryWrapper):
     """
     This class provides a wrapper around the libevdev C library.
 
-    The API is modelled closely after the C API, use the C library
-    documentation for details on the API.
+    The API is modelled closely after the C API. API documentation in this
+    document only lists the specific behavior of the Phython API. For
+    information on the behavior of libevdev itself, see
 
     https://www.freedesktop.org/software/libevdev/doc/latest/
+
+    Properties in this class are read-write unless specified otherwise.
     """
 
     @staticmethod
@@ -332,7 +335,11 @@ class Libevdev(_LibraryWrapper):
 
         Create a new libevdev instance. If a file is given this call is
         equivalent to ``libevdev_new_from_fd()``, otherwise it is equivalent
-        to ``libevdev_new()``.
+        to ``libevdev_new()``::
+
+                fd = open("/dev/input/event0", "rb")
+                l = libevdev.Libevdev(fd)
+
         """
         super(Libevdev, self).__init__()
         self._ctx = self._new()
@@ -347,7 +354,7 @@ class Libevdev(_LibraryWrapper):
     @property
     def name(self):
         """
-        A string with the device's kernel name.
+        :return: A string with the device's kernel name.
         """
         return self._get_name(self._ctx).decode("iso8859-1")
 
@@ -360,7 +367,7 @@ class Libevdev(_LibraryWrapper):
     @property
     def phys(self):
         """
-        A string with the device's kernel phys.
+        :return: A string with the device's kernel phys.
         """
         phys = self._get_phys(self._ctx)
         if not phys:
@@ -377,7 +384,7 @@ class Libevdev(_LibraryWrapper):
     @property
     def uniq(self):
         """
-        A string with the device's kernel uniq.
+        :return: A string with the device's kernel uniq.
         """
         uniq = self._get_uniq(self._ctx)
         if not uniq:
@@ -401,8 +408,14 @@ class Libevdev(_LibraryWrapper):
     @property
     def id(self):
         """
-        A dict with the keys 'bustype', 'vendor', 'product', 'version'.
-        When used as a setter, only existing keys are applied to the device.
+        :return: A dict with the keys 'bustype', 'vendor', 'product', 'version'.
+
+        When used as a setter, only existing keys are applied to the
+        device. For example, to update the product ID only::
+
+                ctx = Libevdev()
+                id["property"] = 1234
+                ctx.id = id
 
         This is a combined version of the libevdev calls
         ``libevdev_get_id_busytype()``, ``libevdev_get_id_vendor()``,
@@ -439,16 +452,29 @@ class Libevdev(_LibraryWrapper):
     @property
     def fd(self):
         """
-        The file-like object used during constructor or in the most recent
-        assignment to self.fd.
+        :return: The file-like object used during constructor or in the most
+                 recent assignment to self.fd.
 
         When assigned the first time and no file has been passed to the
         constructor, the assignment is equivalent to ``libevdev_set_fd()``.
-
         Subsequently, any assignments are equivalent to
-        ``libevdev_change_fd``.
+        ``libevdev_change_fd``::
 
-        :note: libevdev uses the fileno() of the object.
+                fd = open("/dev/input/event0", "rb")
+                l = libevdev.Libevdev(fd)
+                assert(l.fd == fd)
+
+                fd2 = open("/dev/input/event0", "rb")
+                l.fd = fd2
+                assert(l.fd == fd2)
+
+                l = libevdev.Libevdev()
+                l.fd = fd
+                assert(l.fd == fd)
+                l.fd = fd2
+                assert(l.fd == fd2)
+
+        :note: libevdev uses the ``fileno()`` of the object.
         """
         return self._file
 
@@ -534,7 +560,7 @@ class Libevdev(_LibraryWrapper):
     def property_to_name(cls, prop):
         """
         :param prop: the numerical property value
-        :returns: A string with the property name or ``None``
+        :return: A string with the property name or ``None``
 
         This function is the equivalent to ``libevdev_property_get_name()``
         """
@@ -547,7 +573,7 @@ class Libevdev(_LibraryWrapper):
     def property_to_value(cls, prop):
         """
         :param prop: the property name as string
-        :returns: The numerical property value or ``None``
+        :return: The numerical property value or ``None``
 
         This function is the equivalent to ``libevdev_property_from_name()``
         """

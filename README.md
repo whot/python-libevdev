@@ -35,6 +35,5 @@ TODO
 
 * logging hooks and logging priority
 * all the uinput stuff
-* libevdev_has_event_pending
 * libevdev_get_repeat
 * error handling is almost nonexistent

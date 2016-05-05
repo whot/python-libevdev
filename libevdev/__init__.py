@@ -332,6 +332,10 @@ class Libevdev(_LibraryWrapper):
             "argtypes" : (c_void_p, c_uint, c_uint, c_int),
             "restype" : c_int,
         },
+        "libevdev_has_event_pending" : {
+            "argtypes" : (c_void_p,),
+            "restype" : c_int,
+        },
         }
 
     def __init__(self, fd=None):

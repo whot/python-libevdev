@@ -746,17 +746,28 @@ class Libevdev(_LibraryWrapper):
                      code-specific information.
 
         If event_type is EV_ABS, then data must be a dictionary as returned
-        from absinfo. If event_type is EV_REP, then data must be an integer.
+        from absinfo. Any keys missing are replaced with 0, i.e. the
+        following example is valid and results in a fuzz/flat/resolution of
+        zero::
+
+                ctx = Libevdev()
+                abs = { "minimum" : 0,
+                        "maximum" : 100 }
+                ctx.enable("EV_ABS", "ABS_X", data)
+
+        If event_type is EV_REP, then data must be an integer.
         """
         t, c = self._code(event_type, event_code)
         if c is None:
             self._enable_event_type(self._ctx, t)
         else:
             if t == 0x03: # EV_ABS
-                data = _InputAbsinfo(data["value"], \
-                                     data["minimum"], data["maximum"], \
-                                     data["fuzz"], data["flat"], \
-                                     data["resolution"])
+                data = _InputAbsinfo(data.get("value", 0), \
+                                     data.get("minimum", 0), \
+                                     data.get("maximum", 0), \
+                                     data.get("fuzz", 0),
+                                     data.get("flat", 0), \
+                                     data.get("resolution", 0))
                 data = ctypes.pointer(data)
             elif t == 0x14: #EV_REP
                 data = ctypes.pointer(data)

@@ -806,17 +806,14 @@ class Libevdev(_LibraryWrapper):
                       the normal mode.
         :return: the next event or ``None`` if no event is available
 
-        If the event is the SYN_DROPPED picked up before a sync is need, the
-        InputEvent.sync_needed returns true. Event processing should look
-        like this::
+        Event processing should look like this::
 
             fd = open("/dev/input/event0", "rb")
             ctx = libevdev.Libevdev(fd)
             ev = ctx.next_event()
             if ev is None:
                 print("no event available right now")
-            elif ev.sync_needed:
-                print("This is a SYN_DROPPED event")
+            elif ev.matches("EV_SYN", "SYN_DROPPED"):
                 sync_ev = ctx.next_event(libevdev.READ_FLAG_SYNC)
                 while ev is not None:
                     print("First event in sync sequence")
@@ -831,7 +828,7 @@ class Libevdev(_LibraryWrapper):
 
         e = InputEvent(ev.sec, ev.usec, ev.type, ev.code, ev.value)
         if rc == 1: # READ_STATUS_SYNC
-            assert(e.sync_needed)
+            assert(e.matches("EV_SYN", "SYN_DROPPED"))
         return e
 
 class InputEvent(object):
@@ -883,14 +880,6 @@ class InputEvent(object):
             code = Libevdev.event_to_value(type, code)
 
         return code == self.code
-
-    @property
-    def sync_needed(self):
-        """
-        :return: True if this event is an EV_SYN/SYN_DROPPED event and the caller
-                 should sync the device.
-        """
-        return self.matches("EV_SYN", "SYN_DROPPED")
 
     @property
     def type_name(self):

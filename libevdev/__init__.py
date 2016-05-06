@@ -349,6 +349,12 @@ class Libevdev(_LibraryWrapper):
 
                 fd = open("/dev/input/event0", "rb")
                 l = libevdev.Libevdev(fd)
+                # l now represents the device on event0
+
+                l2 = libevdev.Libevdev()
+                l2.name = "test device"
+                l2.enable("EV_REL", "REL_X")
+                # l2 is an unbound device with the REL_X bit set
 
         """
         super(Libevdev, self).__init__()
@@ -377,7 +383,7 @@ class Libevdev(_LibraryWrapper):
     @property
     def phys(self):
         """
-        :return: A string with the device's kernel phys.
+        :return: A string with the device's kernel phys or None.
         """
         phys = self._get_phys(self._ctx)
         if not phys:
@@ -394,7 +400,7 @@ class Libevdev(_LibraryWrapper):
     @property
     def uniq(self):
         """
-        :return: A string with the device's kernel uniq.
+        :return: A string with the device's kernel uniq or None.
         """
         uniq = self._get_uniq(self._ctx)
         if not uniq:
@@ -522,7 +528,7 @@ class Libevdev(_LibraryWrapper):
         """
         :param code: the ABS_<*> code as integer or as string
         :param new_values: a dict with the same keys as the return values.
-        :param kernel: If true, assigning new values corresponds to ``libevdev_kernel_set_abs_info``
+        :param kernel: If True, assigning new values corresponds to ``libevdev_kernel_set_abs_info``
         :return: a dictionary with the keys "value", "min", "max",
                  "resolution", "fuzz", "flat"; ``None`` if the code does not exist on
                  this device
@@ -842,6 +848,24 @@ class InputEvent(object):
 
     def matches(self, type, code = None):
         """
+        Check if an event matches a given event type and/or event code. The
+        following invocations are all accepted::
+
+                if (ev.matches("EV_REL")):
+                        pass
+
+                if (ev.matches(0x02)):
+                        pass
+
+                if (ev.matches("EV_REL", "REL_X")):
+                        pass
+
+                if (ev.matches(0x02, "REL_X")):
+                        pass
+
+                if (ev.matches(0x02, 0):
+                        pass
+
         :param type: the event type, one of EV_<*> as string or integer
         :param code: optional, the event code as string or integer
         :return: True if the type matches this event's type and this event's
@@ -863,7 +887,7 @@ class InputEvent(object):
     @property
     def sync_needed(self):
         """
-        :return: True if this event is a SYN_DROPPED event and the caller
+        :return: True if this event is an EV_SYN/SYN_DROPPED event and the caller
                  should sync the device.
         """
         return self.matches("EV_SYN", "SYN_DROPPED")
@@ -871,14 +895,14 @@ class InputEvent(object):
     @property
     def type_name(self):
         """
-        :return: The type name as string
+        :return: The type name as string, e.g. "EV_REL"
         """
         return Libevdev.event_to_name(self.type)
 
     @property
     def code_name(self):
         """
-        :return: The code name as string
+        :return: The code name as string, e.g. "REL_X"
         """
         return Libevdev.event_to_name(self.type, self.code)
 

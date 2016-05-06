@@ -18,7 +18,7 @@ def print_capabilities(l):
     print("Input device name: {}".format(l.name))
     print("Supported events:")
 
-    for t in range(0, libevdev.Libevdev.event_to_value("EV_MAX")):
+    for t in range(libevdev.Libevdev.event_to_value("EV_MAX")):
         if not l.has_event(t):
             continue
 
@@ -28,7 +28,7 @@ def print_capabilities(l):
         if max is None:
             continue
 
-        for c in range(0, max):
+        for c in range(max):
             if not l.has_event(t, c):
                 continue
 
@@ -47,7 +47,7 @@ def print_capabilities(l):
                     print("       {:10s} {:6d}".format(k, v))
 
     print("Properties:")
-    for p in range(0, 0x1f): # PROP_MAX
+    for p in range(0x1f): # PROP_MAX
         if l.has_property(p):
             print("  Property type {} ({})".format(p, libevdev.Libevdev.property_to_name(p)))
 

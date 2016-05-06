@@ -544,6 +544,10 @@ class Libevdev(_LibraryWrapper):
                 raise ValueError()
             code = self.event_to_value("EV_ABS", code)
         absinfo = self._get_abs_info(self._ctx, code)
+
+        if not absinfo:
+            return None
+
         if new_values != None:
             if "minimum" in new_values:
                 absinfo.contents.minimum = new_values["minimum"]
@@ -560,9 +564,6 @@ class Libevdev(_LibraryWrapper):
 
             if kernel:
                 self._kernel_set_abs_info(self._ctx, absinfo)
-
-        if not absinfo:
-            return None
 
         return { "value" : absinfo.contents.value,
                  "minimum" : absinfo.contents.minimum,

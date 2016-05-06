@@ -496,7 +496,7 @@ class Libevdev(_LibraryWrapper):
             r = self._change_fd(self._ctx, fd)
 
         if r != 0:
-            print("FIXME: this should be an exception")
+            raise OSError(-r, os.strerror(-r))
 
         # sanity check:
         if self._get_fd(self._ctx) != fd:

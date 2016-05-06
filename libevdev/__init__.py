@@ -534,8 +534,7 @@ class Libevdev(_LibraryWrapper):
         """
         if not isinstance(code, int):
             if not code.startswith("ABS_"):
-                # FIXME: throw an exception here
-                return None
+                raise ValueError()
             code = self.event_to_value("EV_ABS", code)
         absinfo = self._get_abs_info(self._ctx, code)
         if new_values != None:

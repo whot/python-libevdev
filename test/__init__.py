@@ -369,6 +369,11 @@ class TestAbsDevice(unittest.TestCase):
         self.assertEqual(a2["resolution"], real_a["resolution"])
         self.assertEqual(a2["value"], real_a["value"])
 
+    def test_set_absinfo_invalid(self):
+        l = Libevdev(self.fd)
+        with self.assertRaises(ValueError):
+            a = l.absinfo("REL_X")
+
     def test_set_absinfo_kernel(self):
         # FIXME: yeah, nah, not testing that on a random device...
         pass

@@ -34,6 +34,5 @@ TODO
 ----
 
 * logging hooks and logging priority
-* all the uinput stuff
 * libevdev_get_repeat
 * error handling is almost nonexistent

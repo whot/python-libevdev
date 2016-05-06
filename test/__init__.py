@@ -464,6 +464,77 @@ class TestMTDevice(unittest.TestCase):
         v2 = l.slot_value(l.current_slot, "ABS_MT_POSITION_X")
         self.assertEqual(v, v2)
 
+
+class TestUinput(unittest.TestCase):
+    """
+    Tests uinput device creation.
+    Requires root rights.
+    """
+    def is_identical(self, d1, d2):
+        for t in range(0, Libevdev.event_to_value("EV_MAX")):
+            max = Libevdev.type_max(t)
+            if max is None:
+                continue
+            for c in range(0, max):
+                if (d1.has_event(t, c) != d1.has_event(t, c)):
+                    return False
+        return True
+
+    def testRelative(self):
+        dev = Libevdev()
+        dev.name = "test device"
+        dev.enable("EV_REL", "REL_X")
+        dev.enable("EV_REL", "REL_Y")
+        uinput = UinputDevice(dev)
+        self.assertIsNotNone(uinput.devnode)
+
+        with open(uinput.devnode) as f:
+            newdev = Libevdev(f)
+            self.assertTrue(self.is_identical(dev, newdev))
+
+    def testButton(self):
+        dev = Libevdev()
+        dev.name = "test device"
+        dev.enable("EV_KEY", "BTN_LEFT")
+        dev.enable("EV_KEY", "KEY_A")
+        uinput = UinputDevice(dev)
+        self.assertIsNotNone(uinput.devnode)
+
+        with open(uinput.devnode) as f:
+            newdev = Libevdev(f)
+            self.assertTrue(self.is_identical(dev, newdev))
+
+    def testAbsolute(self):
+        absinfo = { "minimum" : 0,
+                    "maximum" : 1 }
+
+        dev = Libevdev()
+        dev.name = "test device"
+        dev.enable("EV_ABS", "ABS_X", absinfo)
+        dev.enable("EV_ABS", "ABS_Y", absinfo)
+        uinput = UinputDevice(dev)
+        self.assertIsNotNone(uinput.devnode)
+
+        with open(uinput.devnode) as f:
+            newdev = Libevdev(f)
+            self.assertTrue(self.is_identical(dev, newdev))
+
+    def testDeviceNode(self):
+        dev = Libevdev()
+        dev.name = "test device"
+        dev.enable("EV_REL", "REL_X")
+        dev.enable("EV_REL", "REL_Y")
+        uinput = UinputDevice(dev)
+        self.assertTrue(uinput.devnode.startswith("/dev/input/event"))
+
+    def testSyspath(self):
+        dev = Libevdev()
+        dev.name = "test device"
+        dev.enable("EV_REL", "REL_X")
+        dev.enable("EV_REL", "REL_Y")
+        uinput = UinputDevice(dev)
+        self.assertTrue(uinput.syspath.startswith("/sys/devices/virtual/input/input"))
+
 if __name__ == '__main__':
     unittest.main()
 

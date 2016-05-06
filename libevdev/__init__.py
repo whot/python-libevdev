@@ -511,7 +511,7 @@ class Libevdev(_LibraryWrapper):
 
         self._file = fileobj
 
-    def grab(self, enable_grab = True):
+    def grab(self, enable_grab=True):
         """
         :param enable_grab: True to grab, False to ungrab
         :return: 0 on success or a negative errno on failure
@@ -730,7 +730,7 @@ class Libevdev(_LibraryWrapper):
         s = self._get_current_slot(self._ctx)
         return s if s >= 0 else None
 
-    def slot_value(self, slot, event_code, new_value = None):
+    def slot_value(self, slot, event_code, new_value=None):
         """
         :param slot: the numeric slot number
         :param event_code: the ABS_<*> event code, either as integer or string
@@ -746,7 +746,7 @@ class Libevdev(_LibraryWrapper):
         v = self._get_slot_value(self._ctx, slot, c)
         return v
 
-    def enable(self, event_type, event_code = None, data = None):
+    def enable(self, event_type, event_code=None, data=None):
         """
         :param event_type: the event type, either as integer or as string
         :param event_code: optional, the event code, either as integer or as string
@@ -781,7 +781,7 @@ class Libevdev(_LibraryWrapper):
                 data = ctypes.pointer(data)
             self._enable_event_code(self._ctx, t, c, data)
 
-    def disable(self, event_type, event_code = None):
+    def disable(self, event_type, event_code=None):
         """
         :param event_type: the event type, either as integer or as string
         :param event_code: optional, the event code, either as integer or as string
@@ -801,7 +801,7 @@ class Libevdev(_LibraryWrapper):
         which = 3 if on else 4
         self._set_led_value(self._ctx, c, which)
 
-    def next_event(self, flags = READ_FLAG_NORMAL):
+    def next_event(self, flags=READ_FLAG_NORMAL):
         """
         :param flags: a set of libevdev read flags. May be omitted to use
                       the normal mode.
@@ -844,7 +844,7 @@ class InputEvent(object):
         self.code = code
         self.value = value;
 
-    def matches(self, type, code = None):
+    def matches(self, type, code=None):
         """
         Check if an event matches a given event type and/or event code. The
         following invocations are all accepted::
@@ -936,7 +936,7 @@ class UinputDevice(_LibraryWrapper):
         },
     }
 
-    def __init__(self, source, fileobj = None):
+    def __init__(self, source, fileobj=None):
         """
         Create a new uinput device based on the source libevdev device. The
         uinput device will mirror all capabilities from the source device.

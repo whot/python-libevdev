@@ -19,7 +19,7 @@ class TestNameConversion(unittest.TestCase):
         self.assertEqual(name, "INPUT_PROP_POINTER")
 
         prevname = None
-        for i in range(0, 5):
+        for i in range(5):
             name = Libevdev.property_to_name(i)
             self.assertIsNotNone(name)
             self.assertTrue(name.startswith("INPUT_PROP_"))
@@ -39,7 +39,7 @@ class TestNameConversion(unittest.TestCase):
         self.assertEqual(name, "EV_KEY")
 
         prevname = None
-        for i in range(0, 5):
+        for i in range(5):
             name = Libevdev.event_to_name(i)
             self.assertIsNotNone(name)
             self.assertTrue(name.startswith("EV_"))
@@ -265,7 +265,7 @@ class TestRealDevice(unittest.TestCase):
         self.assertGreater(type_supported, 0)
 
         codes_supported = 0
-        for i in range(0, 150):
+        for i in range(150):
             if l.has_event(type_supported, i):
                 codes_supported += 1
 
@@ -278,12 +278,12 @@ class TestRealDevice(unittest.TestCase):
         """
 
         props_supported = 0
-        for i in range(0, 10):
+        for i in range(10):
             try:
                 with open("/dev/input/event{}".format(i), "rb") as fd:
                     l = Libevdev(fd)
 
-                    for p in range(0, 6):
+                    for p in range(6):
                         if l.has_property(p):
                             props_supported += 1
             except IOError:
@@ -307,7 +307,7 @@ class TestAbsDevice(unittest.TestCase):
     """
     def setUp(self):
         want_fd = None
-        for i in range(0, 20):
+        for i in range(20):
             try:
                 fd = open("/dev/input/event{}".format(i), "rb")
                 l = Libevdev(fd)
@@ -422,7 +422,7 @@ class TestMTDevice(unittest.TestCase):
     """
     def setUp(self):
         want_fd = None
-        for i in range(0, 20):
+        for i in range(20):
             try:
                 fd = open("/dev/input/event{}".format(i), "rb")
                 l = Libevdev(fd)
@@ -471,12 +471,12 @@ class TestUinput(unittest.TestCase):
     Requires root rights.
     """
     def is_identical(self, d1, d2):
-        for t in range(0, Libevdev.event_to_value("EV_MAX")):
+        for t in range(Libevdev.event_to_value("EV_MAX")):
             max = Libevdev.type_max(t)
             if max is None:
                 continue
-            for c in range(0, max):
-                if (d1.has_event(t, c) != d1.has_event(t, c)):
+            for c in range(max):
+                if d1.has_event(t, c) != d1.has_event(t, c):
                     return False
         return True
 
@@ -537,4 +537,3 @@ class TestUinput(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

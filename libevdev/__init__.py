@@ -360,7 +360,7 @@ class Libevdev(_LibraryWrapper):
         super(Libevdev, self).__init__()
         self._ctx = self._new()
         self._file = None
-        if fd != None:
+        if fd is not None:
             self.fd = fd
 
     def __del__(self):
@@ -376,7 +376,7 @@ class Libevdev(_LibraryWrapper):
 
     @name.setter
     def name(self, name):
-        if name == None:
+        if name is None:
             name = ''
         return self._set_name(self._ctx, name.encode("iso8859-1"))
 
@@ -393,7 +393,7 @@ class Libevdev(_LibraryWrapper):
     @phys.setter
     def phys(self, phys):
         # libevdev issue: phys may be NULL, but can't be set to NULL
-        if phys == None:
+        if phys is None:
             phys = ''
         return self._set_phys(self._ctx, phys.encode("iso8859-1"))
 
@@ -410,7 +410,7 @@ class Libevdev(_LibraryWrapper):
     @uniq.setter
     def uniq(self, uniq):
         # libevdev issue: uniq may be NULL, but can't be set to NULL
-        if uniq == None:
+        if uniq is None:
             uniq = ''
         return self._set_uniq(self._ctx, uniq.encode("iso8859-1"))
 
@@ -497,7 +497,7 @@ class Libevdev(_LibraryWrapper):
     @fd.setter
     def fd(self, fileobj):
         fd = fileobj.fileno()
-        if self._file == None:
+        if self._file is None:
             r = self._set_fd(self._ctx, fd)
         else:
             r = self._change_fd(self._ctx, fd)
@@ -511,7 +511,7 @@ class Libevdev(_LibraryWrapper):
 
         self._file = fileobj
 
-    def grab(self, enable_grab = True):
+    def grab(self, enable_grab=True):
         """
         :param enable_grab: True to grab, False to ungrab
         :return: 0 on success or a negative errno on failure
@@ -548,7 +548,7 @@ class Libevdev(_LibraryWrapper):
         if not absinfo:
             return None
 
-        if new_values != None:
+        if new_values is not None:
             if "minimum" in new_values:
                 absinfo.contents.minimum = new_values["minimum"]
             if "maximum" in new_values:
@@ -621,7 +621,7 @@ class Libevdev(_LibraryWrapper):
         This function is the equivalent to ``libevdev_event_code_get_name()``
         and ``libevdev_event_type_get_name()``
         """
-        if event_code != None:
+        if event_code is not None:
             name = cls._event_code_get_name(event_type, event_code)
         else:
             name = cls._event_type_get_name(event_type)
@@ -640,7 +640,7 @@ class Libevdev(_LibraryWrapper):
         This function is the equivalent to ``libevdev_event_code_from_name()``
         and ``libevdev_event_type_from_name()``
         """
-        if event_code != None:
+        if event_code is not None:
             if not isinstance(event_type, int):
                 event_type = cls.event_to_value(event_type)
             v = cls._event_code_from_name(event_type, event_code.encode("iso8859-1"))
@@ -670,7 +670,7 @@ class Libevdev(_LibraryWrapper):
         if not isinstance(event_type, int):
             event_type = self.event_to_value(event_type)
 
-        if event_code == None:
+        if event_code is None:
             r = self._has_event_type(self._ctx, event_type)
         else:
             if not isinstance(event_code, int):
@@ -702,7 +702,7 @@ class Libevdev(_LibraryWrapper):
         if not self.has_event(t, c):
             return None
 
-        if new_value != None:
+        if new_value is not None:
             self._set_event_value(self._ctx, t, c, new_value)
 
         v = self._get_event_value(self._ctx, t, c)
@@ -730,7 +730,7 @@ class Libevdev(_LibraryWrapper):
         s = self._get_current_slot(self._ctx)
         return s if s >= 0 else None
 
-    def slot_value(self, slot, event_code, new_value = None):
+    def slot_value(self, slot, event_code, new_value=None):
         """
         :param slot: the numeric slot number
         :param event_code: the ABS_<*> event code, either as integer or string
@@ -746,7 +746,7 @@ class Libevdev(_LibraryWrapper):
         v = self._get_slot_value(self._ctx, slot, c)
         return v
 
-    def enable(self, event_type, event_code = None, data = None):
+    def enable(self, event_type, event_code=None, data=None):
         """
         :param event_type: the event type, either as integer or as string
         :param event_code: optional, the event code, either as integer or as string
@@ -781,7 +781,7 @@ class Libevdev(_LibraryWrapper):
                 data = ctypes.pointer(data)
             self._enable_event_code(self._ctx, t, c, data)
 
-    def disable(self, event_type, event_code = None):
+    def disable(self, event_type, event_code=None):
         """
         :param event_type: the event type, either as integer or as string
         :param event_code: optional, the event code, either as integer or as string
@@ -801,7 +801,7 @@ class Libevdev(_LibraryWrapper):
         which = 3 if on else 4
         self._set_led_value(self._ctx, c, which)
 
-    def next_event(self, flags = READ_FLAG_NORMAL):
+    def next_event(self, flags=READ_FLAG_NORMAL):
         """
         :param flags: a set of libevdev read flags. May be omitted to use
                       the normal mode.
@@ -844,24 +844,24 @@ class InputEvent(object):
         self.code = code
         self.value = value;
 
-    def matches(self, type, code = None):
+    def matches(self, type, code=None):
         """
         Check if an event matches a given event type and/or event code. The
         following invocations are all accepted::
 
-                if (ev.matches("EV_REL")):
+                if ev.matches("EV_REL"):
                         pass
 
-                if (ev.matches(0x02)):
+                if ev.matches(0x02):
                         pass
 
-                if (ev.matches("EV_REL", "REL_X")):
+                if ev.matches("EV_REL", "REL_X"):
                         pass
 
-                if (ev.matches(0x02, "REL_X")):
+                if ev.matches(0x02, "REL_X"):
                         pass
 
-                if (ev.matches(0x02, 0):
+                if ev.matches(0x02, 0):
                         pass
 
         :param type: the event type, one of EV_<*> as string or integer
@@ -936,7 +936,7 @@ class UinputDevice(_LibraryWrapper):
         },
     }
 
-    def __init__(self, source, fileobj = None):
+    def __init__(self, source, fileobj=None):
         """
         Create a new uinput device based on the source libevdev device. The
         uinput device will mirror all capabilities from the source device.

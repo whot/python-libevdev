@@ -476,7 +476,7 @@ class TestUinput(unittest.TestCase):
             if max is None:
                 continue
             for c in range(max):
-                if (d1.has_event(t, c) != d1.has_event(t, c)):
+                if d1.has_event(t, c) != d1.has_event(t, c):
                     return False
         return True
 
@@ -537,4 +537,3 @@ class TestUinput(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

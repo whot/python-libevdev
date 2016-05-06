@@ -849,19 +849,19 @@ class InputEvent(object):
         Check if an event matches a given event type and/or event code. The
         following invocations are all accepted::
 
-                if (ev.matches("EV_REL")):
+                if ev.matches("EV_REL"):
                         pass
 
-                if (ev.matches(0x02)):
+                if ev.matches(0x02):
                         pass
 
-                if (ev.matches("EV_REL", "REL_X")):
+                if ev.matches("EV_REL", "REL_X"):
                         pass
 
-                if (ev.matches(0x02, "REL_X")):
+                if ev.matches(0x02, "REL_X"):
                         pass
 
-                if (ev.matches(0x02, 0):
+                if ev.matches(0x02, 0):
                         pass
 
         :param type: the event type, one of EV_<*> as string or integer

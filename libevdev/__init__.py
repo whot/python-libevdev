@@ -360,7 +360,7 @@ class Libevdev(_LibraryWrapper):
         super(Libevdev, self).__init__()
         self._ctx = self._new()
         self._file = None
-        if fd != None:
+        if fd is not None:
             self.fd = fd
 
     def __del__(self):
@@ -376,7 +376,7 @@ class Libevdev(_LibraryWrapper):
 
     @name.setter
     def name(self, name):
-        if name == None:
+        if name is None:
             name = ''
         return self._set_name(self._ctx, name.encode("iso8859-1"))
 
@@ -393,7 +393,7 @@ class Libevdev(_LibraryWrapper):
     @phys.setter
     def phys(self, phys):
         # libevdev issue: phys may be NULL, but can't be set to NULL
-        if phys == None:
+        if phys is None:
             phys = ''
         return self._set_phys(self._ctx, phys.encode("iso8859-1"))
 
@@ -410,7 +410,7 @@ class Libevdev(_LibraryWrapper):
     @uniq.setter
     def uniq(self, uniq):
         # libevdev issue: uniq may be NULL, but can't be set to NULL
-        if uniq == None:
+        if uniq is None:
             uniq = ''
         return self._set_uniq(self._ctx, uniq.encode("iso8859-1"))
 
@@ -497,7 +497,7 @@ class Libevdev(_LibraryWrapper):
     @fd.setter
     def fd(self, fileobj):
         fd = fileobj.fileno()
-        if self._file == None:
+        if self._file is None:
             r = self._set_fd(self._ctx, fd)
         else:
             r = self._change_fd(self._ctx, fd)
@@ -548,7 +548,7 @@ class Libevdev(_LibraryWrapper):
         if not absinfo:
             return None
 
-        if new_values != None:
+        if new_values is not None:
             if "minimum" in new_values:
                 absinfo.contents.minimum = new_values["minimum"]
             if "maximum" in new_values:
@@ -621,7 +621,7 @@ class Libevdev(_LibraryWrapper):
         This function is the equivalent to ``libevdev_event_code_get_name()``
         and ``libevdev_event_type_get_name()``
         """
-        if event_code != None:
+        if event_code is not None:
             name = cls._event_code_get_name(event_type, event_code)
         else:
             name = cls._event_type_get_name(event_type)
@@ -640,7 +640,7 @@ class Libevdev(_LibraryWrapper):
         This function is the equivalent to ``libevdev_event_code_from_name()``
         and ``libevdev_event_type_from_name()``
         """
-        if event_code != None:
+        if event_code is not None:
             if not isinstance(event_type, int):
                 event_type = cls.event_to_value(event_type)
             v = cls._event_code_from_name(event_type, event_code.encode("iso8859-1"))
@@ -670,7 +670,7 @@ class Libevdev(_LibraryWrapper):
         if not isinstance(event_type, int):
             event_type = self.event_to_value(event_type)
 
-        if event_code == None:
+        if event_code is None:
             r = self._has_event_type(self._ctx, event_type)
         else:
             if not isinstance(event_code, int):
@@ -702,7 +702,7 @@ class Libevdev(_LibraryWrapper):
         if not self.has_event(t, c):
             return None
 
-        if new_value != None:
+        if new_value is not None:
             self._set_event_value(self._ctx, t, c, new_value)
 
         v = self._get_event_value(self._ctx, t, c)

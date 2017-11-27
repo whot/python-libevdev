@@ -20,30 +20,36 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-import os
-import ctypes
-import errno
-from ctypes import c_char_p, c_int, c_uint, c_void_p, c_long, c_int32, c_uint16
+import os as _os
+import ctypes as _ctypes
+import errno as _errno
+from ctypes import c_char_p as _c_char_p
+from ctypes import c_int as _c_int
+from ctypes import c_uint as _c_uint
+from ctypes import c_void_p as _c_void_p
+from ctypes import c_long as _c_long
+from ctypes import c_int32 as _c_int32
+from ctypes import c_uint16 as _c_uint16
 
 READ_FLAG_SYNC = 0x1
 READ_FLAG_NORMAL = 0x2
 READ_FLAG_FORCE_SYNC = 0x4
 READ_FLAG_BLOCKING = 0x8
 
-class _InputAbsinfo(ctypes.Structure):
-    _fields_ = [("value", c_int32),
-                ("minimum", c_int32),
-                ("maximum", c_int32),
-                ("fuzz", c_int32),
-                ("flat", c_int32),
-                ("resolution", c_int32)]
+class _InputAbsinfo(_ctypes.Structure):
+    _fields_ = [("value", _c_int32),
+                ("minimum", _c_int32),
+                ("maximum", _c_int32),
+                ("fuzz", _c_int32),
+                ("flat", _c_int32),
+                ("resolution", _c_int32)]
 
-class _InputEvent(ctypes.Structure):
-    _fields_ = [("sec", c_long),
-                ("usec", c_long),
-                ("type", c_uint16),
-                ("code", c_uint16),
-                ("value", c_int32)]
+class _InputEvent(_ctypes.Structure):
+    _fields_ = [("sec", _c_long),
+                ("usec", _c_long),
+                ("type", _c_uint16),
+                ("code", _c_uint16),
+                ("value", _c_int32)]
 
 class _LibraryWrapper(object):
     """
@@ -104,52 +110,52 @@ class Libevdev(_LibraryWrapper):
 
     @staticmethod
     def _cdll():
-        return ctypes.CDLL("libevdev.so.2", use_errno=True)
+        return _ctypes.CDLL("libevdev.so.2", use_errno=True)
 
     _api_prototypes = {
         #const char *libevdev_event_type_get_name(unsigned int type);
         "libevdev_event_type_get_name": {
-            "argtypes": (c_uint,),
-            "restype": c_char_p
+            "argtypes": (_c_uint,),
+            "restype": _c_char_p
             },
         #int libevdev_event_type_from_name(const char *name);
         "libevdev_event_type_from_name": {
-            "argtypes": (c_char_p,),
-            "restype": c_int
+            "argtypes": (_c_char_p,),
+            "restype": _c_int
             },
         #const char *libevdev_event_code_get_name(unsigned int type, unsigned int code);
         "libevdev_event_code_get_name": {
-            "argtypes": (c_uint, c_uint,),
-            "restype": c_char_p
+            "argtypes": (_c_uint, _c_uint,),
+            "restype": _c_char_p
             },
         #int libevdev_event_code_from_name(unsigned int type, const char *name);
         "libevdev_event_code_from_name": {
-            "argtypes": (c_uint, c_char_p,),
-            "restype": c_int
+            "argtypes": (_c_uint, _c_char_p,),
+            "restype": _c_int
             },
         #const char *libevdev_property_get_name(unsigned int prop);
         "libevdev_property_get_name": {
-            "argtypes": (c_uint,),
-            "restype": c_char_p,
+            "argtypes": (_c_uint,),
+            "restype": _c_char_p,
             },
         #int libevdev_property_from_name(const char *name);
         "libevdev_property_from_name": {
-            "argtypes": (c_char_p,),
-            "restype": c_int
+            "argtypes": (_c_char_p,),
+            "restype": _c_int
             },
         #void libevdev_event_type_get_max(int)
         "libevdev_event_type_get_max": {
-            "argtypes": (c_int, ),
-            "restype": c_int,
+            "argtypes": (_c_int, ),
+            "restype": _c_int,
             },
         #struct libevdev *libevdev_new(void);
         "libevdev_new": {
             "argtypes": (),
-            "restype": c_void_p,
+            "restype": _c_void_p,
             },
         #struct libevdev *libevdev_free(struct libevdev *);
         "libevdev_free": {
-            "argtypes": (c_void_p,),
+            "argtypes": (_c_void_p,),
             "restype": None,
             },
         ###############################
@@ -157,185 +163,185 @@ class Libevdev(_LibraryWrapper):
         ###############################
         #const char * libevdev_get_name(struct libevdev *);
         "libevdev_get_name": {
-            "argtypes": (c_void_p,),
-            "restype": c_char_p,
+            "argtypes": (_c_void_p,),
+            "restype": _c_char_p,
             },
         #void libevdev_set_name(struct libevdev *, const char*);
         "libevdev_set_name": {
-            "argtypes": (c_void_p, c_char_p),
+            "argtypes": (_c_void_p, _c_char_p),
             "restype": None,
             },
         #const char * libevdev_get_phys(struct libevdev *);
         "libevdev_get_phys": {
-            "argtypes": (c_void_p,),
-            "restype": c_char_p,
+            "argtypes": (_c_void_p,),
+            "restype": _c_char_p,
             },
         #void libevdev_set_phys(struct libevdev *, const char*);
         "libevdev_set_phys": {
-            "argtypes": (c_void_p, c_char_p),
+            "argtypes": (_c_void_p, _c_char_p),
             "restype": None,
             },
         #const char * libevdev_get_uniq(struct libevdev *);
         "libevdev_get_uniq": {
-            "argtypes": (c_void_p,),
-            "restype": c_char_p,
+            "argtypes": (_c_void_p,),
+            "restype": _c_char_p,
             },
         #void libevdev_set_uniq(struct libevdev *, const char*);
         "libevdev_set_uniq": {
-            "argtypes": (c_void_p, c_char_p),
+            "argtypes": (_c_void_p, _c_char_p),
             "restype": None,
             },
         #int libevdev_get_driver_version(struct libevdev *);
         "libevdev_get_driver_version": {
-            "argtypes": (c_void_p, ),
-            "restype": c_int,
+            "argtypes": (_c_void_p, ),
+            "restype": _c_int,
             },
         #void libevdev_set_clock_id(struct libevdev *, int)
         "libevdev_set_clock_id": {
-            "argtypes": (c_void_p, c_int),
-            "restype": c_int,
+            "argtypes": (_c_void_p, _c_int),
+            "restype": _c_int,
             },
         ###############################
         # Custom getters and setters  #
         ###############################
         #int libevdev_get_id_bustype(struct libevdev *)
         "libevdev_get_id_bustype": {
-            "argtypes": (c_void_p,),
-            "restype": c_int,
+            "argtypes": (_c_void_p,),
+            "restype": _c_int,
             },
         #int libevdev_get_id_vendor(struct libevdev *)
         "libevdev_get_id_vendor": {
-            "argtypes": (c_void_p,),
-            "restype": c_int,
+            "argtypes": (_c_void_p,),
+            "restype": _c_int,
             },
         #int libevdev_get_id_product(struct libevdev *)
         "libevdev_get_id_product": {
-            "argtypes": (c_void_p,),
-            "restype": c_int,
+            "argtypes": (_c_void_p,),
+            "restype": _c_int,
             },
         #int libevdev_get_id_version(struct libevdev *)
         "libevdev_get_id_version": {
-            "argtypes": (c_void_p,),
-            "restype": c_int,
+            "argtypes": (_c_void_p,),
+            "restype": _c_int,
             },
         #void libevdev_set_id_bustype(struct libevdev *, int)
         "libevdev_set_id_bustype": {
-            "argtypes": (c_void_p, c_int),
+            "argtypes": (_c_void_p, _c_int),
             "restype": None,
             },
         #void libevdev_set_id_vendor(struct libevdev *, int)
         "libevdev_set_id_vendor": {
-            "argtypes": (c_void_p, c_int),
+            "argtypes": (_c_void_p, _c_int),
             "restype": None,
             },
         #void libevdev_set_id_product(struct libevdev *, int)
         "libevdev_set_id_product": {
-            "argtypes": (c_void_p, c_int),
+            "argtypes": (_c_void_p, _c_int),
             "restype": None,
             },
         #void libevdev_set_id_version(struct libevdev *, int)
         "libevdev_set_id_version": {
-            "argtypes": (c_void_p, c_int),
+            "argtypes": (_c_void_p, _c_int),
             "restype": None,
             },
         # int libevdev_set_fd(struct libevdev *, int)
         "libevdev_set_fd" : {
-            "argtypes" : (c_void_p, c_int),
-            "restype" : c_int,
+            "argtypes" : (_c_void_p, _c_int),
+            "restype" : _c_int,
         },
         # int libevdev_change_fd(struct libevdev *, int)
         "libevdev_change_fd" : {
-            "argtypes" : (c_void_p, c_int),
-            "restype" : c_int,
+            "argtypes" : (_c_void_p, _c_int),
+            "restype" : _c_int,
         },
         # int libevdev_get_fd(struct libevdev *)
         "libevdev_get_fd" : {
-            "argtypes" : (c_void_p, ),
-            "restype" : c_int,
+            "argtypes" : (_c_void_p, ),
+            "restype" : _c_int,
         },
         # int libevdev_grab(struct libevdev *)
         "libevdev_grab": {
-            "argtypes" : (c_void_p, c_int),
-            "restype" : c_int,
+            "argtypes" : (_c_void_p, _c_int),
+            "restype" : _c_int,
         },
         # const struct input_absinfo *libevdev_get_abs_info(struct libevdev*,  int code)
         "libevdev_get_abs_info" : {
-            "argtypes" : (c_void_p, c_int),
-            "restype" : ctypes.POINTER(_InputAbsinfo),
+            "argtypes" : (_c_void_p, _c_int),
+            "restype" : _ctypes.POINTER(_InputAbsinfo),
         },
         # We don't need to wrap libevdev_set_abs_info(), we get the same
         # using get_abs_info and overwrite the values.
         #
         # const struct input_absinfo *libevdev_get_abs_info(struct libevdev*,  int code)
         "libevdev_kernel_set_abs_info" : {
-            "argtypes" : (c_void_p, ctypes.POINTER(_InputAbsinfo)),
-            "restype" : (c_int)
+            "argtypes" : (_c_void_p, _ctypes.POINTER(_InputAbsinfo)),
+            "restype" : (_c_int)
         },
         ##########################
         # Various has_ functions #
         ##########################
         "libevdev_has_property" : {
-            "argtypes" : (c_void_p, c_int),
-            "restype" : (c_int)
+            "argtypes" : (_c_void_p, _c_int),
+            "restype" : (_c_int)
         },
         "libevdev_has_event_type" : {
-            "argtypes" : (c_void_p, c_int),
-            "restype" : (c_int)
+            "argtypes" : (_c_void_p, _c_int),
+            "restype" : (_c_int)
         },
         "libevdev_has_event_code" : {
-            "argtypes" : (c_void_p, c_int, c_int),
-            "restype" : (c_int)
+            "argtypes" : (_c_void_p, _c_int, _c_int),
+            "restype" : (_c_int)
         },
         ##########################
         # Other functions        #
         ##########################
         "libevdev_set_event_value" : {
-            "argtypes" : (c_void_p, c_int, c_int, c_int),
-            "restype" : (c_int)
+            "argtypes" : (_c_void_p, _c_int, _c_int, _c_int),
+            "restype" : (_c_int)
         },
         "libevdev_get_event_value" : {
-            "argtypes" : (c_void_p, c_int, c_int),
-            "restype" : (c_int),
+            "argtypes" : (_c_void_p, _c_int, _c_int),
+            "restype" : (_c_int),
         },
         "libevdev_enable_event_type" : {
-            "argtypes" : (c_void_p, c_int),
-            "restype" : (c_int),
+            "argtypes" : (_c_void_p, _c_int),
+            "restype" : (_c_int),
         },
         "libevdev_enable_event_code" : {
-            "argtypes" : (c_void_p, c_int, c_int, c_void_p),
-            "restype" : (c_int),
+            "argtypes" : (_c_void_p, _c_int, _c_int, _c_void_p),
+            "restype" : (_c_int),
         },
         "libevdev_disable_event_type" : {
-            "argtypes" : (c_void_p, c_int),
-            "restype" : (c_int),
+            "argtypes" : (_c_void_p, _c_int),
+            "restype" : (_c_int),
         },
         "libevdev_disable_event_code" : {
-            "argtypes" : (c_void_p, c_int, c_int),
-            "restype" : (c_int),
+            "argtypes" : (_c_void_p, _c_int, _c_int),
+            "restype" : (_c_int),
         },
         "libevdev_next_event" : {
-            "argtypes" : (c_void_p, c_uint, ctypes.POINTER(_InputEvent)),
-            "restype" : c_int,
+            "argtypes" : (_c_void_p, _c_uint, _ctypes.POINTER(_InputEvent)),
+            "restype" : _c_int,
         },
         "libevdev_get_num_slots" : {
-            "argtypes" : (c_void_p,),
-            "restype" : c_int,
+            "argtypes" : (_c_void_p,),
+            "restype" : _c_int,
         },
         "libevdev_get_current_slot" : {
-            "argtypes" : (c_void_p,),
-            "restype" : c_int,
+            "argtypes" : (_c_void_p,),
+            "restype" : _c_int,
         },
         "libevdev_get_slot_value" : {
-            "argtypes" : (c_void_p, c_uint, c_uint),
-            "restype" : c_int,
+            "argtypes" : (_c_void_p, _c_uint, _c_uint),
+            "restype" : _c_int,
         },
         "libevdev_set_slot_value" : {
-            "argtypes" : (c_void_p, c_uint, c_uint, c_int),
-            "restype" : c_int,
+            "argtypes" : (_c_void_p, _c_uint, _c_uint, _c_int),
+            "restype" : _c_int,
         },
         "libevdev_has_event_pending" : {
-            "argtypes" : (c_void_p,),
-            "restype" : c_int,
+            "argtypes" : (_c_void_p,),
+            "restype" : _c_int,
         },
         }
 
@@ -503,7 +509,7 @@ class Libevdev(_LibraryWrapper):
             r = self._change_fd(self._ctx, fd)
 
         if r != 0:
-            raise OSError(-r, os.strerror(-r))
+            raise OSError(-r, _os.strerror(-r))
 
         # sanity check:
         if self._get_fd(self._ctx) != fd:
@@ -776,9 +782,9 @@ class Libevdev(_LibraryWrapper):
                                      data.get("fuzz", 0),
                                      data.get("flat", 0), \
                                      data.get("resolution", 0))
-                data = ctypes.pointer(data)
+                data = _ctypes.pointer(data)
             elif t == 0x14: #EV_REP
-                data = ctypes.pointer(data)
+                data = _ctypes.pointer(data)
             self._enable_event_code(self._ctx, t, c, data)
 
     def disable(self, event_type, event_code=None):
@@ -823,8 +829,8 @@ class Libevdev(_LibraryWrapper):
 
         """
         ev = _InputEvent()
-        rc = self._next_event(self._ctx, flags, ctypes.byref(ev))
-        if rc < -errno.EAGAIN:
+        rc = self._next_event(self._ctx, flags, _ctypes.byref(ev))
+        if rc < -_errno.EAGAIN:
             return None
 
         e = InputEvent(ev.sec, ev.usec, ev.type, ev.code, ev.value)
@@ -896,7 +902,7 @@ class InputEvent(object):
         """
         return Libevdev.event_to_name(self.type, self.code)
 
-class _UinputDevice(ctypes.Structure):
+class _UinputDevice(_ctypes.Structure):
     pass
 
 class UinputDevice(_LibraryWrapper):
@@ -906,33 +912,33 @@ class UinputDevice(_LibraryWrapper):
 
     @staticmethod
     def _cdll():
-        return ctypes.CDLL("libevdev.so.2", use_errno=True)
+        return _ctypes.CDLL("libevdev.so.2", use_errno=True)
 
     _api_prototypes = {
         # int libevdev_uinput_create_from_device(const struct libevdev *, int, struct libevdev_uinput **)
         "libevdev_uinput_create_from_device" : {
-            "argtypes": (c_void_p, c_int, ctypes.POINTER(ctypes.POINTER(_UinputDevice))),
-            "restype" : c_int
+            "argtypes": (_c_void_p, _c_int, _ctypes.POINTER(_ctypes.POINTER(_UinputDevice))),
+            "restype" : _c_int
         },
         # int libevdev_uinput_destroy(const struct libevdev *)
         "libevdev_uinput_destroy" : {
-            "argtypes": (c_void_p,),
+            "argtypes": (_c_void_p,),
             "restype" : None,
         },
         # const char* libevdev_uinput_get_devnode(const struct libevdev *)
         "libevdev_uinput_get_devnode" : {
-            "argtypes": (c_void_p,),
-            "restype": c_char_p,
+            "argtypes": (_c_void_p,),
+            "restype": _c_char_p,
         },
         # const char* libevdev_uinput_get_syspath(const struct libevdev *)
         "libevdev_uinput_get_syspath" : {
-            "argtypes": (c_void_p,),
-            "restype": c_char_p,
+            "argtypes": (_c_void_p,),
+            "restype": _c_char_p,
         },
         # int libevdev_uinput_write_event(const struct libevdev *, uint, uint, int)
         "libevdev_uinput_write_event" : {
-            "argtypes": (c_void_p, c_uint, c_uint, c_int),
-            "restype" : c_int
+            "argtypes": (_c_void_p, _c_uint, _c_uint, _c_int),
+            "restype" : _c_int
         },
     }
 
@@ -954,10 +960,10 @@ class UinputDevice(_LibraryWrapper):
         else:
             fd = fileobj.fileno()
 
-        self._uinput_device = ctypes.POINTER(_UinputDevice)()
-        rc = self._uinput_create_from_device(source._ctx, fd, ctypes.byref(self._uinput_device))
+        self._uinput_device = _ctypes.POINTER(_UinputDevice)()
+        rc = self._uinput_create_from_device(source._ctx, fd, _ctypes.byref(self._uinput_device))
         if rc != 0:
-            raise OSError(-rc, os.strerror(-rc))
+            raise OSError(-rc, _os.strerror(-rc))
 
     def __del__(self):
         if self._uinput_device is not None:

@@ -545,5 +545,6 @@ class TestUinput(unittest.TestCase):
         uinput = UinputDevice(dev)
         self.assertTrue(uinput.syspath.startswith("/sys/devices/virtual/input/input"))
 
+
 if __name__ == '__main__':
     unittest.main()

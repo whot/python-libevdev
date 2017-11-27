@@ -13,6 +13,7 @@ def main(argv):
             if ev.matches("EV_SYN", "SYN_REPORT"):
                 break
 
+
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
         print("Usage: {} /dev/input/eventX".format(sys.argv[0]))

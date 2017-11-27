@@ -2,6 +2,7 @@ import sys
 
 from libevdev import *
 
+
 def main(argv):
     device = argv[1]
     with open(device, "rb") as fd:
@@ -17,6 +18,3 @@ if __name__ == '__main__':
         print("Usage: {} /dev/input/eventX".format(sys.argv[0]))
         sys.exit(1)
     main(sys.argv)
-    
-
-

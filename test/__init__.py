@@ -7,7 +7,9 @@ from libevdev import *
 # if properties 1-4 work the others will work too if libevdev works
 # correctly
 
+
 class TestNameConversion(unittest.TestCase):
+
     def test_type_max(self):
         for t in ["REL", "ABS"]:
             c = Libevdev.event_to_value("EV_{}".format(t), "{}_MAX".format(t))
@@ -92,6 +94,7 @@ class TestNameConversion(unittest.TestCase):
 
 
 class TestLibevdevDevice(unittest.TestCase):
+
     def test_ctx_init(self):
         l = Libevdev()
         del l
@@ -179,11 +182,13 @@ class TestLibevdevDevice(unittest.TestCase):
         self.assertEqual(id["product"], 3)
         self.assertEqual(id["version"], 5)
 
+
 class TestRealDevice(unittest.TestCase):
     """
     Tests various things against /dev/input/event3 which is usually the
     keyboard. Requires root rights though.
     """
+
     def setUp(self):
         self.fd = open("/dev/input/event3", "rb")
 
@@ -260,7 +265,7 @@ class TestRealDevice(unittest.TestCase):
         for i in range(1, 5):
             if l.has_event(i):
                 type_supported = i
-                break;
+                break
 
         self.assertGreater(type_supported, 0)
 
@@ -298,6 +303,7 @@ class TestRealDevice(unittest.TestCase):
         l = Libevdev(self.fd)
         self.assertIsNone(l.num_slots)
 
+
 class TestAbsDevice(unittest.TestCase):
     """
     Tests various things against the first device with EV_ABS.
@@ -305,6 +311,7 @@ class TestAbsDevice(unittest.TestCase):
     that's nonzero and is the most common ABS anyway.
     Requires root rights.
     """
+
     def setUp(self):
         want_fd = None
         for i in range(20):
@@ -403,23 +410,25 @@ class TestAbsDevice(unittest.TestCase):
         l.disable("EV_REL", "REL_RY")
         self.assertFalse(l.has_event("EV_REL", "REL_RY"))
 
-        data = { "minimum" : 100,
-                 "maximum" : 200,
-                 "value" : 300,
-                 "fuzz" : 400,
-                 "flat" : 500,
-                 "resolution" : 600 }
+        data = {"minimum": 100,
+                "maximum": 200,
+                "value": 300,
+                "fuzz": 400,
+                "flat": 500,
+                "resolution": 600}
         self.assertFalse(l.has_event("EV_ABS", "ABS_RY"))
         l.enable("EV_ABS", "ABS_RY", data)
         self.assertTrue(l.has_event("EV_ABS", "ABS_RY"))
         l.disable("EV_ABS", "ABS_RY")
         self.assertFalse(l.has_event("EV_ABS", "ABS_RY"))
 
+
 class TestMTDevice(unittest.TestCase):
     """
     Tests various things against the first MT device found.
     Requires root rights.
     """
+
     def setUp(self):
         want_fd = None
         for i in range(20):
@@ -470,6 +479,7 @@ class TestUinput(unittest.TestCase):
     Tests uinput device creation.
     Requires root rights.
     """
+
     def is_identical(self, d1, d2):
         for t in range(Libevdev.event_to_value("EV_MAX")):
             max = Libevdev.type_max(t)
@@ -505,8 +515,8 @@ class TestUinput(unittest.TestCase):
             self.assertTrue(self.is_identical(dev, newdev))
 
     def testAbsolute(self):
-        absinfo = { "minimum" : 0,
-                    "maximum" : 1 }
+        absinfo = {"minimum": 0,
+                   "maximum": 1}
 
         dev = Libevdev()
         dev.name = "test device"

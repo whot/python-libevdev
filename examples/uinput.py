@@ -5,6 +5,7 @@ from __future__ import print_function
 import sys
 import libevdev
 
+
 def main(args):
     dev = libevdev.Libevdev()
     dev.name = "test device"

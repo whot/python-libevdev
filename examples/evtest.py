@@ -5,16 +5,17 @@ from __future__ import print_function
 import sys
 import libevdev
 
+
 def print_capabilities(l):
     v = l.driver_version
     print("Input driver version is {}.{}.{}".format(v >> 16, (v >> 8) & 0xff, v & 0xff))
     id = l.id
-    print("Input device ID: bus {:#x} vendor {:#x} product {:#x} version {:#x}".format(\
-            id["bustype"],
-            id["vendor"],
-            id["product"],
-            id["version"],
-            ))
+    print("Input device ID: bus {:#x} vendor {:#x} product {:#x} version {:#x}".format(
+        id["bustype"],
+        id["vendor"],
+        id["product"],
+        id["version"],
+    ))
     print("Input device name: {}".format(l.name))
     print("Supported events:")
 
@@ -47,9 +48,10 @@ def print_capabilities(l):
                     print("       {:10s} {:6d}".format(k, v))
 
     print("Properties:")
-    for p in range(0x1f): # PROP_MAX
+    for p in range(0x1f):  # PROP_MAX
         if l.has_property(p):
             print("  Property type {} ({})".format(p, libevdev.Libevdev.property_to_name(p)))
+
 
 def print_events(l):
     while True:
@@ -65,14 +67,15 @@ def print_events(l):
         else:
             print("type {} ({}) code {} ({}), value {}".format(e.type, e.type_name, e.code, e.code_name, e.value))
 
+
 def main(args):
     path = args[1]
     with open(path, "rb") as fd:
         l = libevdev.Libevdev(fd)
         print_capabilities(l)
-        print ("################################\n"
-               "#      Waiting for events      #\n"
-               "################################")
+        print("################################\n"
+              "#      Waiting for events      #\n"
+              "################################")
 
         print_events(l)
 

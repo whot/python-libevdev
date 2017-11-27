@@ -46,7 +46,7 @@ class TestNameConversion(unittest.TestCase):
             self.assertIsNotNone(name)
             self.assertTrue(name.startswith("EV_"))
             self.assertNotEqual(prevname, name)
-            prename = name
+            prevname = name
 
     def test_type_to_name_invalid(self):
         name = Libevdev.event_to_name(-1)
@@ -379,7 +379,7 @@ class TestAbsDevice(unittest.TestCase):
     def test_set_absinfo_invalid(self):
         l = Libevdev(self.fd)
         with self.assertRaises(ValueError):
-            a = l.absinfo("REL_X")
+            l.absinfo("REL_X")
 
     def test_set_absinfo_kernel(self):
         # FIXME: yeah, nah, not testing that on a random device...

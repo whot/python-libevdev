@@ -1,6 +1,6 @@
 import sys
 
-from libevdev import *
+from libevdev import Libevdev
 
 
 def main(argv):

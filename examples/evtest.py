@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 
@@ -19,38 +19,34 @@ def print_capabilities(l):
     print("Input device name: {}".format(l.name))
     print("Supported events:")
 
-    for t in range(libevdev.Libevdev.event_to_value("EV_MAX")):
-        if not l.has_event(t):
-            continue
+    for t, cs in l.codes.items():
+        evtype = libevdev.e(t)
+        print("  Event type {} ({})".format(evtype.value, evtype.name))
 
-        print("  Event type {} ({})".format(t, libevdev.Libevdev.event_to_name(t)))
 
-        max = libevdev.Libevdev.type_max(t)
-        if max is None:
-            continue
+        for c in cs:
+            evcode = libevdev.e(evtype, c)
 
-        for c in range(max):
-            if not l.has_event(t, c):
-                continue
-
-            type_name = libevdev.Libevdev.event_to_name(t)
-            if type_name in ["EV_LED", "EV_SND", "EV_SW"]:
+            if evtype in [libevdev.EV_BIT.EV_LED, libevdev.EV_BIT.EV_SND, libevdev.EV_BIT.EV_SW]:
                 v = l.event_value(t, c)
-                print("    Event code {} ({}) state {}".format(c, libevdev.Libevdev.event_to_name(t, c), v))
+                print("    Event code {} ({}) state {}".format(evcode.value, evcode.name, v))
             else:
-                print("    Event code {} ({})".format(c, libevdev.Libevdev.event_to_name(t, c)))
+                print("    Event code {} ({})".format(evcode.value, evcode.name))
 
-            if type_name == "EV_ABS":
-                a = l.absinfo(c)
-                for k, v in a.items():
-                    if v == 0:
-                        continue
-                    print("       {:10s} {:6d}".format(k, v))
+            if evtype == libevdev.EV_BIT.EV_ABS:
+                a = l.absinfo(evcode)
+                print("       {:10s} {:6d}".format('Value', a.value))
+                print("       {:10s} {:6d}".format('Minimum', a.minimum))
+                print("       {:10s} {:6d}".format('Maximum', a.maximum))
+                print("       {:10s} {:6d}".format('Fuzz', a.fuzz))
+                print("       {:10s} {:6d}".format('Flat', a.flat))
+                print("       {:10s} {:6d}".format('Resolution', a.resolution))
 
     print("Properties:")
-    for p in range(0x1f):  # PROP_MAX
+    for p in range(libevdev.INPUT_PROP.INPUT_PROP_MAX):
         if l.has_property(p):
-            print("  Property type {} ({})".format(p, libevdev.Libevdev.property_to_name(p)))
+            p = libevdev.p(p)
+            print("  Property type {} ({})".format(p.value, p.name))
 
 
 def print_events(l):
@@ -70,15 +66,23 @@ def print_events(l):
 
 def main(args):
     path = args[1]
-    with open(path, "rb") as fd:
-        l = libevdev.Libevdev(fd)
-        print_capabilities(l)
-        print("################################\n"
-              "#      Waiting for events      #\n"
-              "################################")
+    try:
+        with open(path, "rb") as fd:
+            l = libevdev.Device(fd)
+            print_capabilities(l)
+            print("################################\n"
+                  "#      Waiting for events      #\n"
+                  "################################")
 
-        print_events(l)
-
+            #print_events(l)
+    except IOError as e:
+        import errno
+        if e.errno == errno.EACCES:
+            print("Insufficient permissions to access {}".format(path))
+        elif e.errno == errno.ENOENT:
+            print("Device {} does not exist".format(path))
+        else:
+            raise e
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

@@ -71,7 +71,7 @@ def print_events(l):
 def main(args):
     path = args[1]
     with open(path, "rb") as fd:
-        l = libevdev.Libevdev(fd)
+        l = libevdev.Device(fd)
         print_capabilities(l)
         print("################################\n"
               "#      Waiting for events      #\n"

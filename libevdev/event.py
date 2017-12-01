@@ -86,7 +86,7 @@ class InputEvent(object):
 
         if code != self.code:
             return None
-        elif value is None:
+        elif value is None or self.value is None:
             return True
 
         return value == self.value

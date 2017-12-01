@@ -64,7 +64,7 @@ def _load_consts():
         props[pname] = p
 
     e = enum.IntEnum(pname, props)
-    setattr(module, pname, e)
+    setattr(module, 'INPUT_PROP', e)
 
 _load_consts()
 

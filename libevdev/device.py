@@ -24,6 +24,8 @@ import time
 
 import libevdev
 from .clib import Libevdev
+from .event import InputEvent
+
 
 class InvalidFileError(Exception):
     """
@@ -258,3 +260,30 @@ class Device(object):
         return InputAbsInfo(r['minimum'], r['maximum'],
                             r['fuzz'], r['flat'],
                             r['resolution'], r['value'])
+
+    def next_event(self, flags=READ_FLAG_NORMAL):
+        """
+        :param flags: a set of libevdev read flags. May be omitted to use
+                      the normal mode.
+        :return: the next event or ``None`` if no event is available
+
+        Event processing should look like this::
+
+            fd = open("/dev/input/event0", "rb")
+            ctx = libevdev.Device(fd)
+            ev = ctx.next_event()
+            if ev is None:
+                print("no event available right now")
+            elif ev.matches("EV_SYN", "SYN_DROPPED"):
+                sync_ev = ctx.next_event(libevdev.READ_FLAG_SYNC)
+                while ev is not None:
+                    print("First event in sync sequence")
+                    sync_ev = ctx.next_event(libevdev.READ_FLAG_SYNC)
+                print("sync complete")
+
+        """
+
+        ev = self._libevdev.next_event()
+        if ev is None:
+            return None
+        return InputEvent(ev.type, ev.code, ev.value, ev.sec, ev.usec)

@@ -838,10 +838,9 @@ class Libevdev(_LibraryWrapper):
         if rc == -_errno.EAGAIN:
             return None
 
-        e = InputEvent(ev.sec, ev.usec, ev.type, ev.code, ev.value)
         if rc == 1:  # READ_STATUS_SYNC
             assert(e.matches("EV_SYN", "SYN_DROPPED"))
-        return e
+        return ev
 
 
 class _UinputDevice(_ctypes.Structure):

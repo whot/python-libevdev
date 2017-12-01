@@ -919,6 +919,8 @@ class InputEvent(object):
         """
         return Libevdev.event_to_name(self.type, self.code)
 
+    def __eq__(self, other):
+        return self.matches(other.type, other.code, other.value)
 
 class _UinputDevice(_ctypes.Structure):
     pass

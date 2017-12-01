@@ -857,7 +857,7 @@ class InputEvent(object):
         self.code = code
         self.value = value
 
-    def matches(self, type, code=None):
+    def matches(self, type, code=None, value=None):
         """
         Check if an event matches a given event type and/or event code. The
         following invocations are all accepted::
@@ -877,10 +877,15 @@ class InputEvent(object):
                 if ev.matches(0x02, 0):
                         pass
 
+                if ev.matches("EV_REL", "REL_X", 1):
+                        pass
+
         :param type: the event type, one of EV_<*> as string or integer
         :param code: optional, the event code as string or integer
+        :param value: optional, the event value
         :return: True if the type matches this event's type and this event's
-                 code matches the given code (if any)
+                 code matches the given code (if any) and this event's value
+                 matches the given value (if any)
         """
         if not isinstance(type, int):
             type = Libevdev.event_to_value(type)
@@ -893,7 +898,12 @@ class InputEvent(object):
         if not isinstance(code, int):
             code = Libevdev.event_to_value(type, code)
 
-        return code == self.code
+        if code != self.code:
+            return None
+        elif value is None:
+            return True
+
+        return value == self.value
 
     @property
     def type_name(self):

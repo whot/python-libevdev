@@ -22,7 +22,7 @@
 
 import enum
 
-from .libevdev import Libevdev
+from .clib import Libevdev
 
 def _load_consts():
     """

@@ -22,7 +22,8 @@
 
 import time
 
-from .libevdev import Libevdev
+import libevdev
+from .clib import Libevdev
 
 class InvalidFileError(Exception):
     """

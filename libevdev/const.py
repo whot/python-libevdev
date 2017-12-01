@@ -50,7 +50,7 @@ def _load_consts():
 
             codes[cname] = c
 
-        e = enum.Enum(tname, codes)
+        e = enum.IntEnum(tname, codes)
         setattr(module, tname, e)
 
     props = {}
@@ -63,7 +63,7 @@ def _load_consts():
 
         props[pname] = p
 
-    e = enum.Enum(pname, props)
+    e = enum.IntEnum(pname, props)
     setattr(module, pname, e)
 
 _load_consts()

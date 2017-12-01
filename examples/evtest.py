@@ -70,15 +70,23 @@ def print_events(l):
 
 def main(args):
     path = args[1]
-    with open(path, "rb") as fd:
-        l = libevdev.Device(fd)
-        print_capabilities(l)
-        print("################################\n"
-              "#      Waiting for events      #\n"
-              "################################")
+    try:
+        with open(path, "rb") as fd:
+            l = libevdev.Device(fd)
+            print_capabilities(l)
+            print("################################\n"
+                  "#      Waiting for events      #\n"
+                  "################################")
 
-        print_events(l)
-
+            print_events(l)
+    except IOError as e:
+        import errno
+        if e.errno == errno.EACCES:
+            print("Insufficient permissions to access {}".format(path))
+        elif e.errno == errno.ENOENT:
+            print("Device {} does not exist".format(path))
+        else:
+            raise e
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

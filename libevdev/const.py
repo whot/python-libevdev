@@ -51,8 +51,10 @@ def _load_consts():
 
         for c in range(cmax + 1):
             cname = Libevdev.event_to_name(t, c)
+            # For those without names, we just use the type name plus
+            # hexcode
             if cname is None:
-                continue
+                cname = "{}_{:02x}".format(tname[3:], c)
 
             codes[cname] = c
 

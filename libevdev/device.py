@@ -49,6 +49,8 @@ class Device(object):
                 l = libevdev.Device(fd)
                 # l now represents the device on event0
 
+        Note that the device is always set to CLOCK_MONOTONIC.
+
                 l2 = libevdev.Device()
                 l2.name = "test device"
                 l2.enable("EV_REL", "REL_X")
@@ -58,6 +60,11 @@ class Device(object):
         is always None.
         """
         self._libevdev = Libevdev(fd)
+        if fd is not None:
+            try:
+                self._libevdev.set_clock_id(time.CLOCK_MONOTONIC)
+            except AttributeError:
+                self._libevdev.set_clock_id(1)
 
     @property
     def name(self):

@@ -35,14 +35,15 @@ def print_capabilities(l):
             if not l.has_event(t, c):
                 continue
 
-            type_name = libevdev.Libevdev.event_to_name(t)
-            if type_name in ["EV_LED", "EV_SND", "EV_SW"]:
-                v = l.event_value(t, c)
-                print("    Event code {} ({}) state {}".format(c, libevdev.Libevdev.event_to_name(t, c), v))
-            else:
-                print("    Event code {} ({})".format(c, libevdev.Libevdev.event_to_name(t, c)))
+            evcode = libevdev.e(evtype, c)
 
-            if type_name == "EV_ABS":
+            if evcode in [ libevdev.EV_BIT.EV_LED, libevdev.EV_BIT.EV_SND, libevdev.EV_BIT.EV_SW]:
+                v = l.event_value(t, c)
+                print("    Event code {} ({}) state {}".format(evcode.value, evcode.name, v))
+            else:
+                print("    Event code {} ({})".format(evcode.value, evcode.name))
+
+            if evcode == libevdev.EV_BIT.EV_ABS:
                 a = l.absinfo(c)
                 for k, v in a.items():
                     if v == 0:

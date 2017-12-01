@@ -179,11 +179,23 @@ class Device(object):
         self._libevdev.fd = fileobj
 
     @property
-    def types(self):
-        types = []
-        for t in range(EV_BIT.EV_MAX + 1):
-            if self.has_event(t):
-                types.append[t]
+    def codes(self):
+        """
+        Returns a dict with all supported event types and event codes, in
+        the form of { type : [ code, ...]
+        """
+        types = {}
+        for t in libevdev.EV_BIT:
+            if not self.has_event(t):
+                continue
+
+            codes = []
+            for c in range(t.max):
+                if not self.has_event(t, c):
+                    continue
+                codes.append(c)
+            types[t] = codes
+
         return types
 
     def has_property(self, prop):

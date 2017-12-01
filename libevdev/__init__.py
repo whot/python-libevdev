@@ -22,4 +22,5 @@
 
 __all__ = ['Device', 'UinputDevice']
 
-from .device import Device
+from .device import Device, InvalidFileError
+from .event import InputEvent

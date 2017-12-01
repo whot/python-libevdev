@@ -20,7 +20,14 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-import libevdev
+import time
+
+from .libevdev import Libevdev
+
+class InvalidFileError(Exception):
+    """A file provided is not a valid file descriptor for libevdev or this
+    device must not have a file descriptor"""
+    pass
 
 class Device(object):
     """
@@ -47,8 +54,10 @@ class Device(object):
                 l2.enable("EV_REL", "REL_X")
                 # l2 is an unbound device with the REL_X bit set
 
+        Note that if a device is constructed manually, the fd of the device
+        is always None.
         """
-        self._libevdev = libevdev.Libevdev(fd)
+        self._libevdev = Libevdev(fd)
 
     @property
     def name(self):
@@ -90,3 +99,52 @@ class Device(object):
         """
         return self._libevdev.driver_version
 
+    @property
+    def id(self):
+        """
+        :return: A dict with the keys 'bustype', 'vendor', 'product', 'version'.
+
+        When used as a setter, only existing keys are applied to the
+        device. For example, to update the product ID only::
+
+                ctx = Device()
+                id["property"] = 1234
+                ctx.id = id
+
+        """
+        return self._libevdev.id
+
+    @id.setter
+    def id(self, vals):
+        self._libevdev.id = vals
+
+    @property
+    def fd(self):
+        """
+        :return: the fd to this device
+
+        This fd represents the file descriptor to this device, if any. If no
+        fd was provided in the constructor.
+        """
+        return self._libevdev.fd
+
+    @fd.setter
+    def fd(self, fileobj):
+        """
+        Set the fd of the device to the file object given.
+
+        This call overwrites the file given in the constructor or
+        a previous call to this function. The new file object becomes the
+        object referencing this device, futher events are polled from that
+        file.
+
+        Note that libevdev does not synchronize the device and relies on the
+        caller to ensure that the new file object points to the same device
+        as this context.
+
+        :raises: InvalidFileError - the file is invalid or this device does
+        not allow a file to be set
+        """
+        if self._libevdev.fd is None:
+            raise InvalidFileError()
+        self._libevdev.fd = fileobj

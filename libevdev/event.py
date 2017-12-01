@@ -108,3 +108,6 @@ class InputEvent(object):
     def __eq__(self, other):
         return self.matches(other.type, other.code, other.value)
 
+    def __repr__(self):
+        return 'InputEvent({}, {}, {})'.format(self.type_name, self.code_name, self.value)
+

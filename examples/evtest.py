@@ -19,36 +19,28 @@ def print_capabilities(l):
     print("Input device name: {}".format(l.name))
     print("Supported events:")
 
-    for t in range(libevdev.EV_BIT.EV_MAX):
-        if not l.has_event(t):
-            continue
-
+    for t, cs in l.codes.items():
         evtype = libevdev.e(t)
         print("  Event type {} ({})".format(evtype.value, evtype.name))
 
-        # FIXME: attach this to the evtype 
-        max = libevdev.type_max(t)
-        if max is None:
-            continue
 
-        for c in range(max):
-            if not l.has_event(t, c):
-                continue
-
+        for c in cs:
             evcode = libevdev.e(evtype, c)
 
-            if evcode in [ libevdev.EV_BIT.EV_LED, libevdev.EV_BIT.EV_SND, libevdev.EV_BIT.EV_SW]:
+            if evtype in [libevdev.EV_BIT.EV_LED, libevdev.EV_BIT.EV_SND, libevdev.EV_BIT.EV_SW]:
                 v = l.event_value(t, c)
                 print("    Event code {} ({}) state {}".format(evcode.value, evcode.name, v))
             else:
                 print("    Event code {} ({})".format(evcode.value, evcode.name))
 
-            if evcode == libevdev.EV_BIT.EV_ABS:
-                a = l.absinfo(c)
-                for k, v in a.items():
-                    if v == 0:
-                        continue
-                    print("       {:10s} {:6d}".format(k, v))
+            if evtype == libevdev.EV_BIT.EV_ABS:
+                a = l.absinfo(evcode)
+                print("       {:10s} {:6d}".format('Value', a.value))
+                print("       {:10s} {:6d}".format('Minimum', a.minimum))
+                print("       {:10s} {:6d}".format('Maximum', a.maximum))
+                print("       {:10s} {:6d}".format('Fuzz', a.fuzz))
+                print("       {:10s} {:6d}".format('Flat', a.flat))
+                print("       {:10s} {:6d}".format('Resolution', a.resolution))
 
     print("Properties:")
     for p in range(libevdev.INPUT_PROP.INPUT_PROP_MAX):

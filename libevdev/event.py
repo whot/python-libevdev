@@ -20,17 +20,27 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
+from .clib import Libevdev
+
+
 class InputEvent(object):
     """
     Represents one input event of type struct input_event as defined in
     linux/input.h and returned by libevdev_next_event().
     """
 
-    def __init__(self, sec, usec, type, code, value):
+    def __init__(self, type, code=None, value=None, sec=0, usec=0):
         self.sec = sec
         self.usec = usec
+
+        if not isinstance(type, int) and type is not None:
+            type = Libevdev.event_to_value(type)
         self.type = type
+
+        if not isinstance(code, int) and code is not None:
+            code = Libevdev.event_to_value(type, code)
         self.code = code
+
         self.value = value
 
     def matches(self, type, code=None, value=None):

@@ -64,8 +64,10 @@ def _load_consts():
     e = enum.IntEnum('EV_BIT', types)
     setattr(module, 'EV_BIT', e)
 
+    # Attach attribute 'max' to EV_BIT.EV_foo
     for v in e:
-        setattr(v, 'max', Libevdev.type_max(t))
+        m = Libevdev.type_max(v)
+        setattr(v, 'max', m)
 
     props = {}
     pmax = Libevdev.property_to_value("INPUT_PROP_MAX")

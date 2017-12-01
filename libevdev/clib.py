@@ -835,7 +835,7 @@ class Libevdev(_LibraryWrapper):
         """
         ev = _InputEvent()
         rc = self._next_event(self._ctx, flags, _ctypes.byref(ev))
-        if rc < -_errno.EAGAIN:
+        if rc == -_errno.EAGAIN:
             return None
 
         e = InputEvent(ev.sec, ev.usec, ev.type, ev.code, ev.value)

@@ -604,7 +604,7 @@ class Libevdev(_LibraryWrapper):
 
         This function is the equivalent to ``libevdev_property_from_name()``
         """
-        v = cls._property_from_name(prop)
+        v = cls._property_from_name(prop.encode("iso8859-1"))
         if v == -1:
             return None
         return v

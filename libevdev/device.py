@@ -25,9 +25,30 @@ import time
 from .libevdev import Libevdev
 
 class InvalidFileError(Exception):
-    """A file provided is not a valid file descriptor for libevdev or this
-    device must not have a file descriptor"""
+    """
+    A file provided is not a valid file descriptor for libevdev or this
+    device must not have a file descriptor
+    """
     pass
+
+class InvalidArgumentException(Exception):
+    pass
+
+class InputAbsInfo(object):
+    """
+    A class representing the struct InputAbsinfo for a given EV_ABS code.
+
+    Any of the attributes may be set to None, those that are None are simply
+    ignored by libevdev.
+    """
+    def __init__(self, minimum=None, maximum=None, fuzz=None, flat=None,
+                 resolution=None, value=None):
+        self.minimum = minimum
+        self.maximum = maximum
+        self.fuzz = fuzz
+        self.flat = flat
+        self.resolution = resolution
+        self.value = value
 
 class Device(object):
     """
@@ -155,3 +176,72 @@ class Device(object):
         if self._libevdev.fd is None:
             raise InvalidFileError()
         self._libevdev.fd = fileobj
+
+    @property
+    def types(self):
+        types = []
+        for t in range(EV_BIT.EV_MAX + 1):
+            if self.has_event(t):
+                types.append[t]
+        return types
+
+    def has_property(self, prop):
+        """
+        :param prop: a property
+        :return: True if the device has the property, False otherwise
+        """
+        return self._libevdev.has_property(prop)
+
+    def has_event(self, evtype, evcode = None):
+        """
+        :param evtype: the event type
+        :param evcode: optional, the event code
+        :return: True if the device has the type and/or code, False otherwise
+        """
+        return self._libevdev.has_event(evtype, evcode)
+
+    @property
+    def num_slots(self):
+        """
+        :return: the number of slots on this device or ``None`` if this device
+                 does not support slots
+
+        :note: Read-only
+        """
+        s = self.libevdev._get_num_slots(self._ctx)
+        return s if s >= 0 else None
+
+    @property
+    def current_slot(self):
+        """
+        :return: the current of slots on this device or ``None`` if this device
+                 does not support slots
+
+        :note: Read-only
+        """
+        s = self._libevdev._get_current_slot(self._ctx)
+        return s if s >= 0 else None
+
+    def absinfo(self, code, new_values=None, kernel=False):
+        """
+        Query the device's absinfo for the given event code. This function
+        both queries and sets the absinfo - if new value is supplied that
+        value is now the value of the device.
+
+        :param code: the ABS_<*> code
+        :param new_values: an InputAbsInfo struct or None
+        :param kernel: If True, assigning new values corresponds to ``libevdev_kernel_set_abs_info``
+        :return: an InputAbsInfo struct or None if the device does not have
+        the event code
+        """
+
+        if new_values is None and kernel:
+            raise InvalidArgumentException()
+
+        r = self._libevdev.absinfo(code, new_values, kernel)
+        if r is None:
+            return r
+
+        return InputAbsInfo(r['minimum'], r['maximum'],
+                            r['fuzz'], r['flat'],
+                            r['resolution'], r['value'])

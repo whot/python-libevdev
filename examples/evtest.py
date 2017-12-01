@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 
@@ -19,13 +19,15 @@ def print_capabilities(l):
     print("Input device name: {}".format(l.name))
     print("Supported events:")
 
-    for t in range(libevdev.Libevdev.event_to_value("EV_MAX")):
+    for t in range(libevdev.EV_BIT.EV_MAX):
         if not l.has_event(t):
             continue
 
-        print("  Event type {} ({})".format(t, libevdev.Libevdev.event_to_name(t)))
+        evtype = libevdev.e(t)
+        print("  Event type {} ({})".format(evtype.value, evtype.name))
 
-        max = libevdev.Libevdev.type_max(t)
+        # FIXME: attach this to the evtype 
+        max = libevdev.type_max(t)
         if max is None:
             continue
 
@@ -48,9 +50,10 @@ def print_capabilities(l):
                     print("       {:10s} {:6d}".format(k, v))
 
     print("Properties:")
-    for p in range(0x1f):  # PROP_MAX
+    for p in range(libevdev.INPUT_PROP.INPUT_PROP_MAX):
         if l.has_property(p):
-            print("  Property type {} ({})".format(p, libevdev.Libevdev.property_to_name(p)))
+            p = libevdev.p(p)
+            print("  Property type {} ({})".format(p.value, p.name))
 
 
 def print_events(l):
@@ -78,7 +81,7 @@ def main(args):
                   "#      Waiting for events      #\n"
                   "################################")
 
-            print_events(l)
+            #print_events(l)
     except IOError as e:
         import errno
         if e.errno == errno.EACCES:

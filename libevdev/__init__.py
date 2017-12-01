@@ -24,4 +24,4 @@ __all__ = ['Device', 'UinputDevice']
 
 from .device import Device, InvalidFileError
 from .event import InputEvent
-import libevdev.const
+from .const import type_name, type_max, e, p

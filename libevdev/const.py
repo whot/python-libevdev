@@ -35,11 +35,17 @@ def _load_consts():
 
     tmax = Libevdev.event_to_value("EV_MAX")
     assert tmax is not None
+
+
+    types = {'EV_MAX' : tmax}
+
     for t in range(tmax + 1):
         tname = Libevdev.event_to_name(t)
         cmax = Libevdev.type_max(t)
         if cmax is None:
             continue
+
+        types[tname] = t
 
         codes = {}
 
@@ -52,6 +58,12 @@ def _load_consts():
 
         e = enum.IntEnum(tname, codes)
         setattr(module, tname, e)
+
+    e = enum.IntEnum('EV_BIT', types)
+    setattr(module, 'EV_BIT', e)
+
+    for v in e:
+        setattr(v, 'max', Libevdev.type_max(t))
 
     props = {}
     pmax = Libevdev.property_to_value("INPUT_PROP_MAX")
@@ -68,3 +80,40 @@ def _load_consts():
 
 _load_consts()
 
+def e(evtype, evcode=None):
+    """
+    Takes an event type and an (optional) event code and returns the enum
+    representing that type or code, whichever applies.
+    """
+
+    module = __import__(__name__)
+    try:
+        t = getattr(module, 'EV_BIT')(evtype)
+    except ValueError:
+        return None
+
+    if evcode is None:
+        return t
+
+    try:
+        return getattr(module, t.name)(evcode)
+    except ValueError:
+        return None
+
+def p(prop):
+    """
+    Takes a property value and returns the enum representing that property.
+    """
+    module = __import__(__name__)
+    try:
+        return getattr(module, 'INPUT_PROP')(prop)
+    except ValueError:
+        return None
+
+
+def type_name(t):
+    return Libevdev.event_to_name(t)
+
+
+def type_max(t):
+    return Libevdev.type_max(t)

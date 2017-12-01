@@ -24,6 +24,7 @@ import time
 
 import libevdev
 from .clib import Libevdev
+from .clib import READ_FLAG_SYNC, READ_FLAG_NORMAL, READ_FLAG_FORCE_SYNC, READ_FLAG_BLOCKING
 from .event import InputEvent
 
 
@@ -223,7 +224,7 @@ class Device(object):
 
         :note: Read-only
         """
-        s = self.libevdev._get_num_slots(self._ctx)
+        s = self._libevdev.num_slots
         return s if s >= 0 else None
 
     @property
@@ -234,7 +235,7 @@ class Device(object):
 
         :note: Read-only
         """
-        s = self._libevdev._get_current_slot(self._ctx)
+        s = self._libevdev.current_slot
         return s if s >= 0 else None
 
     def absinfo(self, code, new_values=None, kernel=False):
@@ -287,3 +288,23 @@ class Device(object):
         if ev is None:
             return None
         return InputEvent(ev.type, ev.code, ev.value, ev.sec, ev.usec)
+
+    def event_value(self, event_type, event_code, new_value=None):
+        """
+        :param event_type: the event type, either as integer or as string
+        :param event_code: the event code, either as integer or as string
+        :param new_value: optional, the value to set to
+        :return: the current value of type + code, or ``None`` if it doesn't
+                 exist on this device
+        """
+        return self._libevdev.event_value(event_type, event_code, new_value)
+
+    def slot_value(self, slot, event_code, new_value=None):
+        """
+        :param slot: the numeric slot number
+        :param event_code: the ABS_<*> event code, either as integer or string
+        :param new_value: optional, the value to set this slot to
+        :return: the current value of the slot's code, or ``None`` if it doesn't
+                 exist on this device
+        """
+        return self._libevdev.slot_value(slot, event_code, new_value)

@@ -838,8 +838,6 @@ class Libevdev(_LibraryWrapper):
         if rc == -_errno.EAGAIN:
             return None
 
-        if rc == 1:  # READ_STATUS_SYNC
-            assert(e.matches("EV_SYN", "SYN_DROPPED"))
         return ev
 
 

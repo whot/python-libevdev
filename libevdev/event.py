@@ -20,8 +20,10 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-from .clib import Libevdev
+from enum import Enum
 
+from .clib import Libevdev
+import libevdev
 
 class InputEvent(object):
     """
@@ -43,18 +45,45 @@ class InputEvent(object):
 
         self.value = value
 
+    def _enum_match(self, v):
+        """
+        Matches this event against an enum value, either a type like
+        libevdev.EV_BITS.EV_REL or a code like libevdev.EV_REL.REL_X.
+        """
+
+        if v in libevdev.EV_BITS:
+            return self.type == v
+
+        # v must be a full code
+        if self.code != v:
+            return False
+
+        return v.evtype == self.type
+
     def matches(self, type, code=None, value=None):
         """
         Check if an event matches a given event type and/or event code. The
-        following invocations are all accepted::
+        following invocations are all accepted. Matching on the enum of the
+        event type or code::
 
-                if ev.matches("EV_REL"):
+                if ev.matches(libevdev.EV_BITS.EV_REL):
+                        pass
+
+                if ev.matches(libevdev.EV_REL.REL_X):
+                        pass
+
+        Matching on the integer representation of event types or codes::
+
+
+                if ev.matches(0x02, 0):
                         pass
 
                 if ev.matches(0x02):
                         pass
 
-                if ev.matches(libevdev.EV_BITS.EV_REL):
+        Matchin on the string representation of events::
+
+                if ev.matches("EV_REL"):
                         pass
 
                 if ev.matches("EV_REL", "REL_X"):
@@ -63,11 +92,7 @@ class InputEvent(object):
                 if ev.matches(0x02, "REL_X"):
                         pass
 
-                if ev.matches(libevdev.EV_BITS.EV_REL, libevdev.EV_REL.REL_X):
-                        pass
-
-                if ev.matches(0x02, 0):
-                        pass
+        Matching on an event with a value::
 
                 if ev.matches("EV_REL", "REL_X", 1):
                         pass
@@ -79,6 +104,14 @@ class InputEvent(object):
                  code matches the given code (if any) and this event's value
                  matches the given value (if any)
         """
+
+        if isinstance(type, Enum):
+            v = self._enum_match(type)
+            if not v:
+                return False
+            if value is not None:
+                return self.value == value
+
         if not isinstance(type, int):
             type = Libevdev.event_to_value(type)
 

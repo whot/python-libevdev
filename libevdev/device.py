@@ -363,3 +363,34 @@ class Device(object):
                  exist on this device
         """
         return self._libevdev.slot_value(slot, event_code, new_value)
+
+    @property
+    def devnode(self):
+        """
+        Returns the device node for this device. The device node is None if
+        this device has not been created as uinput device.
+        """
+        if not self._uinput:
+            return None
+        return self._uinput.devnode
+
+    @property
+    def syspath(self):
+        """
+        Returns the syspath for this device. The syspath is None if this
+        device has not been created as uinput device.
+        """
+        if not self._uinput:
+            return None
+        return self._uinput.syspath
+
+    def create(self, uinput_fd=None):
+        """
+        Creates a new uinput device from this libevdev device. When created,
+        the device's fd now points to the new uinput device
+
+        :param uinput_fd: A file descriptor to the /dev/input/uinput device.
+        If None, the device is opened and closed automatically.
+        """
+
+        self._uinput = libevdev.UinputDevice(self._libevdev, uinput_fd)

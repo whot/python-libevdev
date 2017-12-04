@@ -20,8 +20,6 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-__all__ = ['Device', 'UinputDevice']
-
 from .device import Device, InvalidFileError, EventsDroppedException
 from .event import InputEvent
 from .const import type_name, type_max, e, p

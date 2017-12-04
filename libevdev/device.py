@@ -217,7 +217,7 @@ class Device(object):
         the form of { type : [ code, ...]
         """
         types = {}
-        for t in libevdev.EV_BIT:
+        for t in libevdev.EV_BITS:
             if not self.has_event(t):
                 continue
 
@@ -314,7 +314,7 @@ class Device(object):
         ev = self._libevdev.next_event(flags)
         while ev is not None:
             yield InputEvent(ev.type, ev.code, ev.value, ev.sec, ev.usec)
-            if ev.type == libevdev.EV_BIT.EV_SYN and ev.code == libevdev.EV_SYN.SYN_DROPPED:
+            if ev.type == libevdev.EV_BITS.EV_SYN and ev.code == libevdev.EV_SYN.SYN_DROPPED:
                 raise EventsDroppedException()
             ev = self._libevdev.next_event(flags)
 

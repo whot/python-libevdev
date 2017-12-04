@@ -54,7 +54,7 @@ class InputEvent(object):
                 if ev.matches(0x02):
                         pass
 
-                if ev.matches(libevdev.EV_BIT.EV_REL):
+                if ev.matches(libevdev.EV_BITS.EV_REL):
                         pass
 
                 if ev.matches("EV_REL", "REL_X"):
@@ -63,7 +63,7 @@ class InputEvent(object):
                 if ev.matches(0x02, "REL_X"):
                         pass
 
-                if ev.matches(libevdev.EV_BIT.EV_REL, libevdev.EV_REL.REL_X):
+                if ev.matches(libevdev.EV_BITS.EV_REL, libevdev.EV_REL.REL_X):
                         pass
 
                 if ev.matches(0x02, 0):

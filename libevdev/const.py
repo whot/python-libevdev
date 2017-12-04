@@ -61,10 +61,10 @@ def _load_consts():
         e = enum.IntEnum(tname, codes)
         setattr(module, tname, e)
 
-    e = enum.IntEnum('EV_BIT', types)
-    setattr(module, 'EV_BIT', e)
+    e = enum.IntEnum('EV_BITS', types)
+    setattr(module, 'EV_BITS', e)
 
-    # Attach attribute 'max' to EV_BIT.EV_foo
+    # Attach attribute 'max' to EV_BITS.EV_foo
     for v in e:
         m = Libevdev.type_max(v)
         setattr(v, 'max', m)
@@ -92,7 +92,7 @@ def e(evtype, evcode=None):
 
     module = __import__(__name__)
     try:
-        t = getattr(module, 'EV_BIT')(evtype)
+        t = getattr(module, 'EV_BITS')(evtype)
     except ValueError:
         return None
 

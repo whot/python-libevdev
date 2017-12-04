@@ -27,13 +27,13 @@ def print_capabilities(l):
         for c in cs:
             evcode = libevdev.e(evtype, c)
 
-            if evtype in [libevdev.EV_BIT.EV_LED, libevdev.EV_BIT.EV_SND, libevdev.EV_BIT.EV_SW]:
+            if evtype in [libevdev.EV_BITS.EV_LED, libevdev.EV_BITS.EV_SND, libevdev.EV_BITS.EV_SW]:
                 v = l.event_value(t, c)
                 print("    Event code {} ({}) state {}".format(evcode.value, evcode.name, v))
             else:
                 print("    Event code {} ({})".format(evcode.value, evcode.name))
 
-            if evtype == libevdev.EV_BIT.EV_ABS:
+            if evtype == libevdev.EV_BITS.EV_ABS:
                 a = l.absinfo(evcode)
                 print("       {:10s} {:6d}".format('Value', a.value))
                 print("       {:10s} {:6d}".format('Minimum', a.minimum))

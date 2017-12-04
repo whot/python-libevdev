@@ -80,6 +80,8 @@ def main(args):
                     for e in l.sync():
                         print_event(e)
 
+    except KeyboardInterrupt:
+        pass
     except IOError as e:
         import errno
         if e.errno == errno.EACCES:

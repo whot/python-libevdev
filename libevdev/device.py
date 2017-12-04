@@ -222,7 +222,7 @@ class Device(object):
                 continue
 
             codes = []
-            for c in range(t.max):
+            for c in t.evcodes:
                 if not self.has_event(t, c):
                     continue
                 codes.append(c)

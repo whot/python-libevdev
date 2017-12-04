@@ -35,16 +35,23 @@ def _load_consts():
     tmax = Libevdev.event_to_value("EV_MAX")
     assert tmax is not None
 
-
     types = {'EV_MAX' : tmax}
+
+    for t in range(tmax + 1):
+        tname = Libevdev.event_to_name(t)
+        if tname is None:
+            continue
+
+        types[tname] = t
+
+    e = enum.IntEnum('EV_BITS', types)
+    setattr(libevdev, 'EV_BITS', e)
 
     for t in range(tmax + 1):
         tname = Libevdev.event_to_name(t)
         cmax = Libevdev.type_max(t)
         if cmax is None:
             continue
-
-        types[tname] = t
 
         codes = {}
 
@@ -59,9 +66,9 @@ def _load_consts():
 
         e = enum.IntEnum(tname, codes)
         setattr(libevdev, tname, e)
-
-    e = enum.IntEnum('EV_BITS', types)
-    setattr(libevdev, 'EV_BITS', e)
+        for c in e:
+            setattr(c, 'evtype', libevdev.EV_BITS(t))
+        setattr(libevdev.EV_BITS(t), 'evcodes', e)
 
     # Attach attribute 'max' to EV_BITS.EV_foo
     for t in libevdev.EV_BITS:

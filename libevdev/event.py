@@ -54,10 +54,16 @@ class InputEvent(object):
                 if ev.matches(0x02):
                         pass
 
+                if ev.matches(libevdev.EV_BIT.EV_REL):
+                        pass
+
                 if ev.matches("EV_REL", "REL_X"):
                         pass
 
                 if ev.matches(0x02, "REL_X"):
+                        pass
+
+                if ev.matches(libevdev.EV_BIT.EV_REL, libevdev.EV_REL.REL_X):
                         pass
 
                 if ev.matches(0x02, 0):
@@ -66,8 +72,8 @@ class InputEvent(object):
                 if ev.matches("EV_REL", "REL_X", 1):
                         pass
 
-        :param type: the event type, one of EV_<*> as string or integer
-        :param code: optional, the event code as string or integer
+        :param type: the event type, one of EV_<*> as enum, string or integer
+        :param code: optional, the event code as enum, string or integer
         :param value: optional, the event value
         :return: True if the type matches this event's type and this event's
                  code matches the given code (if any) and this event's value

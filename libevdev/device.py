@@ -21,6 +21,7 @@
 # DEALINGS IN THE SOFTWARE.
 
 import time
+import os
 
 import libevdev
 from .clib import Libevdev
@@ -262,32 +263,30 @@ class Device(object):
                             r['fuzz'], r['flat'],
                             r['resolution'], r['value'])
 
-    def next_event(self, flags=READ_FLAG_NORMAL):
+    def events(self):
         """
-        :param flags: a set of libevdev read flags. May be omitted to use
-                      the normal mode.
-        :return: the next event or ``None`` if no event is available
+        Returns an iterator with currently pending events.
 
         Event processing should look like this::
 
             fd = open("/dev/input/event0", "rb")
             ctx = libevdev.Device(fd)
-            ev = ctx.next_event()
-            if ev is None:
-                print("no event available right now")
-            elif ev.matches("EV_SYN", "SYN_DROPPED"):
-                sync_ev = ctx.next_event(libevdev.READ_FLAG_SYNC)
-                while ev is not None:
-                    print("First event in sync sequence")
-                    sync_ev = ctx.next_event(libevdev.READ_FLAG_SYNC)
-                print("sync complete")
 
+            while True:
+                for e in ctx.events():
+                    print(e):
+
+        :return: an iterator with the currently pending events
         """
+        if os.get_blocking(self._libevdev.fd.fileno()):
+            flags = READ_FLAG_BLOCKING
+        else:
+            flags = READ_FLAG_NORMAL
 
-        ev = self._libevdev.next_event()
-        if ev is None:
-            return None
-        return InputEvent(ev.type, ev.code, ev.value, ev.sec, ev.usec)
+        ev = self._libevdev.next_event(flags)
+        while ev is not None:
+            yield InputEvent(ev.type, ev.code, ev.value, ev.sec, ev.usec)
+            ev = self._libevdev.next_event(flags)
 
     def event_value(self, event_type, event_code, new_value=None):
         """

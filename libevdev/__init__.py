@@ -25,4 +25,3 @@ __all__ = ['Device', 'UinputDevice']
 from .device import Device, InvalidFileError
 from .event import InputEvent
 from .const import type_name, type_max, e, p
-from .clib import READ_FLAG_SYNC, READ_FLAG_NORMAL, READ_FLAG_FORCE_SYNC, READ_FLAG_BLOCKING

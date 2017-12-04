@@ -50,8 +50,7 @@ def print_capabilities(l):
 
 
 def print_events(l):
-    while True:
-        e = l.next_event()
+    for e in l.events():
         print("Event: time {}.{:06d}, ".format(e.sec, e.usec), end='')
         if e.matches("EV_SYN"):
             if e.matches("EV_SYN", "SYN_MT_REPORT"):
@@ -74,7 +73,8 @@ def main(args):
                   "#      Waiting for events      #\n"
                   "################################")
 
-            #print_events(l)
+            while True:
+                print_events(l)
     except IOError as e:
         import errno
         if e.errno == errno.EACCES:

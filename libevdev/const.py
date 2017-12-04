@@ -88,6 +88,14 @@ def e(evtype, evcode=None):
     """
     Takes an event type and an (optional) event code and returns the Enum
     representing that type or code, whichever applies.
+
+    Note that if the type name does not exist, this function returns None.
+    If the code name does not exist, this function returns a usable Enum
+    value nonetheless. This is intentional, while missing type names are a
+    bug, missing code names are common on devices that merely enumarate a
+    bunch of axes.
+
+    :return: An Enum value representing the code
     """
 
     module = __import__(__name__)
@@ -107,6 +115,8 @@ def e(evtype, evcode=None):
 def p(prop):
     """
     Takes a property value and returns the Enum representing that property.
+
+    :return: an Enum of the property or None if it does not exist
     """
     module = __import__(__name__)
     try:

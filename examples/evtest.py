@@ -39,10 +39,8 @@ def print_capabilities(l):
                 print("       {:10s} {:6d}".format('Resolution', a.resolution))
 
     print("Properties:")
-    for p in range(libevdev.INPUT_PROP.INPUT_PROP_MAX):
-        if l.has_property(p):
-            p = libevdev.p(p)
-            print("  Property type {} ({})".format(p.value, p.name))
+    for p in l.properties:
+        print("  Property type {} ({})".format(p.value, p.name))
 
 
 def print_event(e):

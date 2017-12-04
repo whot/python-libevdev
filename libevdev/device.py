@@ -230,6 +230,13 @@ class Device(object):
 
         return types
 
+    @property
+    def properties(self):
+        """
+        Returns a list of all supported input properties
+        """
+        return [p for p in libevdev.INPUT_PROP if self.has_property(p)]
+
     def has_property(self, prop):
         """
         :param prop: a property

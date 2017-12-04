@@ -7,13 +7,13 @@ import libevdev
 
 
 def main(args):
-    dev = libevdev.Libevdev()
+    dev = libevdev.Device()
     dev.name = "test device"
     dev.enable("EV_REL", "REL_X")
     dev.enable("EV_REL", "REL_Y")
     try:
-        uinput = libevdev.UinputDevice(dev)
-        print("New device at {} ({})".format(uinput.devnode, uinput.syspath))
+        dev.create()
+        print("New device at {} ({})".format(dev.devnode, dev.syspath))
     except OSError as e:
         print(e)
 

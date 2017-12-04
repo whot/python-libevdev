@@ -23,14 +23,13 @@
 import enum
 
 from .clib import Libevdev
+import libevdev
 
 def _load_consts():
     """
     Loads all event type, code and property names and makes them available
     as enums in the module. Use as e.g. libevdev.EV_SYN.SYN_REPORT.
     """
-    module = __import__(__name__)
-
     l = Libevdev() # classmethods, need to make sure it's loaded at once
 
     tmax = Libevdev.event_to_value("EV_MAX")
@@ -59,15 +58,15 @@ def _load_consts():
             codes[cname] = c
 
         e = enum.IntEnum(tname, codes)
-        setattr(module, tname, e)
+        setattr(libevdev, tname, e)
 
     e = enum.IntEnum('EV_BITS', types)
-    setattr(module, 'EV_BITS', e)
+    setattr(libevdev, 'EV_BITS', e)
 
     # Attach attribute 'max' to EV_BITS.EV_foo
-    for v in e:
-        m = Libevdev.type_max(v)
-        setattr(v, 'max', m)
+    for t in libevdev.EV_BITS:
+        m = Libevdev.type_max(t)
+        setattr(t, 'max', m)
 
     props = {}
     pmax = Libevdev.property_to_value("INPUT_PROP_MAX")
@@ -80,7 +79,7 @@ def _load_consts():
         props[pname] = p
 
     e = enum.IntEnum(pname, props)
-    setattr(module, 'INPUT_PROP', e)
+    setattr(libevdev, 'INPUT_PROP', e)
 
 _load_consts()
 
@@ -98,9 +97,8 @@ def e(evtype, evcode=None):
     :return: An Enum value representing the code
     """
 
-    module = __import__(__name__)
     try:
-        t = getattr(module, 'EV_BITS')(evtype)
+        t = libevdev.EV_BITS(evtype)
     except ValueError:
         return None
 
@@ -108,7 +106,7 @@ def e(evtype, evcode=None):
         return t
 
     try:
-        return getattr(module, t.name)(evcode)
+        return getattr(libevdev, t.name)(evcode)
     except ValueError:
         return None
 
@@ -118,8 +116,7 @@ def p(prop):
 
     :return: an Enum of the property or None if it does not exist
     """
-    module = __import__(__name__)
     try:
-        return getattr(module, 'INPUT_PROP')(prop)
+        return libevdev.INPUT_PROP(prop)
     except ValueError:
         return None

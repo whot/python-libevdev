@@ -25,17 +25,18 @@ import enum
 from .clib import Libevdev
 import libevdev
 
+
 def _load_consts():
     """
     Loads all event type, code and property names and makes them available
     as enums in the module. Use as e.g. libevdev.EV_SYN.SYN_REPORT.
     """
-    l = Libevdev() # classmethods, need to make sure it's loaded at once
+    Libevdev()  # classmethods, need to make sure it's loaded at once
 
     tmax = Libevdev.event_to_value("EV_MAX")
     assert tmax is not None
 
-    types = {'EV_MAX' : tmax}
+    types = {'EV_MAX': tmax}
 
     for t in range(tmax + 1):
         tname = Libevdev.event_to_name(t)
@@ -88,7 +89,9 @@ def _load_consts():
     e = enum.IntEnum(pname, props)
     setattr(libevdev, 'INPUT_PROP', e)
 
+
 _load_consts()
+
 
 def e(evtype, evcode=None):
     """
@@ -116,6 +119,7 @@ def e(evtype, evcode=None):
         return getattr(libevdev, t.name)(evcode)
     except ValueError:
         return None
+
 
 def p(prop):
     """

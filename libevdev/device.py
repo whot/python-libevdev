@@ -364,6 +364,42 @@ class Device(object):
         """
         return self._libevdev.slot_value(slot, event_code, new_value)
 
+    def enable(self, event_type, event_code=None, data=None):
+        """
+        :param event_type: the event type, either as integer or as string
+        :param event_code: optional, the event code, either as integer or as string
+        :param data: if event_code is not ``None``, data points to the
+                     code-specific information.
+
+        If event_type is EV_ABS, then data must be a InputAbsInfo as returned
+        from absinfo. Any keys missing are replaced with 0, i.e. the
+        following example is valid and results in a fuzz/flat/resolution of
+        zero::
+
+                ctx = Libevdev()
+                abs = InputAbsInfo(minimum=0, maximum=100)
+                ctx.enable("EV_ABS", "ABS_X", data)
+
+        If event_type is EV_REP, then data must be an integer.
+        """
+        if data is not None:
+            data = {
+                    "minimum": data.minimum,
+                    "maximum": data.maximum,
+                    "fuzz": data.fuzz,
+                    "flat": data.flat,
+                    "resolution": data.resolution,
+
+            }
+        self._libevdev.enable(event_type, event_code, data)
+
+    def disable(self, event_type, event_code=None):
+        """
+        :param event_type: the event type, either as enum, integer or as string
+        :param event_code: optional, the event code, either as enum, integer or as string
+        """
+        self._libevdev.disable(event_type, event_code);
+
     @property
     def devnode(self):
         """

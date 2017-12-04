@@ -39,6 +39,34 @@ class InvalidFileError(Exception):
 class InvalidArgumentException(Exception):
     pass
 
+class EventsDroppedException(Exception):
+    """
+    Notification that the device has dropped events, raised in response to a
+    EV_SYN SYN_DROPPED event.
+
+    This exception is raised AFTER the EV_SYN, SYN_DROPPED event has been
+    passed on. If SYN_DROPPED events are processed manually, then this
+    exception can be ignored.
+
+    Once received (or in response to a SYN_DROPPED event) a caller should
+    call device.sync() and process the events accordingly (if any).
+
+    Example::
+
+            fd = open("/dev/input/event0", "rb")
+            ctx = libevdev.Device(fd)
+
+            while True:
+                try:
+                    for e in ctx.events():
+                        print(e):
+                except EventsDroppedException:
+                    print('State lost, re-synching:')
+                    for e in ctx.sync():
+                        print(e)
+    """
+    pass
+
 class InputAbsInfo(object):
     """
     A class representing the struct InputAbsinfo for a given EV_ABS code.
@@ -282,6 +310,27 @@ class Device(object):
             flags = READ_FLAG_BLOCKING
         else:
             flags = READ_FLAG_NORMAL
+
+        ev = self._libevdev.next_event(flags)
+        while ev is not None:
+            yield InputEvent(ev.type, ev.code, ev.value, ev.sec, ev.usec)
+            if ev.type == libevdev.EV_BIT.EV_SYN and ev.code == libevdev.EV_SYN.SYN_DROPPED:
+                raise EventsDroppedException()
+            ev = self._libevdev.next_event(flags)
+
+    def sync(self, force=False):
+        """
+        Returns an iterator with events pending to re-sync the caller's
+        view of the device with the one from libevdev.
+
+        :param force: if set, the device forces an internal sync. This is
+        required after changing the fd of the device when the device state
+        may have changed while libevdev was not processing events.
+        """
+        if force:
+            flags = READ_FLAG_FORCE_SYNC
+        else:
+            flags = READ_FLAG_SYNC
 
         ev = self._libevdev.next_event(flags)
         while ev is not None:

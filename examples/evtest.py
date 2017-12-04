@@ -49,8 +49,7 @@ def print_capabilities(l):
             print("  Property type {} ({})".format(p.value, p.name))
 
 
-def print_events(l):
-    for e in l.events():
+def print_event(e):
         print("Event: time {}.{:06d}, ".format(e.sec, e.usec), end='')
         if e.matches("EV_SYN"):
             if e.matches("EV_SYN", "SYN_MT_REPORT"):
@@ -74,7 +73,13 @@ def main(args):
                   "################################")
 
             while True:
-                print_events(l)
+                try:
+                    for e in l.events():
+                        print_event(e)
+                except libevdev.EventsDroppedException:
+                    for e in l.sync():
+                        print_event(e)
+
     except IOError as e:
         import errno
         if e.errno == errno.EACCES:

@@ -86,7 +86,7 @@ _load_consts()
 
 def e(evtype, evcode=None):
     """
-    Takes an event type and an (optional) event code and returns the enum
+    Takes an event type and an (optional) event code and returns the Enum
     representing that type or code, whichever applies.
     """
 
@@ -106,18 +106,10 @@ def e(evtype, evcode=None):
 
 def p(prop):
     """
-    Takes a property value and returns the enum representing that property.
+    Takes a property value and returns the Enum representing that property.
     """
     module = __import__(__name__)
     try:
         return getattr(module, 'INPUT_PROP')(prop)
     except ValueError:
         return None
-
-
-def type_name(t):
-    return Libevdev.event_to_name(t)
-
-
-def type_max(t):
-    return Libevdev.type_max(t)

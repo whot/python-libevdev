@@ -22,4 +22,4 @@
 
 from .device import Device, InvalidFileError, EventsDroppedException
 from .event import InputEvent
-from .const import type_name, type_max, e, p
+from .const import e, p

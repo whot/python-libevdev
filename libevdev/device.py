@@ -211,10 +211,10 @@ class Device(object):
         self._libevdev.fd = fileobj
 
     @property
-    def codes(self):
+    def bits(self):
         """
         Returns a dict with all supported event types and event codes, in
-        the form of { type : [ code, ...]
+        the form of { type : [ code, ...] }
         """
         types = {}
         for t in libevdev.EV_BITS:

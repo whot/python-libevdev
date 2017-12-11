@@ -217,16 +217,16 @@ class Device(object):
         the form of { type : [ code, ...] }
         """
         types = {}
-        for t in libevdev.EV_BITS:
-            if not self.has_event(t.name):
+        for t in libevdev.types:
+            if not self.has_event(t.value):
                 continue
 
             codes = []
-            for c in t.value:
-                if not self.has_event(t.name, c):
+            for c in t.codes:
+                if not self.has_event(t.value, c.value):
                     continue
                 codes.append(c)
-            types[t.value] = codes
+            types[t] = codes
 
         return types
 
@@ -235,22 +235,25 @@ class Device(object):
         """
         Returns a list of all supported input properties
         """
-        return [p for p in libevdev.INPUT_PROP if self.has_property(p)]
+        return [p for p in libevdev.props if self.has_property(p)]
 
     def has_property(self, prop):
         """
         :param prop: a property
         :return: True if the device has the property, False otherwise
         """
-        return self._libevdev.has_property(prop)
+        return self._libevdev.has_property(prop.value)
 
-    def has_event(self, evtype, evcode = None):
+    def has_event(self, evcode):
         """
-        :param evtype: the event type
-        :param evcode: optional, the event code
+        :param evcode: the event type or event code
+        :type evcode: EventType or EventCode
         :return: True if the device has the type and/or code, False otherwise
         """
-        return self._libevdev.has_event(evtype, evcode)
+        try:
+            return self._libevdev.has_event(evcode.type.value, evcode.value)
+        except AttributeError:
+            return self._libevdev.has_event(evcode.value)
 
     @property
     def num_slots(self):
@@ -281,16 +284,17 @@ class Device(object):
         value is now the value of the device.
 
         :param code: the ABS_<*> code
+        :type code: EventCode
         :param new_values: an InputAbsInfo struct or None
         :param kernel: If True, assigning new values corresponds to ``libevdev_kernel_set_abs_info``
         :return: an InputAbsInfo struct or None if the device does not have
-        the event code
+                 the event code
         """
 
         if new_values is None and kernel:
             raise InvalidArgumentException()
 
-        r = self._libevdev.absinfo(code, new_values, kernel)
+        r = self._libevdev.absinfo(code.value, new_values, kernel)
         if r is None:
             return r
 
@@ -320,8 +324,9 @@ class Device(object):
 
         ev = self._libevdev.next_event(flags)
         while ev is not None:
-            yield InputEvent(ev.type, ev.code, ev.value, ev.sec, ev.usec)
-            if ev.type == libevdev.EV_BITS.EV_SYN and ev.code == libevdev.EV_SYN.SYN_DROPPED:
+            code = libevdev.evbit(ev.type, ev.code)
+            yield InputEvent(code, ev.value, ev.sec, ev.usec)
+            if code == libevdev.EV_SYN.SYN_DROPPED:
                 raise EventsDroppedException()
             ev = self._libevdev.next_event(flags)
 
@@ -331,8 +336,8 @@ class Device(object):
         view of the device with the one from libevdev.
 
         :param force: if set, the device forces an internal sync. This is
-        required after changing the fd of the device when the device state
-        may have changed while libevdev was not processing events.
+            required after changing the fd of the device when the device state
+            may have changed while libevdev was not processing events.
         """
         if force:
             flags = READ_FLAG_FORCE_SYNC
@@ -341,18 +346,28 @@ class Device(object):
 
         ev = self._libevdev.next_event(flags)
         while ev is not None:
-            yield InputEvent(ev.type, ev.code, ev.value, ev.sec, ev.usec)
+            code = libevdev.evbit(ev.type, ev.code)
+            yield InputEvent(code, ev.value, ev.sec, ev.usec)
             ev = self._libevdev.next_event(flags)
 
     def event_value(self, event_type, event_code, new_value=None):
         """
-        :param event_type: the event type, either as integer or as string
-        :param event_code: the event code, either as integer or as string
+        :param event_code: the event type or code
+        :type event_code: EventType or EventCode
         :param new_value: optional, the value to set to
-        :return: the current value of type + code, or ``None`` if it doesn't
+        :return: the current value of the event code, or ``None`` if it doesn't
                  exist on this device
+
+        .. warning::
+
+            If a new_value is given, the event_code must not be a pure event
+            type
         """
-        return self._libevdev.event_value(event_type, event_code, new_value)
+        try:
+            return self._libevdev.event_value(event_code.type.value, event_code.value, new_value)
+        except AttributeError:
+            assert new_value is None
+            return self._libevdev.event_value(event_code.value)
 
     def slot_value(self, slot, event_code, new_value=None):
         """
@@ -391,14 +406,21 @@ class Device(object):
                     "resolution": data.resolution,
 
             }
-        self._libevdev.enable(event_type, event_code, data)
+        try:
+            self._libevdev.enable(event_code.type.value, event_code.value, data)
+        except AttributeError:
+            self._libevdev.enable(event_code.value)
 
-    def disable(self, event_type, event_code=None):
+    def disable(self, event_code):
         """
-        :param event_type: the event type, either as enum, integer or as string
-        :param event_code: optional, the event code, either as enum, integer or as string
+        :param event_code: the event type or code
+        :type event_code: EventType or EventCode
+        :type event_type: EventType or EventCode
         """
-        self._libevdev.disable(event_type, event_code);
+        try:
+            self._libevdev.disable(event_code.type.value, event_code.value);
+        except AttributeError:
+            self._libevdev.disable(event_code.value)
 
     @property
     def devnode(self):

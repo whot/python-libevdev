@@ -21,14 +21,62 @@
 # DEALINGS IN THE SOFTWARE.
 
 import enum
+import collections
 
 from .clib import Libevdev
 import libevdev
 
-class EventCode(enum.IntEnum):
-    @property
-    def code(self):
-        return self
+class EventCode:
+    """
+    A class representing an evdev event code, e.g. ABS_X
+
+    :property value: The numeric value of the event code
+    :property name: The string name of this event code
+    :property type: The EventType for this event code
+    """
+    __hash__ = super.__hash__
+
+    def __eq__(self, other):
+        if not isinstance(other, EventCode):
+            return False
+
+        return self.value == other.value and self.type == other.type
+
+    def __repr__(self):
+        return f'{self.name}:{self.value}'
+
+class EventType:
+    """
+    A class represending an evdev event type (e.g. EV_ABS). All event codes
+    within this type are available as class constants, e.g.
+    libevdev.EV_ABS.ABS_X
+
+    :property value: The numeric value of the event type
+    :property name: The string name of the event type
+    :property codes: A list of event codes for this type
+    :property max: The maximum event code permitted in this type
+    """
+    __hash__ = super.__hash__
+
+    def __eq__(self, other):
+        assert isinstance(other, EventType)
+        return self.value == other.value
+
+    def __repr__(self):
+        return f'{self.name}:{self.value}'
+
+class InputProperty:
+    """
+    A class representing an evdev input property.
+    :property value: The numeric value of the property
+    :property name: The string name of the property 
+    """
+    __hash__ = super.__hash__
+
+    def __eq__(self, other):
+        assert isinstance(other, InputProperty)
+        return self.value == other.value
+
 
 def _load_consts():
     """
@@ -37,7 +85,7 @@ def _load_consts():
 
     Available are::
 
-    libevdev.EV_TYPES ... an enum containing all event types, e.g.
+    libevdev.types ... an list containing all event types, e.g.
                          libevdev.EV_TYPES.EV_REL
 
     libevdev.EV_REL ... an enum containing all REL event types, e.g.
@@ -58,29 +106,29 @@ def _load_consts():
     tmax = Libevdev.event_to_value("EV_MAX")
     assert tmax is not None
 
-    types = {'EV_MAX': tmax}
+    types = []
 
     for t in range(tmax + 1):
         tname = Libevdev.event_to_name(t)
         if tname is None:
             continue
 
-        types[tname] = t
-
-    e = enum.IntEnum('EV_TYPES', types)
-    setattr(libevdev, 'EV_TYPES', e)
-
-    del types
-    types = {}
-
-    for t in range(tmax + 1):
-        tname = Libevdev.event_to_name(t)
         cmax = Libevdev.type_max(t)
+
+        new_class = type(tname, (EventType, ),
+                { 'value': t,
+                  'name': tname,
+                  'max' : cmax })
+
+        type_object = new_class()
+        # libevdev.EV_REL, libevdev.EV_ABS, etc.
+        setattr(libevdev, tname, type_object)
+        types.append(type_object)
+
         if cmax is None:
             continue
 
-        codes = {}
-
+        codes = []
         for c in range(cmax + 1):
             cname = Libevdev.event_to_name(t, c)
             # For those without names, we just use the type name plus
@@ -88,31 +136,36 @@ def _load_consts():
             if cname is None:
                 cname = "{}_{:02x}".format(tname[3:], c)
 
-            codes[cname] = c
+            new_class = type(cname, (EventCode, ),
+                    { 'type': type_object,
+                      'name': cname,
+                      'value': c })
+            code_object = new_class()
+            setattr(type_object, cname, code_object)
+            codes.append(code_object)
 
-        e = EventCode(tname, codes)
-        setattr(libevdev, tname, e)
-        setattr(e, 'max', cmax)
-        setattr(e, 'type', libevdev.EV_TYPES(t))
+        setattr(type_object, 'codes', codes)
 
-        types[tname] = e
+    # list of all types
+    setattr(libevdev, 'types', types)
 
-    e = enum.Enum('EV_BITS', types)
-    setattr(libevdev, 'EV_BITS', e)
-
-    props = {}
     pmax = Libevdev.property_to_value("INPUT_PROP_MAX")
     assert pmax is not None
+    props = []
     for p in range(pmax + 1):
         pname = Libevdev.property_to_name(p)
         if pname is None:
             continue
 
-        props[pname] = p
+        new_class = type(pname, (InputProperty, ),
+                         { 'value': p,
+                           'name': pname, })
+        prop_object = new_class()
 
-    e = enum.IntEnum(pname, props)
-    setattr(libevdev, 'INPUT_PROP', e)
+        setattr(libevdev, pname, prop_object)
+        props.append(prop_object)
 
+    setattr(libevdev, 'props', props)
 
 _load_consts()
 
@@ -120,7 +173,22 @@ _load_consts()
 def evbit(evtype, evcode=None):
     """
     Takes an event type and an (optional) event code and returns the Enum
-    representing that type or code, whichever applies.
+    representing that type or code, whichever applies. For example::
+
+        >>> print(libevdev.evbit(0))
+        EV_SYN:0
+
+        >>> print(libevdev.evbit(2))
+        EV_REL:2
+
+        >>> print(libevdev.evbit(2, 1))
+        REL_Y:1
+
+        >>> print(libevdev.evbit(3, 4))
+        ABS_RY:4
+
+    The return value can be used in the libevdev API wherever an EventCode
+    or EventType is expected.
 
     Note that if the type name does not exist, this function returns None.
     If the code name does not exist, this function returns a usable Enum
@@ -128,22 +196,24 @@ def evbit(evtype, evcode=None):
     bug, missing code names are common on devices that merely enumarate a
     bunch of axes.
 
-    :return: An Enum value representing the code
+    :return: An event code value representing the code
+    :rtype: EventCode or EventType
     """
 
     try:
-        t = libevdev.EV_BITS(evtype)
-    except ValueError:
+        t = [t for t in libevdev.types if t.value == evtype][0]
+    except IndexError:
         return None
 
     if evcode is None:
         return t
 
     try:
-        return getattr(libevdev, t.name)(evcode)
-    except ValueError:
+        c = [c for c in t.codes if c.value == evcode][0]
+    except IndexError:
         return None
 
+    return c
 
 def prop(prop):
     """
@@ -152,6 +222,6 @@ def prop(prop):
     :return: an Enum of the property or None if it does not exist
     """
     try:
-        return libevdev.INPUT_PROP(prop)
+        return [p for p in libevdev.props if p.value == prop][0]
     except ValueError:
         return None

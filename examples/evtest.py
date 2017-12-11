@@ -20,7 +20,7 @@ def print_capabilities(l):
     print("Supported events:")
 
     for t, cs in l.bits.items():
-        print("  Event type {} ({})".format(t.type.value, t.type.name))
+        print("  Event type {} ({})".format(t.value, t.name))
 
         for c in cs:
             if t in [libevdev.EV_LED, libevdev.EV_SND, libevdev.EV_SW]:
@@ -45,15 +45,15 @@ def print_capabilities(l):
 
 def print_event(e):
         print("Event: time {}.{:06d}, ".format(e.sec, e.usec), end='')
-        if e.matches("EV_SYN"):
-            if e.matches("EV_SYN", "SYN_MT_REPORT"):
-                print("++++++++++++++ {} ++++++++++++".format(e.code_name))
-            elif e.matches("EV_SYN", "SYN_DROPPED"):
-                print(">>>>>>>>>>>>>> {} >>>>>>>>>>>>".format(e.code_name))
+        if e.matches(libevdev.EV_SYN):
+            if e.matches(libevdev.EV_SYN.SYN_MT_REPORT):
+                print("++++++++++++++ {} ++++++++++++".format(e.code.name))
+            elif e.matches(libevdev.EV_SYN.SYN_DROPPED):
+                print(">>>>>>>>>>>>>> {} >>>>>>>>>>>>".format(e.code.name))
             else:
-                print("-------------- {} ------------".format(e.code_name))
+                print("-------------- {} ------------".format(e.code.name))
         else:
-            print("type {:02x} {} code {:03x} {:20s} value {:4d}".format(e.type, e.type_name, e.code, e.code_name, e.value))
+            print("type {:02x} {} code {:03x} {:20s} value {:4d}".format(e.type.value, e.type.name, e.code.value, e.code.name, e.value))
 
 
 def main(args):

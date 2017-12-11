@@ -23,6 +23,7 @@
 from enum import Enum
 
 from .clib import Libevdev
+from .const import EventType, EventCode
 import libevdev
 
 class InputEvent(object):
@@ -31,36 +32,43 @@ class InputEvent(object):
     linux/input.h and returned by libevdev_next_event().
     """
 
-    def __init__(self, type, code=None, value=None, sec=0, usec=0):
+    def __init__(self, code, value=None, sec=0, usec=0):
+        """
+        :param code: the EventCode or EventType for this input event
+        :param value: an optional event value
+        :param sec: the timestamp, seconds
+        :param usec: the timestamp, microseconds
+        """
+        assert isinstance(code, EventCode) or isinstance(code, EventType)
+
+        if isinstance(code, EventCode):
+            self._type = code.type
+            self._code = code
+        else:
+            self._type = code
+            self._code = None
         self.sec = sec
         self.usec = usec
-
-        if not isinstance(type, int) and type is not None:
-            type = Libevdev.event_to_value(type)
-        self.type = type
-
-        if not isinstance(code, int) and code is not None:
-            code = Libevdev.event_to_value(type, code)
-        self.code = code
-
         self.value = value
 
-    def _enum_match(self, v):
+    @property
+    def code(self):
         """
-        Matches this event against an enum value, either a type like
-        libevdev.EV_BITS.EV_REL or a code like libevdev.EV_REL.REL_X.
+        :return: the EventCode for this event
+
+        It is an error to call this function for an event initialized with
+        an event type only.
         """
+        return self._code
 
-        if v in libevdev.EV_BITS:
-            return self.type == v
+    @property
+    def type(self):
+        """
+        :return: the EventType for this event
+        """
+        return self._type
 
-        # v must be a full code
-        if self.code != v:
-            return False
-
-        return v.evtype == self.type
-
-    def matches(self, type, code=None, value=None):
+    def matches(self, code, value=None):
         """
         Check if an event matches a given event type and/or event code. The
         following invocations are all accepted. Matching on the enum of the
@@ -72,81 +80,39 @@ class InputEvent(object):
                 if ev.matches(libevdev.EV_REL.REL_X):
                         pass
 
-        Matching on the integer representation of event types or codes::
-
-
-                if ev.matches(0x02, 0):
-                        pass
-
-                if ev.matches(0x02):
-                        pass
-
-        Matchin on the string representation of events::
-
-                if ev.matches("EV_REL"):
-                        pass
-
-                if ev.matches("EV_REL", "REL_X"):
-                        pass
-
-                if ev.matches(0x02, "REL_X"):
-                        pass
-
         Matching on an event with a value::
 
-                if ev.matches("EV_REL", "REL_X", 1):
+                if ev.matches(libevdev.EV_REL.REL_X, 1):
                         pass
 
-        :param type: the event type, one of EV_<*> as enum, string or integer
-        :param code: optional, the event code as enum, string or integer
+        :param code: the event type or code, one of EV_<*> values
         :param value: optional, the event value
         :return: True if the type matches this event's type and this event's
                  code matches the given code (if any) and this event's value
                  matches the given value (if any)
         """
 
-        if isinstance(type, Enum):
-            v = self._enum_match(type)
-            if not v:
-                return False
-            if value is not None:
-                return self.value == value
-
-        if not isinstance(type, int):
-            type = Libevdev.event_to_value(type)
-
-        if type != self.type:
+        if value is not None and self.value != value:
             return False
-        elif code is None:
-            return True
 
-        if not isinstance(code, int):
-            code = Libevdev.event_to_value(type, code)
-
-        if code != self.code:
-            return None
-        elif value is None or self.value is None:
-            return True
-
-        return value == self.value
-
-    @property
-    def type_name(self):
-        """
-        :return: The type name as string, e.g. "EV_REL"
-        """
-        return Libevdev.event_to_name(self.type)
-
-    @property
-    def code_name(self):
-        """
-        :return: The code name as string, e.g. "REL_X"
-        """
-        return Libevdev.event_to_name(self.type, self.code)
+        if isinstance(code, EventType):
+            return self._type == code
+        else:
+            return self._code == code
 
     def __eq__(self, other):
-        return self.matches(other.type, other.code, other.value)
+        if not isinstance(other, InputEvent):
+            return False
+
+        if self.code is None or other.code is None:
+            return self.matches(other.type, other.value)
+
+        return self.matches(other.code, other.value)
 
     def __repr__(self):
-        return 'InputEvent({}, {}, {})'.format(self.type_name, self.code_name, self.value)
+        tname = self.type.name
+        cname = None
+        if self.code is not None:
+            cname = self.code.name
+        return 'InputEvent({}, {}, {})'.format(tname, cname, self.value)
 

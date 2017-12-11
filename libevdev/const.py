@@ -117,7 +117,7 @@ def _load_consts():
 _load_consts()
 
 
-def e(evtype, evcode=None):
+def evbit(evtype, evcode=None):
     """
     Takes an event type and an (optional) event code and returns the Enum
     representing that type or code, whichever applies.
@@ -145,7 +145,7 @@ def e(evtype, evcode=None):
         return None
 
 
-def p(prop):
+def prop(prop):
     """
     Takes a property value and returns the Enum representing that property.
 

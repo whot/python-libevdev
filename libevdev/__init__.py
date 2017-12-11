@@ -22,4 +22,4 @@
 
 from .device import Device, InvalidFileError, EventsDroppedException
 from .event import InputEvent
-from .const import e, p
+from .const import evbit, prop

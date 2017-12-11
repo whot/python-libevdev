@@ -20,16 +20,16 @@ def print_capabilities(l):
     print("Supported events:")
 
     for t, cs in l.bits.items():
-        print("  Event type {} ({})".format(t.value, t.name))
+        print("  Event type {} ({})".format(t.type.value, t.type.name))
 
         for c in cs:
-            if t in [libevdev.EV_BITS.EV_LED, libevdev.EV_BITS.EV_SND, libevdev.EV_BITS.EV_SW]:
+            if t in [libevdev.EV_LED, libevdev.EV_SND, libevdev.EV_SW]:
                 v = l.event_value(t, c)
                 print("    Event code {} ({}) state {}".format(c.value, c.name, v))
             else:
                 print("    Event code {} ({})".format(c.value, c.name))
 
-            if t == libevdev.EV_BITS.EV_ABS:
+            if t == libevdev.EV_ABS:
                 a = l.absinfo(c)
                 print("       {:10s} {:6d}".format('Value', a.value))
                 print("       {:10s} {:6d}".format('Minimum', a.minimum))

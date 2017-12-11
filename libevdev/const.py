@@ -25,11 +25,33 @@ import enum
 from .clib import Libevdev
 import libevdev
 
+class EventCode(enum.IntEnum):
+    @property
+    def code(self):
+        return self
 
 def _load_consts():
     """
     Loads all event type, code and property names and makes them available
     as enums in the module. Use as e.g. libevdev.EV_SYN.SYN_REPORT.
+
+    Available are::
+
+    libevdev.EV_TYPES ... an enum containing all event types, e.g.
+                         libevdev.EV_TYPES.EV_REL
+
+    libevdev.EV_REL ... an enum containing all REL event types, e.g.
+                        libevdev.EV_REL.REL_X. The name of each enum value
+                        is the string of the code ('REL_X'), the value is the integer
+                        value of that code.
+
+    libevdev.EV_ABS ... as above, but for EV_ABS
+
+    libevdev.EV_BITS ... libevdev.EV_FOO as an enum
+
+    Special attributes are (an apply to all EV_foo enums):
+        libevdev.EV_REL.type ... the EV_TYPES entry of the event type
+        libevdev.EV_REL.max  ... the maximum code in this event type
     """
     Libevdev()  # classmethods, need to make sure it's loaded at once
 
@@ -45,8 +67,11 @@ def _load_consts():
 
         types[tname] = t
 
-    e = enum.IntEnum('EV_BITS', types)
-    setattr(libevdev, 'EV_BITS', e)
+    e = enum.IntEnum('EV_TYPES', types)
+    setattr(libevdev, 'EV_TYPES', e)
+
+    del types
+    types = {}
 
     for t in range(tmax + 1):
         tname = Libevdev.event_to_name(t)
@@ -65,16 +90,15 @@ def _load_consts():
 
             codes[cname] = c
 
-        e = enum.IntEnum(tname, codes)
+        e = EventCode(tname, codes)
         setattr(libevdev, tname, e)
-        for c in e:
-            setattr(c, 'evtype', libevdev.EV_BITS(t))
-        setattr(libevdev.EV_BITS(t), 'evcodes', e)
+        setattr(e, 'max', cmax)
+        setattr(e, 'type', libevdev.EV_TYPES(t))
 
-    # Attach attribute 'max' to EV_BITS.EV_foo
-    for t in libevdev.EV_BITS:
-        m = Libevdev.type_max(t)
-        setattr(t, 'max', m)
+        types[tname] = e
+
+    e = enum.Enum('EV_BITS', types)
+    setattr(libevdev, 'EV_BITS', e)
 
     props = {}
     pmax = Libevdev.property_to_value("INPUT_PROP_MAX")

@@ -214,7 +214,12 @@ class Device(object):
     def bits(self):
         """
         Returns a dict with all supported event types and event codes, in
-        the form of { type : [ code, ...] }
+        the form of::
+
+            {
+              libevdev.EV_ABS: [libevdev.EV_ABS.ABS_X, ...],
+              libevdev.EV_KEY: [libevdev.EV_KEY.BTN_LEFT, ...],
+            }
         """
         types = {}
         for t in libevdev.types:
@@ -379,23 +384,25 @@ class Device(object):
         """
         return self._libevdev.slot_value(slot, event_code, new_value)
 
-    def enable(self, event_type, event_code=None, data=None):
+    def enable(self, event_code, data=None):
         """
-        :param event_type: the event type, either as integer or as string
-        :param event_code: optional, the event code, either as integer or as string
+        :param event_code: the event code
+        :type event_code: EventCode or EventType
         :param data: if event_code is not ``None``, data points to the
                      code-specific information.
 
-        If event_type is EV_ABS, then data must be a InputAbsInfo as returned
-        from absinfo. Any keys missing are replaced with 0, i.e. the
-        following example is valid and results in a fuzz/flat/resolution of
-        zero::
+        If event_code is an event type, the type is enabled and data is ignored.
+
+        If event_code is one of EV_ABS.*, then data must be a InputAbsInfo as returned
+        from absinfo. Any unset fields of the InputAbsInfo are replaced with
+        0, i.e. the following example is valid and results in a
+        fuzz/flat/resolution of zero::
 
                 ctx = Libevdev()
                 abs = InputAbsInfo(minimum=0, maximum=100)
-                ctx.enable("EV_ABS", "ABS_X", data)
+                ctx.enable(libevdev.EV_ABS.ABS_X, data)
 
-        If event_type is EV_REP, then data must be an integer.
+        If event_code is one of EV_REP.*, then data must be an integer.
         """
         if data is not None:
             data = {
@@ -447,8 +454,7 @@ class Device(object):
         Creates a new uinput device from this libevdev device. When created,
         the device's fd now points to the new uinput device
 
-        :param uinput_fd: A file descriptor to the /dev/input/uinput device.
-        If None, the device is opened and closed automatically.
+        :param uinput_fd: A file descriptor to the /dev/input/uinput device. If None, the device is opened and closed automatically.
         """
 
         self._uinput = libevdev.UinputDevice(self._libevdev, uinput_fd)

@@ -68,6 +68,7 @@ class EventType:
 class InputProperty:
     """
     A class representing an evdev input property.
+
     :property value: The numeric value of the property
     :property name: The string name of the property 
     """

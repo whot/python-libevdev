@@ -30,15 +30,15 @@ class InputEvent(object):
     """
     Represents one input event of type struct input_event as defined in
     linux/input.h and returned by libevdev_next_event().
+
+    :param code: the EventCode or EventType for this input event
+    :param value: an optional event value
+    :param sec: the timestamp, seconds
+    :param usec: the timestamp, microseconds
+    :type code: EventCode or EventType
     """
 
     def __init__(self, code, value=None, sec=0, usec=0):
-        """
-        :param code: the EventCode or EventType for this input event
-        :param value: an optional event value
-        :param sec: the timestamp, seconds
-        :param usec: the timestamp, microseconds
-        """
         assert isinstance(code, EventCode) or isinstance(code, EventType)
 
         if isinstance(code, EventCode):
@@ -54,42 +54,41 @@ class InputEvent(object):
     @property
     def code(self):
         """
-        :return: the EventCode for this event
-
-        It is an error to call this function for an event initialized with
-        an event type only.
+        :return: the EventCode for this event or None
+        :rtype: EventCode
         """
         return self._code
 
     @property
     def type(self):
         """
-        :return: the EventType for this event
+        :return: the event type for this event
+        :rtype: EventType
         """
         return self._type
 
     def matches(self, code, value=None):
         """
-        Check if an event matches a given event type and/or event code. The
-        following invocations are all accepted. Matching on the enum of the
-        event type or code::
+        :param code: the event type or code
+        :type code: EventType or EventCode
+        :param value: optional, the event value
+        :return: True if the type matches this event's type and this event's
+                 code matches the given code (if any) and this event's value
+                 matches the given value (if any)
 
-                if ev.matches(libevdev.EV_BITS.EV_REL):
+        Check if an event matches a given event type and/or code. The
+        following invocations show how to match on an event type, an event
+        code and an event code with a specific value::
+
+
+                if ev.matches(libevdev.EV_REL):
                         pass
 
                 if ev.matches(libevdev.EV_REL.REL_X):
                         pass
 
-        Matching on an event with a value::
-
                 if ev.matches(libevdev.EV_REL.REL_X, 1):
                         pass
-
-        :param code: the event type or code, one of EV_<*> values
-        :param value: optional, the event value
-        :return: True if the type matches this event's type and this event's
-                 code matches the given code (if any) and this event's value
-                 matches the given value (if any)
         """
 
         if value is not None and self.value != value:

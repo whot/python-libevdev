@@ -53,7 +53,7 @@ def print_event(e):
             else:
                 print("-------------- {} ------------".format(e.code_name))
         else:
-            print("type {} ({}) code {} ({}), value {}".format(e.type, e.type_name, e.code, e.code_name, e.value))
+            print("type {:02x} {} code {:03x} {:20s} value {:4d}".format(e.type, e.type_name, e.code, e.code_name, e.value))
 
 
 def main(args):

@@ -15,12 +15,12 @@ http://www.freedesktop.org/software/libevdev/doc/latest/
 
 Contents:
 
+
+
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   libevdev
-
-
+   modules
 
 Indices and tables
 ==================

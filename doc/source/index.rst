@@ -1,14 +1,20 @@
-.. libevdev Python wrapper documentation master file, created by
-   sphinx-quickstart on Fri Feb 26 08:28:42 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 libevdev Python wrapper
 =======================
 
 This package is a wrapper around the libevdev C library, with a pythonic
 API. For the precise behavior of libevdev refer to the offical documentation at
 http://www.freedesktop.org/software/libevdev/doc/latest/
+
+libevdev makes it easy to
+
+* read and parse events from an input device
+* create a virtual input device and make it send events
+* duplicate an existing device and modify the event stream
+
+.. note::
+
+   Reading from and writing to input devices requires root access to the
+   device node. Any programs using libevdev need to run as root.
 
 Below are examples that cover the most common cases that need to be done
 with libevdev. More specific examples can be found in the ``examples/``
@@ -24,7 +30,7 @@ To read events from an existing device::
              print('This does not look like a mouse device')
              sys.exit(0)
 
-        # Loop indefinitely while pulling the next few events off
+        # Loop indefinitely while pulling the currently available events off
         # the file descriptor
         while True:
             for e in d.events():

@@ -390,10 +390,10 @@ class Device(object):
             yield InputEvent(code, ev.value, ev.sec, ev.usec)
             ev = self._libevdev.next_event(flags)
 
-    def event_value(self, event_type, event_code, new_value=None):
+    def event_value(self, event_code, new_value=None):
         """
-        :param event_code: the event type or code
-        :type event_code: EventType or EventCode
+        :param event_code: the event code
+        :type event_code: EventCode
         :param new_value: optional, the value to set to
         :returns: the current value of the event code, or ``None`` if it doesn't
                  exist on this device
@@ -403,11 +403,7 @@ class Device(object):
             If a new_value is given, the event_code must not be a pure event
             type
         """
-        try:
-            return self._libevdev.event_value(event_code.type.value, event_code.value, new_value)
-        except AttributeError:
-            assert new_value is None
-            return self._libevdev.event_value(event_code.value)
+        return self._libevdev.event_value(event_code.type.value, event_code.value, new_value)
 
     def slot_value(self, slot, event_code, new_value=None):
         """

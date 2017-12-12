@@ -677,7 +677,7 @@ class Libevdev(_LibraryWrapper):
         :return: True if the device has the property, False otherwise
         """
         if not isinstance(prop, int):
-            prop = self.property_value(prop)
+            prop = self.property_to_value(prop)
         r = self._has_property(self._ctx, prop)
         return bool(r)
 

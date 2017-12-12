@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 
@@ -9,8 +9,8 @@ import libevdev
 def main(args):
     dev = libevdev.Device()
     dev.name = "test device"
-    dev.enable("EV_REL", "REL_X")
-    dev.enable("EV_REL", "REL_Y")
+    dev.enable(libevdev.EV_REL.REL_X)
+    dev.enable(libevdev.EV_REL.REL_Y)
     try:
         dev.create()
         print("New device at {} ({})".format(dev.devnode, dev.syspath))

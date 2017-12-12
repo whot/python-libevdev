@@ -343,7 +343,7 @@ class Device(object):
 
     def events(self):
         """
-        Returns an iterator with currently pending events.
+        Returns an iterable with currently pending events.
 
         Event processing should look like this::
 
@@ -354,7 +354,13 @@ class Device(object):
                 for e in ctx.events():
                     print(e):
 
-        :returns: an iterator with the currently pending events
+        This function detects if the file descriptor is in blocking or
+        non-blocking mode and adjusts its behavior accordingly. If the file
+        descriptor is in nonblocking mode and no events are available, this
+        function returns immediately. If the file descriptor is blocking,
+        this function blocks if there are no events available.
+
+        :returns: an iterable with the currently pending events
         """
         if self._libevdev.fd is None:
             return []

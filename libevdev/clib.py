@@ -110,6 +110,10 @@ class Libevdev(_LibraryWrapper):
     https://www.freedesktop.org/software/libevdev/doc/latest/
 
     Properties in this class are read-write unless specified otherwise.
+
+    .. warning::
+
+        Do not use this class directly
     """
 
     @staticmethod
@@ -848,6 +852,10 @@ class _UinputDevice(_ctypes.Structure):
 class UinputDevice(_LibraryWrapper):
     """
     This class provides a wrapper around the libevdev C library
+
+    .. warning::
+
+        Do not use this class directly
     """
 
     @staticmethod

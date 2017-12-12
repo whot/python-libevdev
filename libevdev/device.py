@@ -549,3 +549,32 @@ class Device(object):
         """
 
         self._uinput = UinputDevice(self._libevdev, uinput_fd)
+
+    def send_events(self, events):
+        """
+        Send the list of :class:`InputEvent` events through this device. All
+        events must have a valid :class:`EventCode` and value, the timestamp
+        in the event is ignored and the kernel fills in its own timestamp.
+
+        This function may only be called after :func:`create()`.
+
+        .. warning::
+
+            an event list must always be terminated with a
+            ``libevdev.EV_SYN.SYN_REPORT`` event or the kernel may delay
+            processing.
+
+        :param events: a list of :class:`InputEvent` events
+        """
+
+        if not self._uinput:
+            raise InvalidFileError()
+
+        if None in [e.code for e in events]:
+            raise InvalidArgumentException()
+
+        if None in [e.value for e in events]:
+            raise InvalidArgumentException()
+
+        for e in events:
+            self._uinput.write_event(e.type.value, e.code.value, e.value)

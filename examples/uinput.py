@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import sys
 import libevdev
+from libevdev import InputEvent
 
 
 def main(args):
@@ -14,6 +15,11 @@ def main(args):
     try:
         dev.create()
         print("New device at {} ({})".format(dev.devnode, dev.syspath))
+
+        events = [InputEvent(libevdev.EV_REL.REL_X, -1),
+                  InputEvent(libevdev.EV_REL.REL_Y, 1),
+                  InputEvent(libevdev.EV_SYN.SYN_REPORT, 0)]
+        dev.send_events(events)
     except OSError as e:
         print(e)
 

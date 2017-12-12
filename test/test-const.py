@@ -72,3 +72,11 @@ class TestEventBits(unittest.TestCase):
 
         for p in libevdev.props:
             self.assertEqual(prop(p.value), p)
+
+    def test_evbit_string(self):
+        self.assertEqual(evbit('EV_SYN'), libevdev.EV_SYN)
+        self.assertEqual(evbit('EV_KEY'), libevdev.EV_KEY)
+        self.assertEqual(evbit('EV_REL'), libevdev.EV_REL)
+
+        for t in libevdev.types:
+            self.assertEqual(evbit(t.name), t)

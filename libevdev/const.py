@@ -78,7 +78,6 @@ class InputProperty:
         assert isinstance(other, InputProperty)
         return self.value == other.value
 
-
 def _load_consts():
     """
     Loads all event type, code and property names and makes them available
@@ -202,7 +201,7 @@ def evbit(evtype, evcode=None):
     """
 
     try:
-        t = [t for t in libevdev.types if t.value == evtype][0]
+        t = [t for t in libevdev.types if t.value == evtype or t.name == evtype][0]
     except IndexError:
         return None
 
@@ -210,7 +209,7 @@ def evbit(evtype, evcode=None):
         return t
 
     try:
-        c = [c for c in t.codes if c.value == evcode][0]
+        c = [c for c in t.codes if c.value == evcode or c.name == evtype][0]
     except IndexError:
         return None
 
@@ -223,6 +222,6 @@ def prop(prop):
     :return: an Enum of the property or None if it does not exist
     """
     try:
-        return [p for p in libevdev.props if p.value == prop][0]
-    except ValueError:
+        return [p for p in libevdev.props if p.value == prop or p.name == prop][0]
+    except IndexError:
         return None

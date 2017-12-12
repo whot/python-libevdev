@@ -407,13 +407,25 @@ class Device(object):
 
     def slot_value(self, slot, event_code, new_value=None):
         """
+        Retrieve the current value of the given event code for the given
+        slot. If the event code is not a valid slot event code or the slot
+        exceeds the value of :func:`num_slots`, an
+        InvalidArgumentException is raised.
+
         :param slot: the numeric slot number
-        :param event_code: the ABS_<*> event code, either as integer or string
+        :param event_code: the ``libevdev.EV_ABS.ABS_MT_*`` event code
         :param new_value: optional, the value to set this slot to
         :returns: the current value of the slot's code, or ``None`` if it doesn't
                  exist on this device
+        :raises: InvalidArgumentException
         """
-        return self._libevdev.slot_value(slot, event_code, new_value)
+        if self.num_slots is None or self.num_slots < slot:
+            raise InvalidArgumentException()
+
+        if event_code.value <= libevdev.EV_ABS.ABS_MT_SLOT.value:
+            raise InvalidArgumentException()
+
+        return self._libevdev.slot_value(slot, event_code.value, new_value)
 
     def enable(self, event_code, data=None):
         """

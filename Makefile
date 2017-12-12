@@ -5,7 +5,6 @@ doc:
 	sphinx-build -b html doc/source doc/html
 
 test:
-	PYTHONPATH=. python -m unittest test
 	PYTHONPATH=. python3 -m unittest test
 
 .PHONY: doc test

@@ -199,7 +199,7 @@ def _load_consts():
             # For those without names, we just use the type name plus
             # hexcode
             if cname is None:
-                cname = "{}_{:02x}".format(tname[3:], c)
+                cname = "{}_{:02X}".format(tname[3:], c)
 
             new_class = type(cname, (EventCode, ),
                     { 'type': type_object,

@@ -85,6 +85,64 @@ class InputProperty(EvdevBit):
         assert isinstance(other, InputProperty)
         return self.value == other.value
 
+
+def evbit(evtype, evcode=None):
+    """
+    Takes an event type and an (optional) event code and returns the Enum
+    representing that type or code, whichever applies. For example::
+
+        >>> print(libevdev.evbit(0))
+        EV_SYN:0
+
+        >>> print(libevdev.evbit(2))
+        EV_REL:2
+
+        >>> print(libevdev.evbit(2, 1))
+        REL_Y:1
+
+        >>> print(libevdev.evbit(3, 4))
+        ABS_RY:4
+
+    The return value can be used in the libevdev API wherever an EventCode
+    or EventType is expected.
+
+    Note that if the type name does not exist, this function returns None.
+    If the code name does not exist, this function returns a usable Enum
+    value nonetheless. This is intentional, while missing type names are a
+    bug, missing code names are common on devices that merely enumarate a
+    bunch of axes.
+
+    :return: An event code value representing the code
+    :rtype: EventCode or EventType
+    """
+
+    try:
+        t = [t for t in libevdev.types if t.value == evtype or t.name == evtype][0]
+    except IndexError:
+        return None
+
+    if evcode is None:
+        return t
+
+    try:
+        c = [c for c in t.codes if c.value == evcode or c.name == evtype][0]
+    except IndexError:
+        return None
+
+    return c
+
+def propbit(prop):
+    """
+    Takes a property value and returns the Enum representing that property.
+
+    :return: an Enum of the property or None if it does not exist
+    """
+    try:
+        return [p for p in libevdev.props if p.value == prop or p.name == prop][0]
+    except IndexError:
+        return None
+
+
 def _load_consts():
     """
     Loads all event type, code and property names and makes them available
@@ -176,59 +234,3 @@ def _load_consts():
 
 _load_consts()
 
-
-def evbit(evtype, evcode=None):
-    """
-    Takes an event type and an (optional) event code and returns the Enum
-    representing that type or code, whichever applies. For example::
-
-        >>> print(libevdev.evbit(0))
-        EV_SYN:0
-
-        >>> print(libevdev.evbit(2))
-        EV_REL:2
-
-        >>> print(libevdev.evbit(2, 1))
-        REL_Y:1
-
-        >>> print(libevdev.evbit(3, 4))
-        ABS_RY:4
-
-    The return value can be used in the libevdev API wherever an EventCode
-    or EventType is expected.
-
-    Note that if the type name does not exist, this function returns None.
-    If the code name does not exist, this function returns a usable Enum
-    value nonetheless. This is intentional, while missing type names are a
-    bug, missing code names are common on devices that merely enumarate a
-    bunch of axes.
-
-    :return: An event code value representing the code
-    :rtype: EventCode or EventType
-    """
-
-    try:
-        t = [t for t in libevdev.types if t.value == evtype or t.name == evtype][0]
-    except IndexError:
-        return None
-
-    if evcode is None:
-        return t
-
-    try:
-        c = [c for c in t.codes if c.value == evcode or c.name == evtype][0]
-    except IndexError:
-        return None
-
-    return c
-
-def propbit(prop):
-    """
-    Takes a property value and returns the Enum representing that property.
-
-    :return: an Enum of the property or None if it does not exist
-    """
-    try:
-        return [p for p in libevdev.props if p.value == prop or p.name == prop][0]
-    except IndexError:
-        return None

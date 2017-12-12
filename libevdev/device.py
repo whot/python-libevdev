@@ -233,12 +233,12 @@ class Device(object):
         """
         types = {}
         for t in libevdev.types:
-            if not self.has_event(t.value):
+            if not self.has_event(t):
                 continue
 
             codes = []
             for c in t.codes:
-                if not self.has_event(t.value, c.value):
+                if not self.has_event(c):
                     continue
                 codes.append(c)
             types[t] = codes

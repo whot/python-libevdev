@@ -26,13 +26,26 @@ import collections
 from ._clib import Libevdev
 import libevdev
 
-class EventCode:
+class EvdevBit:
+    """
+    Base class representing an evdev bit, comprised of a name and a value.
+    These two properties are guaranteed to exist on anything describing an
+    event code, event type or input property that comes out of libevdev.
+
+    :property value: The numeric value of the event code
+    :property name: The string name of this event code
+    """
+    def __repr__(self):
+        return f'{self.name}:{self.value}'
+
+class EventCode(EvdevBit):
     """
     A class representing an evdev event code, e.g. ABS_X
 
     :property value: The numeric value of the event code
     :property name: The string name of this event code
     :property type: The EventType for this event code
+    :type type: EventType
     """
     __hash__ = super.__hash__
 
@@ -42,10 +55,7 @@ class EventCode:
 
         return self.value == other.value and self.type == other.type
 
-    def __repr__(self):
-        return f'{self.name}:{self.value}'
-
-class EventType:
+class EventType(EvdevBit):
     """
     A class represending an evdev event type (e.g. EV_ABS). All event codes
     within this type are available as class constants, e.g.
@@ -62,10 +72,7 @@ class EventType:
         assert isinstance(other, EventType)
         return self.value == other.value
 
-    def __repr__(self):
-        return f'{self.name}:{self.value}'
-
-class InputProperty:
+class InputProperty(EvdevBit):
     """
     A class representing an evdev input property.
 

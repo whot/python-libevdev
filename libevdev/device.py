@@ -278,8 +278,7 @@ class Device(object):
 
         :note: Read-only
         """
-        s = self._libevdev.num_slots
-        return s if s >= 0 else None
+        return self._libevdev.num_slots
 
     @property
     def current_slot(self):
@@ -289,8 +288,7 @@ class Device(object):
 
         :note: Read-only
         """
-        s = self._libevdev.current_slot
-        return s if s >= 0 else None
+        return self._libevdev.current_slot
 
     def absinfo(self, code, new_values=None, kernel=False):
         """

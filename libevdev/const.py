@@ -316,6 +316,7 @@ def _load_consts():
         types.append(type_object)
 
         if cmax is None:
+            setattr(type_object, 'codes', [])
             continue
 
         codes = []

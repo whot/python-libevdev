@@ -215,7 +215,7 @@ def evbit(evtype, evcode=None):
 
     return c
 
-def prop(prop):
+def propbit(prop):
     """
     Takes a property value and returns the Enum representing that property.
 

@@ -23,7 +23,7 @@
 import unittest
 
 import libevdev
-from libevdev import evbit, prop, InputEvent
+from libevdev import evbit, propbit, InputEvent
 
 class TestEvents(unittest.TestCase):
     def test_event_matches_type(self):

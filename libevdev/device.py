@@ -69,10 +69,21 @@ class EventsDroppedException(Exception):
 
 class InputAbsInfo(object):
     """
-    A class representing the struct InputAbsinfo for a given EV_ABS code.
+    A class representing the struct input_absinfo for a given EV_ABS code.
 
     Any of the attributes may be set to None, those that are None are simply
     ignored by libevdev.
+
+    .. attribute:: minimum
+
+        the minimum value of this axis
+
+    :property minimum: the minimum value for this axis
+    :property maximum: the maximum value for this axis
+    :property fuzz: the fuzz value for this axis
+    :property flat: the flat value for this axis
+    :property resolution: the resolution for this axis
+    :property value: the current value of this axis
     """
     def __init__(self, minimum=None, maximum=None, fuzz=None, flat=None,
                  resolution=None, value=None):
@@ -85,34 +96,33 @@ class InputAbsInfo(object):
 
 class Device(object):
     """
-    This class represents an evdev device backed by libevdev.
+    This class represents an evdev device backed by libevdev. The device may
+    represent a real device in the system or a constructed device where the
+    caller supplies all properties of the device.
 
-    The device may represent a real device in the system or a constructed
-    device where the caller supplies all properties of the device.
+    Create a new libevdev device. If a file is given, the device
+    initializes from that file, otherwise the device is uninitialized
+    and needs to be set up by the caller::
+
+            fd = open("/dev/input/event0", "rb")
+            l = libevdev.Device(fd)
+            # l now represents the device on event0
+
+            l2 = libevdev.Device()
+            l2.name = "test device"
+            l2.enable(libevdev.EV_REL.REL_X)
+            # l2 is an unbound device with the REL_X bit set
+
+    Note that if a device is constructed manually, the fd of the device
+    is always None.
+
+    .. note:: The device is always set to CLOCK_MONOTONIC.
+
+    :param fd: fd pointing to a ``/dev/input/eventX`` event node
+    :type fd: A file-like object
+
     """
-
     def __init__(self, fd=None):
-        """
-        :param fd: A file-like object
-
-        Create a new libevdev device. If a file is given, the device
-        initializes from that file, otherwise the device is uninitialized
-        and needs to be set up by the caller. ::
-
-                fd = open("/dev/input/event0", "rb")
-                l = libevdev.Device(fd)
-                # l now represents the device on event0
-
-        Note that the device is always set to CLOCK_MONOTONIC.
-
-                l2 = libevdev.Device()
-                l2.name = "test device"
-                l2.enable("EV_REL", "REL_X")
-                # l2 is an unbound device with the REL_X bit set
-
-        Note that if a device is constructed manually, the fd of the device
-        is always None.
-        """
         self._libevdev = Libevdev(fd)
         if fd is not None:
             try:
@@ -123,7 +133,7 @@ class Device(object):
     @property
     def name(self):
         """
-        :return: the device name
+        :returns: the device name
         """
         return self._libevdev.name
 
@@ -134,7 +144,7 @@ class Device(object):
     @property
     def phys(self):
         """
-        :return: the device's kernel phys or None.
+        :returns: the device's kernel phys or None.
         """
         return self._libevdev.phys
 
@@ -145,7 +155,7 @@ class Device(object):
     @property
     def uniq(self):
         """
-        :return: the device's uniq string or None
+        :returns: the device's uniq string or None
         """
         return self._libevdev.uniq
 
@@ -156,14 +166,14 @@ class Device(object):
     @property
     def driver_version(self):
         """
-        :return: the device's driver version
+        :returns: the device's driver version
         """
         return self._libevdev.driver_version
 
     @property
     def id(self):
         """
-        :return: A dict with the keys 'bustype', 'vendor', 'product', 'version'.
+        :returns: A dict with the keys 'bustype', 'vendor', 'product', 'version'.
 
         When used as a setter, only existing keys are applied to the
         device. For example, to update the product ID only::
@@ -182,7 +192,7 @@ class Device(object):
     @property
     def fd(self):
         """
-        :return: the fd to this device
+        :returns: the fd to this device
 
         This fd represents the file descriptor to this device, if any. If no
         fd was provided in the constructor.
@@ -245,7 +255,7 @@ class Device(object):
     def has_property(self, prop):
         """
         :param prop: a property
-        :return: True if the device has the property, False otherwise
+        :returns: True if the device has the property, False otherwise
         """
         return self._libevdev.has_property(prop.value)
 
@@ -253,7 +263,7 @@ class Device(object):
         """
         :param evcode: the event type or event code
         :type evcode: EventType or EventCode
-        :return: True if the device has the type and/or code, False otherwise
+        :returns: True if the device has the type and/or code, False otherwise
         """
         try:
             return self._libevdev.has_event(evcode.type.value, evcode.value)
@@ -263,7 +273,7 @@ class Device(object):
     @property
     def num_slots(self):
         """
-        :return: the number of slots on this device or ``None`` if this device
+        :returns: the number of slots on this device or ``None`` if this device
                  does not support slots
 
         :note: Read-only
@@ -274,7 +284,7 @@ class Device(object):
     @property
     def current_slot(self):
         """
-        :return: the current of slots on this device or ``None`` if this device
+        :returns: the current slot on this device or ``None`` if this device
                  does not support slots
 
         :note: Read-only
@@ -285,14 +295,35 @@ class Device(object):
     def absinfo(self, code, new_values=None, kernel=False):
         """
         Query the device's absinfo for the given event code. This function
-        both queries and sets the absinfo - if new value is supplied that
-        value is now the value of the device.
+        can both query and modify the :class:`InputAbsInfo` values of this
+        device - if new_values is not None its contents become the new
+        contents of this device axis::
+
+            >>> ai = d.absinfo(libevdev.EV_ABS.ABS_X)
+            >>> print(f'Resolution is {ai.resolution}')
+            Resolution is 33
+            >>> ai.resolution = 45
+            >>> d.absinfo(libevdev.EV_ABS.ABS_X, new_values=ai)
+            >>> ai = d.absinfo(libevdev.EV_ABS.ABS_X)
+            >>> print(f'Resolution is now {ai.resolution}')
+            Resolution is now 45
+
+        Any attribute of :class:`InputAbsInfo` that is None is
+        ignored::
+
+            >>> ai = InputAbsInfo(resolution=72)
+            >>> d.absinfo(libevdev.EV_ABS.ABS_X, new_values=ai)
+            >>> ai = d.absinfo(libevdev.EV_ABS.ABS_X)
+            >>> print(f'Resolution is now {ai.resolution}')
+            Resolution is now 72
 
         :param code: the ABS_<*> code
         :type code: EventCode
         :param new_values: an InputAbsInfo struct or None
-        :param kernel: If True, assigning new values corresponds to ``libevdev_kernel_set_abs_info``
-        :return: an InputAbsInfo struct or None if the device does not have
+        :param kernel: If True, assigning new values corresponds to
+            ``libevdev_kernel_set_abs_info`` and makes the changes permanent on
+            the underlying kernel device.
+        :returns: an InputAbsInfo struct or None if the device does not have
                  the event code
         """
 
@@ -320,7 +351,7 @@ class Device(object):
                 for e in ctx.events():
                     print(e):
 
-        :return: an iterator with the currently pending events
+        :returns: an iterator with the currently pending events
         """
         if os.get_blocking(self._libevdev.fd.fileno()):
             flags = READ_FLAG_BLOCKING
@@ -360,7 +391,7 @@ class Device(object):
         :param event_code: the event type or code
         :type event_code: EventType or EventCode
         :param new_value: optional, the value to set to
-        :return: the current value of the event code, or ``None`` if it doesn't
+        :returns: the current value of the event code, or ``None`` if it doesn't
                  exist on this device
 
         .. warning::
@@ -379,30 +410,36 @@ class Device(object):
         :param slot: the numeric slot number
         :param event_code: the ABS_<*> event code, either as integer or string
         :param new_value: optional, the value to set this slot to
-        :return: the current value of the slot's code, or ``None`` if it doesn't
+        :returns: the current value of the slot's code, or ``None`` if it doesn't
                  exist on this device
         """
         return self._libevdev.slot_value(slot, event_code, new_value)
 
     def enable(self, event_code, data=None):
         """
+        Enable an event type or event code on this device, even if not
+        supported by this device.
+        If event_code is an :class:`EventType`, that type is enabled and data
+        is ignored.
+
+        If event_code is one of ``libevdev.EV_ABS.ABS_*``, then data must be
+        a :class:`InputAbsInfo`. Any unset fields of the
+        :class:`InputAbsInfo` are replaced with
+        0, i.e. the following example is valid and results in a
+        fuzz/flat/resolution of zero::
+
+                ctx = libevdev.Device()
+                abs = InputAbsInfo(minimum=0, maximum=100)
+                ctx.enable(libevdev.EV_ABS.ABS_X, data)
+
+        If event_code is one of ``libevdev.EV_REP.REP_``, then data must be
+        an integer.
+
         :param event_code: the event code
         :type event_code: EventCode or EventType
         :param data: if event_code is not ``None``, data points to the
                      code-specific information.
 
-        If event_code is an event type, the type is enabled and data is ignored.
-
-        If event_code is one of EV_ABS.*, then data must be a InputAbsInfo as returned
-        from absinfo. Any unset fields of the InputAbsInfo are replaced with
-        0, i.e. the following example is valid and results in a
-        fuzz/flat/resolution of zero::
-
-                ctx = Libevdev()
-                abs = InputAbsInfo(minimum=0, maximum=100)
-                ctx.enable(libevdev.EV_ABS.ABS_X, data)
-
-        If event_code is one of EV_REP.*, then data must be an integer.
         """
         if data is not None:
             data = {
@@ -420,9 +457,20 @@ class Device(object):
 
     def disable(self, event_code):
         """
+        Disable the given event type or event code on this device. If the
+        device does not support this type or code, this function does
+        nothing. Otherwise, all future events from this device that match
+        this type or code will be discarded::
+
+            >>> d.disable(libevdev.EV_ABS)
+            # All EV_ABS events are filtered now
+            >>> d.disable(libevdev.EV_KEY.BTN_LEFT)
+            # All BTN_LEFt events are filtered now
+
+        To re-enable an event type or code, use :func:`enable()`
+
         :param event_code: the event type or code
         :type event_code: EventType or EventCode
-        :type event_type: EventType or EventCode
         """
         try:
             self._libevdev.disable(event_code.type.value, event_code.value);
@@ -452,7 +500,21 @@ class Device(object):
     def create(self, uinput_fd=None):
         """
         Creates a new uinput device from this libevdev device. When created,
-        the device's fd now points to the new uinput device
+        the device's fd now points to the new uinput device::
+
+            fd = open('/dev/input/event0', 'rb')
+            d = libevdev.Device(fd)
+            d.name = 'duplicated device'
+            d.create()
+            # d is now a duplicate of the event0 device with a custom name
+
+        Or to create a new device from scratch::
+
+            d = libevdev.Device()
+            d.name = 'test device'
+            d.enable(libevdev.EV_KEY.BTN_LEFT)
+            d.create()
+            # d is now a device with a single button
 
         :param uinput_fd: A file descriptor to the /dev/input/uinput device. If None, the device is opened and closed automatically.
         """

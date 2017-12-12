@@ -43,7 +43,7 @@ class TestDevice(unittest.TestCase):
         self.assertEqual(d.driver_version, 0)
         self.assertIsNone(d.syspath)
         self.assertIsNone(d.devnode)
-        self.assertEqual(d.bits, syns)
+        self.assertEqual(d.evbits, syns)
         self.assertEqual(d.properties, [])
 
         for t in libevdev.types:
@@ -158,7 +158,7 @@ class TestDevice(unittest.TestCase):
     def test_has_bits(self):
         fd = open('/dev/input/event0', 'rb')
         d = libevdev.Device(fd)
-        bits = d.bits
+        bits = d.evbits
 
         # assume at least 2 event types
         self.assertGreater(len(bits.keys()), 1)
@@ -174,18 +174,18 @@ class TestDevice(unittest.TestCase):
         d = libevdev.Device()
         # read-only
         with self.assertRaises(AttributeError):
-            d.bits = {}
+            d.evbits = {}
 
     def test_bits_change_after_enable(self):
         d = libevdev.Device()
-        bits = d.bits
+        bits = d.evbits
         self.assertIn(libevdev.EV_SYN, bits)
         self.assertNotIn(libevdev.EV_REL, bits)
 
         d.enable(libevdev.EV_REL.REL_X)
         d.enable(libevdev.EV_REL.REL_Y)
 
-        bits = d.bits
+        bits = d.evbits
         self.assertIn(libevdev.EV_SYN, bits)
         self.assertIn(libevdev.EV_REL, bits)
         self.assertNotIn(libevdev.EV_ABS, bits)
@@ -201,7 +201,7 @@ class TestDevice(unittest.TestCase):
         d.enable(libevdev.EV_KEY.KEY_A)
         d.enable(libevdev.EV_KEY.KEY_B)
 
-        bits = d.bits
+        bits = d.evbits
         self.assertIn(libevdev.EV_SYN, bits)
         self.assertIn(libevdev.EV_REL, bits)
         self.assertIn(libevdev.EV_KEY, bits)
@@ -213,7 +213,7 @@ class TestDevice(unittest.TestCase):
 
         d.disable(libevdev.EV_REL.REL_Y)
         d.disable(libevdev.EV_KEY)
-        bits = d.bits
+        bits = d.evbits
         self.assertNotIn(libevdev.EV_KEY, bits)
         self.assertIn(libevdev.EV_REL, bits)
         self.assertIn(libevdev.EV_REL.REL_X, bits[libevdev.EV_REL])

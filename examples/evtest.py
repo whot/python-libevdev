@@ -19,7 +19,7 @@ def print_capabilities(l):
     print("Input device name: {}".format(l.name))
     print("Supported events:")
 
-    for t, cs in l.bits.items():
+    for t, cs in l.evbits.items():
         print("  Event type {} ({})".format(t.value, t.name))
 
         for c in cs:

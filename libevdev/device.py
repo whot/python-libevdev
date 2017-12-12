@@ -226,7 +226,7 @@ class Device(object):
         self._libevdev.fd = fileobj
 
     @property
-    def bits(self):
+    def evbits(self):
         """
         Returns a dict with all supported event types and event codes, in
         the form of::

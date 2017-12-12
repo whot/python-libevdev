@@ -6,15 +6,11 @@
 libevdev Python wrapper
 =======================
 
-This package is modelled after the libevdev C library. Some APIs are changed
-to be pythonic, this API documentation is merely to give an overview of the
-calls available.
-
-For the precise behavior of each call refer to the offical documentation at
+This package is a wrapper around the libevdev C library, with a pythonic
+API. For the precise behavior of libevdev refer to the offical documentation at
 http://www.freedesktop.org/software/libevdev/doc/latest/
 
 Contents:
-
 
 
 .. toctree::

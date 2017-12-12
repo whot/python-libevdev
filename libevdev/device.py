@@ -351,6 +351,9 @@ class Device(object):
 
         :returns: an iterator with the currently pending events
         """
+        if self._libevdev.fd is None:
+            return []
+
         if os.get_blocking(self._libevdev.fd.fileno()):
             flags = READ_FLAG_BLOCKING
         else:
@@ -373,6 +376,9 @@ class Device(object):
             required after changing the fd of the device when the device state
             may have changed while libevdev was not processing events.
         """
+        if self._libevdev.fd is None:
+            return []
+
         if force:
             flags = READ_FLAG_FORCE_SYNC
         else:

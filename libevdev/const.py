@@ -22,10 +22,12 @@
 
 import enum
 import collections
+from functools import total_ordering
 
 from ._clib import Libevdev
 import libevdev
 
+@total_ordering
 class EvdevBit:
     """
     Base class representing an evdev bit, comprised of a name and a value.
@@ -56,6 +58,12 @@ class EvdevBit:
 
     def __repr__(self):
         return f'{self.name}:{self.value}'
+
+    def __eq__(self, other):
+        return self.value == other.value
+
+    def __lt__(self, other):
+        return self.value < other.value
 
 class EventCode(EvdevBit):
     """

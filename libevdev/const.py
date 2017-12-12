@@ -20,6 +20,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
+import os
 import enum
 import collections
 from functools import total_ordering
@@ -366,5 +367,6 @@ def _load_consts():
 
     setattr(libevdev, 'props', props)
 
-_load_consts()
+if not os.environ.get('READTHEDOCS'):
+    _load_consts()
 

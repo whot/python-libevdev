@@ -193,30 +193,33 @@ class Device(object):
     @property
     def fd(self):
         """
-        :returns: the fd to this device
-
         This fd represents the file descriptor to this device, if any. If no
-        fd was provided in the constructor.
+        fd was provided in the constructor, None is returned.
+
+        The fd may only be changed if it was not initially None and then it
+        overwrites the file object provided in the constructor (or a
+        previous call to this function). The new file object becomes the
+        object referencing this device, further events are polled from that
+        file.
+
+        .. warning::
+
+            A device initialized without a file descriptor may not change
+            its fd.
+
+        Note that libevdev does not synchronize the device and relies on the
+        caller to ensure that the new file object points to the same device
+        as this context. If the underlying device changes, the behavior
+        is undefined.
+
+        :raises: InvalidFileError - the file is invalid or this device does
+            not allow a file to be set
+
         """
         return self._libevdev.fd
 
     @fd.setter
     def fd(self, fileobj):
-        """
-        Set the fd of the device to the file object given.
-
-        This call overwrites the file given in the constructor or
-        a previous call to this function. The new file object becomes the
-        object referencing this device, futher events are polled from that
-        file.
-
-        Note that libevdev does not synchronize the device and relies on the
-        caller to ensure that the new file object points to the same device
-        as this context.
-
-        :raises: InvalidFileError - the file is invalid or this device does
-        not allow a file to be set
-        """
         if self._libevdev.fd is None:
             raise InvalidFileError()
         self._libevdev.fd = fileobj

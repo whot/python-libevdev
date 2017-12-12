@@ -27,6 +27,7 @@ import libevdev
 from ._clib import Libevdev, UinputDevice
 from ._clib import READ_FLAG_SYNC, READ_FLAG_NORMAL, READ_FLAG_FORCE_SYNC, READ_FLAG_BLOCKING
 from .event import InputEvent
+from .const import InputProperty
 
 
 class InvalidFileError(Exception):
@@ -451,6 +452,9 @@ class Device(object):
         If event_code is one of ``libevdev.EV_REP.REP_``, then data must be
         an integer.
 
+        If event_code is one of ``libevdev.INPUT_PROP_``, then the given
+        input property is enabled.
+
         :param event_code: the event code
         :type event_code: EventCode or EventType
         :param data: if event_code is not ``None``, data points to the
@@ -466,6 +470,11 @@ class Device(object):
                     "resolution": data.resolution,
 
             }
+
+        if isinstance(event_code, InputProperty):
+            self._libevdev.enable_property(event_code.value)
+            return
+
         try:
             self._libevdev.enable(event_code.type.value, event_code.value, data)
         except AttributeError:
@@ -488,6 +497,9 @@ class Device(object):
         :param event_code: the event type or code
         :type event_code: EventType or EventCode
         """
+        if isinstance(event_code, InputProperty):
+            raise NotImplementedError()
+
         try:
             self._libevdev.disable(event_code.type.value, event_code.value);
         except AttributeError:

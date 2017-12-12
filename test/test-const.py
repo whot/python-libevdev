@@ -80,3 +80,10 @@ class TestEventBits(unittest.TestCase):
 
         for t in libevdev.types:
             self.assertEqual(evbit(t.name), t)
+
+    def test_propbit_string(self):
+        self.assertEqual(propbit('INPUT_PROP_POINTER'), libevdev.INPUT_PROP_POINTER)
+        self.assertEqual(propbit('INPUT_PROP_DIRECT'), libevdev.INPUT_PROP_DIRECT)
+
+        for p in libevdev.props:
+            self.assertEqual(propbit(p.value), p)

@@ -24,7 +24,7 @@ import time
 import os
 
 import libevdev
-from ._clib import Libevdev
+from ._clib import Libevdev, UinputDevice
 from ._clib import READ_FLAG_SYNC, READ_FLAG_NORMAL, READ_FLAG_FORCE_SYNC, READ_FLAG_BLOCKING
 from .event import InputEvent
 
@@ -124,6 +124,7 @@ class Device(object):
     """
     def __init__(self, fd=None):
         self._libevdev = Libevdev(fd)
+        self._uinput = None
         if fd is not None:
             try:
                 self._libevdev.set_clock_id(time.CLOCK_MONOTONIC)
@@ -529,6 +530,7 @@ class Device(object):
             # d is now a device with a single button
 
         :param uinput_fd: A file descriptor to the /dev/input/uinput device. If None, the device is opened and closed automatically.
+        :raises: OSError
         """
 
-        self._uinput = libevdev.UinputDevice(self._libevdev, uinput_fd)
+        self._uinput = UinputDevice(self._libevdev, uinput_fd)

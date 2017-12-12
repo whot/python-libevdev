@@ -329,6 +329,10 @@ class Libevdev(_LibraryWrapper):
             "argtypes": (c_void_p, c_int, c_int),
             "restype": (c_int),
         },
+        "libevdev_enable_property": {
+            "argtypes": (c_void_p, c_int),
+            "restype": (c_int),
+        },
         "libevdev_next_event": {
             "argtypes": (c_void_p, c_uint, ctypes.POINTER(_InputEvent)),
             "restype": c_int,
@@ -812,6 +816,15 @@ class Libevdev(_LibraryWrapper):
             self._disable_event_type(self._ctx, t)
         else:
             self._disable_event_code(self._ctx, t, c)
+
+    def enable_property(self, prop):
+        """
+        :param prop: the property as integer or string
+        """
+        if not isinstance(prop, int):
+            prop = self.property_to_value(prop)
+
+        self._enable_property(self._ctx, prop)
 
     def set_led(self, led, on):
         """

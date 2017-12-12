@@ -422,6 +422,11 @@ class TestAbsDevice(unittest.TestCase):
         l.disable("EV_ABS", "ABS_RY")
         self.assertFalse(l.has_event("EV_ABS", "ABS_RY"))
 
+    def test_enable_property(self):
+        l = Libevdev(self.fd)
+        self.assertFalse(l.has_property("INPUT_PROP_ACCELEROMETER"))
+        l.enable_property("INPUT_PROP_ACCELEROMETER")
+        self.assertTrue(l.has_property("INPUT_PROP_ACCELEROMETER"))
 
 class TestMTDevice(unittest.TestCase):
     """

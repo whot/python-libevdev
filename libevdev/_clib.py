@@ -20,6 +20,8 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
+import libevdev
+
 import os
 import ctypes
 import errno
@@ -511,7 +513,11 @@ class Libevdev(_LibraryWrapper):
 
     @fd.setter
     def fd(self, fileobj):
-        fd = fileobj.fileno()
+        try:
+            fd = fileobj.fileno()
+        except AttributeError:
+            raise libevdev.InvalidFileError
+
         if self._file is None:
             r = self._set_fd(self._ctx, fd)
         else:

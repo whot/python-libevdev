@@ -91,7 +91,7 @@ class InputEvent(object):
                         pass
         """
 
-        if value is not None and self.value != value:
+        if value is not None and self.value is not None and self.value != value:
             return False
 
         if isinstance(code, EventType):

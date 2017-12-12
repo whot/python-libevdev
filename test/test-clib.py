@@ -1,6 +1,6 @@
 import unittest
 import ctypes
-from libevdev.clib import Libevdev, UinputDevice
+from libevdev._clib import Libevdev, UinputDevice
 
 # Note: these tests test for the correct functioning of the python bindings,
 # not of libevdev underneath. Some ranges are hardcoded for simplicity, e.g.

@@ -22,7 +22,7 @@
 
 from enum import Enum
 
-from .clib import Libevdev
+from ._clib import Libevdev
 from .const import EventType, EventCode
 import libevdev
 

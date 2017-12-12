@@ -24,8 +24,8 @@ import time
 import os
 
 import libevdev
-from .clib import Libevdev
-from .clib import READ_FLAG_SYNC, READ_FLAG_NORMAL, READ_FLAG_FORCE_SYNC, READ_FLAG_BLOCKING
+from ._clib import Libevdev
+from ._clib import READ_FLAG_SYNC, READ_FLAG_NORMAL, READ_FLAG_FORCE_SYNC, READ_FLAG_BLOCKING
 from .event import InputEvent
 
 

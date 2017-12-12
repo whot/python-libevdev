@@ -23,7 +23,7 @@
 import enum
 import collections
 
-from .clib import Libevdev
+from ._clib import Libevdev
 import libevdev
 
 class EventCode:

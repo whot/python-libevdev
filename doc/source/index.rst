@@ -18,8 +18,8 @@ libevdev makes it easy to
 * duplicate an existing device and modify the event stream
 
 Below are examples that cover the most common cases that need to be done
-with libevdev. More specific examples can be found in the ``examples/``
-directory in http://github.com/whot/libevdev-python
+with libevdev. More specific examples can be found on the :doc:`examples`
+page.
 
 To read events from an existing device::
 
@@ -90,6 +90,7 @@ Contents:
    :maxdepth: 1
 
    modules
+   examples
 
 Indices and tables
 ==================

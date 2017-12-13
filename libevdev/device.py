@@ -133,10 +133,20 @@ class Device(object):
     :type fd: A file-like object
 
     """
+    class _EventValueSet:
+        def __init__(self, parent_device):
+            self._device = parent_device
+
+        def __getitem__(self, code):
+            return self._device._libevdev.event_value(code.type.value, code.value)
+
+
     def __init__(self, fd=None):
         self._libevdev = Libevdev(fd)
         self._uinput = None
         self._is_grabbed = False
+        self._values = Device._EventValueSet(self)
+
         if fd is not None:
             try:
                 self._libevdev.set_clock_id(time.CLOCK_MONOTONIC)
@@ -419,20 +429,28 @@ class Device(object):
             yield InputEvent(code, ev.value, ev.sec, ev.usec)
             ev = self._libevdev.next_event(flags)
 
-    def event_value(self, event_code, new_value=None):
+    @property
+    def value(self):
         """
-        :param event_code: the event code
-        :type event_code: EventCode
-        :param new_value: optional, the value to set to
-        :returns: the current value of the event code, or ``None`` if it doesn't
-                 exist on this device
+        Returns the current value for a given event code or None where the
+        event code does not exist on the device::
 
-        .. warning::
+            >>> d = libevdev.Device(fd)
+            >>> print(d.value[libevdev.EV_ABS.ABS_X])
+            1024
+            >>> print(d.value[libevdev.EV_ABS.ABS_Y])
+            512
+            >>> print(d.value[libevdev.EV_ABS.ABS_Z])
+            None
 
-            If a new_value is given, the event_code must not be a pure event
-            type
+        The returned object is a dict-like object that only accepts event
+        codes as keys. No other operation than key-based access is
+        supported.
+
+        The default value for all codes is 0. State-less axes like the
+        ``EV_REL`` range always return 0 for all supported event codes.
         """
-        return self._libevdev.event_value(event_code.type.value, event_code.value, new_value)
+        return self._values
 
     def slot_value(self, slot, event_code, new_value=None):
         """

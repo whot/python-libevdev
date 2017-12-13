@@ -54,7 +54,7 @@ class TestDevice(unittest.TestCase):
 
             for c in t.codes:
                 self.assertFalse(d.has_event(c))
-                self.assertIsNone(d.event_value(c))
+                self.assertIsNone(d.value[c])
 
                 d.disable(c) # noop
 
@@ -264,6 +264,12 @@ class TestDevice(unittest.TestCase):
         d = libevdev.Device()
         with self.assertRaises(InvalidArgumentException):
             d.enable(libevdev.EV_ABS.ABS_X)
+
+    def test_value(self):
+        d = libevdev.Device()
+        d.enable(libevdev.EV_REL.REL_X)
+        self.assertEqual(d.value[libevdev.EV_REL.REL_X], 0)
+        self.assertIsNone(d.value[libevdev.EV_REL.REL_Y])
 
     @unittest.skipUnless(is_root(), 'Test requires root')
     def test_uinput_empty(self):

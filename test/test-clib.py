@@ -248,14 +248,10 @@ class TestRealDevice(unittest.TestCase):
 
     def test_grab(self):
         l = Libevdev(self.fd)
-        rc = l.grab()
-        self.assertEqual(rc, 0)
-
-        rc = l.grab(False)
-        self.assertEqual(rc, 0)
-
-        rc = l.grab(True)
-        self.assertEqual(rc, 0)
+        # no exception == success
+        l.grab()
+        l.grab(False)
+        l.grab(True)
 
     def test_has_event(self):
         l = Libevdev(self.fd)

@@ -547,7 +547,8 @@ class Libevdev(_LibraryWrapper):
         else:
             mode = 4
         r = self._grab(self._ctx, mode)
-        return r
+        if r != 0:
+            raise OSError(-r, os.strerror(-r))
 
     def absinfo(self, code, new_values=None, kernel=False):
         """

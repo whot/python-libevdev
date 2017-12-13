@@ -202,7 +202,8 @@ class Device(object):
     def fd(self):
         """
         This fd represents the file descriptor to this device, if any. If no
-        fd was provided in the constructor, None is returned.
+        fd was provided in the constructor, None is returned. If the device
+        was used to create a uinput device, None is returned.
 
         The fd may only be changed if it was not initially None and then it
         overwrites the file object provided in the constructor (or a
@@ -224,6 +225,9 @@ class Device(object):
             not allow a file to be set
 
         """
+        if self._uinput:
+            return None
+
         return self._libevdev.fd
 
     @fd.setter
@@ -371,7 +375,7 @@ class Device(object):
 
         :returns: an iterable with the currently pending events
         """
-        if self._libevdev.fd is None:
+        if self._libevdev.fd is None or self._uinput is not None:
             return []
 
         if os.get_blocking(self._libevdev.fd.fileno()):
@@ -396,7 +400,7 @@ class Device(object):
             required after changing the fd of the device when the device state
             may have changed while libevdev was not processing events.
         """
-        if self._libevdev.fd is None:
+        if self._libevdev.fd is None or self._uinput is not None:
             return []
 
         if force:
@@ -543,13 +547,14 @@ class Device(object):
     def create(self, uinput_fd=None):
         """
         Creates a new uinput device from this libevdev device. When created,
-        the device's fd now points to the new uinput device::
+        the device's fd becomes invalid and should be closed by the caller::
 
             fd = open('/dev/input/event0', 'rb')
             d = libevdev.Device(fd)
             d.name = 'duplicated device'
             d.create()
             # d is now a duplicate of the event0 device with a custom name
+            fd.close()
 
         Or to create a new device from scratch::
 

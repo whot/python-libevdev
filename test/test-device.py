@@ -24,7 +24,7 @@ import os
 import unittest
 
 import libevdev
-from libevdev import evbit, propbit, InputEvent, Device, InvalidFileError
+from libevdev import evbit, propbit, InputEvent, Device, InvalidFileError, InvalidArgumentException
 
 def is_root():
     return os.getuid() == 0
@@ -259,6 +259,11 @@ class TestDevice(unittest.TestCase):
         self.assertFalse(d.has_event(libevdev.EV_KEY.KEY_C))
 
         self.assertFalse(d.has_event(libevdev.EV_ABS))
+
+    def test_enable_abs(self):
+        d = libevdev.Device()
+        with self.assertRaises(InvalidArgumentException):
+            d.enable(libevdev.EV_ABS.ABS_X)
 
     @unittest.skipUnless(is_root(), 'Test requires root')
     def test_uinput_empty(self):

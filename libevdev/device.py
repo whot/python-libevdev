@@ -480,21 +480,26 @@ class Device(object):
                      code-specific information.
 
         """
-        if data is not None:
-            data = {
-                    "minimum": data.minimum,
-                    "maximum": data.maximum,
-                    "fuzz": data.fuzz,
-                    "flat": data.flat,
-                    "resolution": data.resolution,
-
-            }
-
         if isinstance(event_code, InputProperty):
             self._libevdev.enable_property(event_code.value)
             return
 
         try:
+            if event_code.type == libevdev.EV_ABS:
+                if data is None or not isinstance(data, InputAbsInfo):
+                    raise InvalidArgumentException()
+
+                data = {
+                        "minimum": data.minimum,
+                        "maximum": data.maximum,
+                        "fuzz": data.fuzz,
+                        "flat": data.flat,
+                        "resolution": data.resolution,
+                }
+            elif event_code.type == libevdev.EV_REP:
+                if data is None:
+                    raise InvalidArgumentException()
+
             self._libevdev.enable(event_code.type.value, event_code.value, data)
         except AttributeError:
             self._libevdev.enable(event_code.value)

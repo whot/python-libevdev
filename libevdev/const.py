@@ -205,6 +205,13 @@ def evbit(evtype, evcode=None):
         >>> print(libevdev.evbit('EV_ABS', 'ABS_X'))
         ABS_X:0
 
+    A special case is the lookup of an string-based event code without
+    the type. Where the string identifier is unique, this will return the
+    right value.
+
+        >>> print(libevdev.evbit('ABS_X'))
+        ABS_X:0
+
     The return value can be used in the libevdev API wherever an
     :class:`EventCode` or :class:`EventType` is expected.
 
@@ -242,6 +249,13 @@ def evbit(evtype, evcode=None):
         if t.value == evtype or t.name == evtype:
             etype = t
             break
+
+    if (evcode is None and isinstance(evtype, str)
+        and not evtype.startswith('EV_')):
+        for t in libevdev.types:
+            for c in t.codes:
+                if c.name == evtype:
+                    return c
 
     if etype is None or evcode is None:
         return etype

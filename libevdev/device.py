@@ -237,6 +237,10 @@ class Device(object):
         if self._libevdev.fd is None:
             raise InvalidFileError()
         self._libevdev.fd = fileobj
+        try:
+            self._libevdev.set_clock_id(time.CLOCK_MONOTONIC)
+        except AttributeError:
+            self._libevdev.set_clock_id(1)
         if self._is_grabbed:
             self.grab()
 

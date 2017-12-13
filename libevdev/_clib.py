@@ -804,7 +804,7 @@ class Libevdev(_LibraryWrapper):
                                      data.get("resolution", 0))
                 data = ctypes.pointer(data)
             elif t == 0x14:  # EV_REP
-                data = ctypes.pointer(data)
+                data = ctypes.pointer(c_int(data))
             self._enable_event_code(self._ctx, t, c, data)
 
     def disable(self, event_type, event_code=None):

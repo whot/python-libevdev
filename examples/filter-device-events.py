@@ -21,9 +21,8 @@ def main(args):
     d.grab()
 
     # create a duplicate of our input device
-    uidev = libevdev.Device(fd)
-    uidev.enable(code_to)  # make sure the code we map to is available
-    uidev.create()
+    d.enable(code_to)  # make sure the code we map to is available
+    uidev = d.create_uinput_device()
     print('Device is at {}'.format(uidev.devnode))
 
     while True:

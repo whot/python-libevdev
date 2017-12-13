@@ -269,4 +269,4 @@ class TestDevice(unittest.TestCase):
     def test_uinput_empty(self):
         d = libevdev.Device()
         with self.assertRaises(OSError):
-            d.create()
+            d.create_uinput_device()

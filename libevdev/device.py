@@ -225,9 +225,6 @@ class Device(object):
             not allow a file to be set
 
         """
-        if self._uinput:
-            return None
-
         return self._libevdev.fd
 
     @fd.setter
@@ -375,7 +372,7 @@ class Device(object):
 
         :returns: an iterable with the currently pending events
         """
-        if self._libevdev.fd is None or self._uinput is not None:
+        if self._libevdev.fd is None:
             return []
 
         if os.get_blocking(self._libevdev.fd.fileno()):
@@ -400,7 +397,7 @@ class Device(object):
             required after changing the fd of the device when the device state
             may have changed while libevdev was not processing events.
         """
-        if self._libevdev.fd is None or self._uinput is not None:
+        if self._libevdev.fd is None:
             return []
 
         if force:
@@ -549,15 +546,19 @@ class Device(object):
             return None
         return self._uinput.syspath
 
-    def create(self, uinput_fd=None):
+    def create_uinput_device(self, uinput_fd=None):
         """
-        Creates a new uinput device from this libevdev device. When created,
-        the device's fd becomes invalid and should be closed by the caller::
+        Creates and returns a new :class:`Device` based on this libevdev
+        device. The new device is equivalent to one created with
+        ``libevdev.Device()``, i.e. it is one that does not have a file
+        descriptor associated.
+
+        To create a uinput device from an existing device::
 
             fd = open('/dev/input/event0', 'rb')
             d = libevdev.Device(fd)
             d.name = 'duplicated device'
-            d.create()
+            d.create_uinput_device()
             # d is now a duplicate of the event0 device with a custom name
             fd.close()
 
@@ -566,14 +567,31 @@ class Device(object):
             d = libevdev.Device()
             d.name = 'test device'
             d.enable(libevdev.EV_KEY.BTN_LEFT)
-            d.create()
+            d.create_uinput_device()
             # d is now a device with a single button
 
         :param uinput_fd: A file descriptor to the /dev/input/uinput device. If None, the device is opened and closed automatically.
         :raises: OSError
         """
+        d = libevdev.Device()
+        d.name = self.name
+        d.id = self.id
 
-        self._uinput = UinputDevice(self._libevdev, uinput_fd)
+        for t, cs in self.evbits.items():
+            for c in cs:
+                if t == libevdev.EV_ABS:
+                    data = self.absinfo(c)
+                elif t == libevdev.EV_REP:
+                    data = self.event_value(c)
+                else:
+                    data = None
+                d.enable(c, data)
+
+        for p in self.properties:
+            self.enable(p)
+
+        d._uinput = UinputDevice(self._libevdev, uinput_fd)
+        return d
 
     def send_events(self, events):
         """
@@ -581,7 +599,8 @@ class Device(object):
         events must have a valid :class:`EventCode` and value, the timestamp
         in the event is ignored and the kernel fills in its own timestamp.
 
-        This function may only be called after :func:`create()`.
+        This function may only be called on a uinput device, not on a normal
+        device.
 
         .. warning::
 

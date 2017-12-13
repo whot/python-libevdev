@@ -28,7 +28,7 @@ def print_capabilities(l):
                 print("    Event code {} ({})".format(c.value, c.name))
 
             if t == libevdev.EV_ABS:
-                a = l.absinfo(c)
+                a = l.absinfo[c]
                 print("       {:10s} {:6d}".format('Value', a.value))
                 print("       {:10s} {:6d}".format('Minimum', a.minimum))
                 print("       {:10s} {:6d}".format('Maximum', a.maximum))

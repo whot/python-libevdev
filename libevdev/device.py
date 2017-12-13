@@ -112,9 +112,8 @@ class Device(object):
     represent a real device in the system or a constructed device where the
     caller supplies all properties of the device.
 
-    Create a new libevdev device. If a file is given, the device
-    initializes from that file, otherwise the device is uninitialized
-    and needs to be set up by the caller::
+    If a file is given, the device initializes from that file, otherwise the
+    device is uninitialized and needs to be set up by the caller::
 
             fd = open("/dev/input/event0", "rb")
             l = libevdev.Device(fd)

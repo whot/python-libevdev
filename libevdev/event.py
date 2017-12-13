@@ -26,13 +26,41 @@ from .const import EventType, EventCode
 class InputEvent(object):
     """
     Represents one input event of type struct input_event as defined in
-    linux/input.h and returned by libevdev_next_event().
+    ``linux/input.h`` and returned by ``libevdev_next_event()``.
 
-    :param code: the EventCode or EventType for this input event
-    :param value: an optional event value
-    :param sec: the timestamp, seconds
-    :param usec: the timestamp, microseconds
-    :type code: EventCode or EventType
+    Comparison between events can be done via the :func:`matches()` function
+    or by comparing two input events. Two events match when their most
+    precise attribute match and all other attributes are None::
+
+        >>> e = InputEvent(libevdev.EV_REL.REL_X, value=1)
+        >>> e == InputEvent(libevdev.EV_REL)
+        True
+        >>> e == InputEvent(libevdev.EV_ABS)
+        True
+        >>> e == InputEvent(libevdev.EV_REL.REL_X)
+        True
+        >>> e == InputEvent(libevdev.EV_REL.REL_Y)
+        False
+        >>> e == InputEvent(libevdev.EV_REL.REL_X, value=1)
+        True
+        >>> e == InputEvent(libevdev.EV_REL.REL_X, value=2)
+        False
+
+    .. attribute:: code
+
+        The :class:`EventCode` or :class:`EventType` for this input event
+
+    .. attribute:: value
+
+        The (optional) value for the event's axis
+
+    .. attribute:: sec
+
+        The timestamp, seconds
+
+    .. attribute:: usec
+
+        The timestamp, microseconds
     """
 
     def __init__(self, code, value=None, sec=0, usec=0):

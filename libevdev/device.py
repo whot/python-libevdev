@@ -494,13 +494,11 @@ class Device(object):
                 if data is None or not isinstance(data, InputAbsInfo):
                     raise InvalidArgumentException()
 
-                data = {
-                        "minimum": data.minimum,
+                data = {"minimum": data.minimum,
                         "maximum": data.maximum,
                         "fuzz": data.fuzz,
                         "flat": data.flat,
-                        "resolution": data.resolution,
-                }
+                        "resolution": data.resolution}
             elif event_code.type == libevdev.EV_REP:
                 if data is None:
                     raise InvalidArgumentException()

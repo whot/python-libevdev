@@ -237,21 +237,21 @@ def evbit(evtype, evcode=None):
     :return: An event code value representing the code
     :rtype: EventCode or EventType
     """
+    etype = None
+    for t in libevdev.types:
+        if t.value == evtype or t.name == evtype:
+            etype = t
+            break
 
-    try:
-        t = [t for t in libevdev.types if t.value == evtype or t.name == evtype][0]
-    except IndexError:
-        return None
+    if etype is None or evcode is None:
+        return etype
 
-    if evcode is None:
-        return t
+    ecode = None
+    for c in etype.codes:
+        if c.value == evcode or c.name == evcode:
+            ecode = c
 
-    try:
-        c = [c for c in t.codes if c.value == evcode or c.name == evtype][0]
-    except IndexError:
-        return None
-
-    return c
+    return ecode
 
 def propbit(prop):
     """

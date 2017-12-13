@@ -37,14 +37,17 @@ class InvalidFileError(Exception):
     """
     pass
 
+
 class InvalidArgumentException(Exception):
     pass
+
 
 class DeviceGrabError(Exception):
     """
     A device grab failed to be issued. A caller must not assume that it has
     exclusive access to the events on the device.
     """
+
 
 class EventsDroppedException(Exception):
     """
@@ -74,6 +77,7 @@ class EventsDroppedException(Exception):
     """
     pass
 
+
 class InputAbsInfo(object):
     """
     A class representing the struct input_absinfo for a given EV_ABS code.
@@ -100,6 +104,7 @@ class InputAbsInfo(object):
         self.flat = flat
         self.resolution = resolution
         self.value = value
+
 
 class Device(object):
     """
@@ -522,7 +527,7 @@ class Device(object):
             raise NotImplementedError()
 
         try:
-            self._libevdev.disable(event_code.type.value, event_code.value);
+            self._libevdev.disable(event_code.type.value, event_code.value)
         except AttributeError:
             self._libevdev.disable(event_code.value)
 

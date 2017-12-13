@@ -21,12 +21,11 @@
 # DEALINGS IN THE SOFTWARE.
 
 import os
-import enum
-import collections
 from functools import total_ordering
 
 from ._clib import Libevdev
 import libevdev
+
 
 @total_ordering
 class EvdevBit:
@@ -66,6 +65,7 @@ class EvdevBit:
     def __lt__(self, other):
         return self.value < other.value
 
+
 class EventCode(EvdevBit):
     """
     .. warning ::
@@ -104,6 +104,7 @@ class EventCode(EvdevBit):
             return False
 
         return self.value == other.value and self.type == other.type
+
 
 class EventType(EvdevBit):
     """
@@ -152,6 +153,7 @@ class EventType(EvdevBit):
     def __eq__(self, other):
         assert isinstance(other, EventType)
         return self.value == other.value
+
 
 class InputProperty(EvdevBit):
     """
@@ -250,8 +252,7 @@ def evbit(evtype, evcode=None):
             etype = t
             break
 
-    if (evcode is None and isinstance(evtype, str)
-        and not evtype.startswith('EV_')):
+    if evcode is None and isinstance(evtype, str) and not evtype.startswith('EV_'):
         for t in libevdev.types:
             for c in t.codes:
                 if c.name == evtype:
@@ -266,6 +267,7 @@ def evbit(evtype, evcode=None):
             ecode = c
 
     return ecode
+
 
 def propbit(prop):
     """
@@ -329,9 +331,9 @@ def _load_consts():
         cmax = Libevdev.type_max(t)
 
         new_class = type(tname, (EventType, ),
-                { 'value': t,
-                  'name': tname,
-                  'max' : cmax })
+                         {'value': t,
+                          'name': tname,
+                          'max': cmax})
 
         type_object = new_class()
         # libevdev.EV_REL, libevdev.EV_ABS, etc.
@@ -351,9 +353,9 @@ def _load_consts():
                 cname = "{}_{:02X}".format(tname[3:], c)
 
             new_class = type(cname, (EventCode, ),
-                    { 'type': type_object,
-                      'name': cname,
-                      'value': c })
+                             {'type': type_object,
+                              'name': cname,
+                              'value': c})
             code_object = new_class()
             setattr(type_object, cname, code_object)
             codes.append(code_object)
@@ -372,8 +374,8 @@ def _load_consts():
             continue
 
         new_class = type(pname, (InputProperty, ),
-                         { 'value': p,
-                           'name': pname, })
+                         {'value': p,
+                          'name': pname})
         prop_object = new_class()
 
         setattr(libevdev, pname, prop_object)
@@ -381,6 +383,6 @@ def _load_consts():
 
     setattr(libevdev, 'props', props)
 
+
 if not os.environ.get('READTHEDOCS'):
     _load_consts()
-

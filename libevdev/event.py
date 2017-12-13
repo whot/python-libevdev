@@ -20,11 +20,8 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-from enum import Enum
-
-from ._clib import Libevdev
 from .const import EventType, EventCode
-import libevdev
+
 
 class InputEvent(object):
     """
@@ -114,4 +111,3 @@ class InputEvent(object):
         if self.code is not None:
             cname = self.code.name
         return 'InputEvent({}, {}, {})'.format(tname, cname, self.value)
-

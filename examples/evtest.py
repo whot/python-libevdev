@@ -83,6 +83,7 @@ def main(args):
         else:
             raise e
 
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: {} /dev/input/eventX".format(sys.argv[0]))

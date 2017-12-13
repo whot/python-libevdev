@@ -20,6 +20,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-from .device import Device, InvalidFileError, EventsDroppedException, InvalidArgumentException
+from .device import Device, InputAbsInfo
+from .device import InvalidFileError, EventsDroppedException, InvalidArgumentException
 from .event import InputEvent
 from .const import evbit, propbit, EventType, EventCode, InputProperty

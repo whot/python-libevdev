@@ -105,6 +105,19 @@ class InputAbsInfo(object):
         self.resolution = resolution
         self.value = value
 
+    def __repr__(self):
+        return 'min:{} max:{} fuzz:{} flat:{} resolution:{} value:{}'.format(
+                self.minimum, self.maximum, self.fuzz, self.flat,
+                self.resolution, self.value)
+
+    def __eq__(self, other):
+        return (self.minimum == other.minimum and
+                self.maximum == other.maximum and
+                self.value == other.value and
+                self.resolution == other.resolution and
+                self.fuzz == other.fuzz and
+                self.flat == other.flat)
+
 
 class Device(object):
     """
@@ -140,12 +153,50 @@ class Device(object):
         def __getitem__(self, code):
             return self._device._libevdev.event_value(code.type.value, code.value)
 
+    class _InputAbsInfoSet:
+        def __init__(self, parent_device):
+            self._device = parent_device
+
+        def __getitem__(self, code):
+            assert code.type == libevdev.EV_ABS
+
+            r = self._device._libevdev.absinfo(code.value)
+            if r is None:
+                return r
+
+            return InputAbsInfo(r['minimum'], r['maximum'],
+                                r['fuzz'], r['flat'],
+                                r['resolution'], r['value'])
+
+        def __setitem__(self, code, absinfo):
+            assert code.type == libevdev.EV_ABS
+
+            if not self._device.has_event(code):
+                raise InvalidArgumentException()
+
+            data = {}
+            if absinfo.minimum is not None:
+                data['minimum'] = absinfo.minimum
+            if absinfo.maximum is not None:
+                data['maximum'] = absinfo.maximum
+            if absinfo.fuzz is not None:
+                data['fuzz'] = absinfo.fuzz
+            if absinfo.flat is not None:
+                data['flat'] = absinfo.flat
+            if absinfo.resolution is not None:
+                data['resolution'] = absinfo.resolution
+            if absinfo.value is not None:
+                data['value'] = absinfo.value
+
+            self._device._libevdev.absinfo(code.value, data)
+
 
     def __init__(self, fd=None):
         self._libevdev = Libevdev(fd)
         self._uinput = None
         self._is_grabbed = False
         self._values = Device._EventValueSet(self)
+        self._absinfos = Device._InputAbsInfoSet(self)
 
         if fd is not None:
             try:
@@ -323,51 +374,56 @@ class Device(object):
         """
         return self._libevdev.current_slot
 
-    def absinfo(self, code, new_values=None, kernel=False):
+    @property
+    def absinfo(self):
         """
-        Query the device's absinfo for the given event code. This function
+        Query the device's absinfo for the given event code. This attribute
         can both query and modify the :class:`InputAbsInfo` values of this
-        device - if new_values is not None its contents become the new
-        contents of this device axis::
+        device::
 
-            >>> ai = d.absinfo(libevdev.EV_ABS.ABS_X)
+            >>> ai = d.absinfo[libevdev.EV_ABS.ABS_X]
+            >>> print(f'Resolution is {ai.resolution}')
+            Resolution is 33
+            >>> ai = d.absinfo[libevdev.EV_ABS.ABS_Z]
+            >>> print(ai)
+            None
+
+        The returned object is a dict-like object that only accepts event
+        codes of type `EV_ABS` as keys. No other operation than key-based
+        access is supported.
+
+        When used as a setter, the provided :class:`InputAbsInfo` becomes
+        the new absinfo of this axis::
+
+            >>> ai = d.absinfo[libevdev.EV_ABS.ABS_X]
             >>> print(f'Resolution is {ai.resolution}')
             Resolution is 33
             >>> ai.resolution = 45
-            >>> d.absinfo(libevdev.EV_ABS.ABS_X, new_values=ai)
-            >>> ai = d.absinfo(libevdev.EV_ABS.ABS_X)
+            >>> d.absinfo[libevdev.EV_ABS.ABS_X] = ai
+            >>> ai = d.absinfo[libevdev.EV_ABS.ABS_X]
             >>> print(f'Resolution is now {ai.resolution}')
             Resolution is now 45
 
-        Any attribute of :class:`InputAbsInfo` that is None is
-        ignored::
+        When used as a setter, any attribute of :class:`InputAbsInfo` that
+        is ``None`` is ignored::
 
             >>> ai = InputAbsInfo(resolution=72)
-            >>> d.absinfo(libevdev.EV_ABS.ABS_X, new_values=ai)
-            >>> ai = d.absinfo(libevdev.EV_ABS.ABS_X)
+            >>> d.absinfo[libevdev.EV_ABS.ABS_X] = ai
+            >>> ai = d.absinfo[libevdev.EV_ABS.ABS_X]
             >>> print(f'Resolution is now {ai.resolution}')
             Resolution is now 72
 
-        :param code: the ABS_<*> code
-        :type code: EventCode
-        :param new_values: an InputAbsInfo struct or None
-        :param kernel: If True, assigning new values corresponds to
-            ``libevdev_kernel_set_abs_info`` and makes the changes permanent on
-            the underlying kernel device.
-        :returns: an InputAbsInfo struct or None if the device does not have
-                 the event code
+        .. warning::
+
+            Setting the absinfo for a non-existing EV_ABS code is invalid.
+            Use :func:`enable()` instead.
+
+        :returns: an class:`InputAbsInfo` struct or None if the device does
+                  not have the event code
+        :raises: :class:`InvalidArgumentException` when trying to set an
+                 axis that is not enabled.
         """
-
-        if new_values is None and kernel:
-            raise InvalidArgumentException()
-
-        r = self._libevdev.absinfo(code.value, new_values, kernel)
-        if r is None:
-            return r
-
-        return InputAbsInfo(r['minimum'], r['maximum'],
-                            r['fuzz'], r['flat'],
-                            r['resolution'], r['value'])
+        return self._absinfos
 
     def events(self):
         """
@@ -604,7 +660,7 @@ class Device(object):
         for t, cs in self.evbits.items():
             for c in cs:
                 if t == libevdev.EV_ABS:
-                    data = self.absinfo(c)
+                    data = self.absinfo[c]
                 elif t == libevdev.EV_REP:
                     data = self.event_value(c)
                 else:

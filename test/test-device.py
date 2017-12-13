@@ -67,7 +67,7 @@ class TestDevice(unittest.TestCase):
         self.assertIsNone(d.current_slot)
 
         for c in libevdev.EV_ABS.codes:
-            self.assertIsNone(d.absinfo(c))
+            self.assertIsNone(d.absinfo[c])
 
         self.assertEqual([e for e in d.events()], [])
         self.assertEqual([e for e in d.sync()], [])
@@ -270,6 +270,45 @@ class TestDevice(unittest.TestCase):
         d.enable(libevdev.EV_REL.REL_X)
         self.assertEqual(d.value[libevdev.EV_REL.REL_X], 0)
         self.assertIsNone(d.value[libevdev.EV_REL.REL_Y])
+
+    def test_absinfo(self):
+        d = libevdev.Device()
+        a = libevdev.InputAbsInfo(minimum=100, maximum=1000, resolution=50)
+        d.enable(libevdev.EV_ABS.ABS_X, a)
+        # we expect these to be filled in
+        a.fuzz = 0
+        a.flat = 0
+        a.value = 0
+
+        a2 = d.absinfo[libevdev.EV_ABS.ABS_X]
+        self.assertEqual(a, a2)
+
+        self.assertIsNone(d.absinfo[libevdev.EV_ABS.ABS_Y])
+        a.fuzz = 10
+        d.absinfo[libevdev.EV_ABS.ABS_X] = a
+        a2 = d.absinfo[libevdev.EV_ABS.ABS_X]
+        self.assertEqual(a, a2)
+
+        a = libevdev.InputAbsInfo(minimum=500)
+        d.absinfo[libevdev.EV_ABS.ABS_X] = a
+        a2 = d.absinfo[libevdev.EV_ABS.ABS_X]
+        self.assertEqual(a.minimum, a2.minimum)
+        self.assertIsNotNone(a2.minimum)
+        self.assertIsNotNone(a2.maximum)
+        self.assertIsNotNone(a2.fuzz)
+        self.assertIsNotNone(a2.flat)
+        self.assertIsNotNone(a2.resolution)
+        self.assertIsNotNone(a2.value)
+
+    def test_absinfo_set_invalid(self):
+        a = libevdev.InputAbsInfo(minimum=500)
+        d = libevdev.Device()
+        with self.assertRaises(InvalidArgumentException):
+            d.absinfo[libevdev.EV_ABS.ABS_Y] = a
+        with self.assertRaises(AssertionError):
+            d.absinfo[libevdev.EV_REL.REL_X]
+        with self.assertRaises(AssertionError):
+            d.absinfo[libevdev.EV_REL.REL_X] = a
 
     @unittest.skipUnless(is_root(), 'Test requires root')
     def test_uinput_empty(self):

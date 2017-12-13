@@ -40,6 +40,12 @@ class InvalidFileError(Exception):
 class InvalidArgumentException(Exception):
     pass
 
+class DeviceGrabError(Exception):
+    """
+    A device grab failed to be issued. A caller must not assume that it has
+    exclusive access to the events on the device.
+    """
+
 class EventsDroppedException(Exception):
     """
     Notification that the device has dropped events, raised in response to a
@@ -126,6 +132,7 @@ class Device(object):
     def __init__(self, fd=None):
         self._libevdev = Libevdev(fd)
         self._uinput = None
+        self._is_grabbed = False
         if fd is not None:
             try:
                 self._libevdev.set_clock_id(time.CLOCK_MONOTONIC)
@@ -224,6 +231,8 @@ class Device(object):
         if self._libevdev.fd is None:
             raise InvalidFileError()
         self._libevdev.fd = fileobj
+        if self._is_grabbed:
+            self.grab()
 
     @property
     def evbits(self):
@@ -584,3 +593,44 @@ class Device(object):
 
         for e in events:
             self._uinput.write_event(e.type.value, e.code.value, e.value)
+
+    def grab(self):
+        """
+        Exclusively grabs the device, preventing events from being seen by
+        anyone else. This includes in-kernel consumers of the events (e.g.
+        for rfkill) and should be used with care.
+
+        A grab is valid until the file descriptor is closed or until
+        :func:`ungrab` is called, whichever happens earlier. libevdev
+        re-issues the grab on the device after changing the fd. If the
+        original file descriptor is still open when changing the fd on the
+        device, re-issuing the grab will fail silently::
+
+            fd1 = open("/dev/input/event0", "rb")
+            d = libevdev.Device(fd1)
+            d.grab()
+            # device is now exclusively grabbed
+
+            fd.close()
+            fd2 = open("/dev/input/event0", "rb")
+            d.fd = fd2
+            # device is now exclusively grabbed
+
+            fd3 = open("/dev/input/event0", "rb")
+            d.fd = fd3
+            # ERROR: fd2 is still open and the grab fails
+
+        """
+        try:
+            self._libevdev.grab()
+        except OSError:
+            raise DeviceGrabError()
+
+        self._is_grabbed = True
+
+    def ungrab(self):
+        """
+        Removes an exclusive grabs on the device, see :func:`grab`.
+        """
+        self._libevdev.grab(False)
+        self._is_grabbed = False

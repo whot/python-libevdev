@@ -284,7 +284,7 @@ class Libevdev(_LibraryWrapper):
         #
         # const struct input_absinfo *libevdev_get_abs_info(struct libevdev*,  int code)
         "libevdev_kernel_set_abs_info": {
-            "argtypes": (c_void_p, ctypes.POINTER(_InputAbsinfo)),
+            "argtypes": (c_void_p, c_int, ctypes.POINTER(_InputAbsinfo)),
             "restype": (c_int)
         },
         ##########################
@@ -589,7 +589,9 @@ class Libevdev(_LibraryWrapper):
                 absinfo.contents.resolution = new_values["resolution"]
 
             if kernel:
-                self._kernel_set_abs_info(self._ctx, absinfo)
+                rc = self._kernel_set_abs_info(self._ctx, code, absinfo)
+                if rc != 0:
+                    raise OSError(-rc, os.strerror(-rc))
 
         return {"value": absinfo.contents.value,
                 "minimum": absinfo.contents.minimum,

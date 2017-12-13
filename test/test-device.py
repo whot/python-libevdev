@@ -311,6 +311,33 @@ class TestDevice(unittest.TestCase):
             d.absinfo[libevdev.EV_REL.REL_X] = a
 
     @unittest.skipUnless(is_root(), 'Test requires root')
+    def test_absinfo_sync_kernel(self):
+        d = libevdev.Device()
+        d.name = 'sync test device'
+        a = libevdev.InputAbsInfo(minimum=0, maximum=1000, resolution=50,
+                                  fuzz=0, flat=0, value=0)
+        d.enable(libevdev.EV_ABS.ABS_X, a)
+        d.enable(libevdev.EV_ABS.ABS_Y, a)
+        uinput = d.create_uinput_device()
+
+        fd = open(uinput.devnode, 'rb')
+        d = libevdev.Device(fd)
+        a2 = d.absinfo[libevdev.EV_ABS.ABS_X]
+        self.assertEquals(a, a2)
+        a2.resolution = 100
+        d.absinfo[libevdev.EV_ABS.ABS_X] = a2
+        d.sync_absinfo_to_kernel(libevdev.EV_ABS.ABS_X)
+        fd.close()
+
+        fd = open(uinput.devnode, 'rb')
+        d = libevdev.Device(fd)
+        a3 = d.absinfo[libevdev.EV_ABS.ABS_X]
+        print(a3)
+        self.assertEquals(a2, a3)
+        a3 = d.absinfo[libevdev.EV_ABS.ABS_Y]
+        self.assertEquals(a, a3)
+
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_uinput_empty(self):
         d = libevdev.Device()
         with self.assertRaises(OSError):

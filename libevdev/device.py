@@ -425,6 +425,32 @@ class Device(object):
         """
         return self._absinfos
 
+    def sync_absinfo_to_kernel(self, code):
+        """
+        Synchronizes our view of an absinfo axis to the kernel, thus
+        updating the the device for every other client. This function should
+        be used with care. Not only does it change the kernel device and
+        thus may affect the behavior of other processes but it is racy: any
+        client that has this device node open already may never see the
+        updates.
+
+        To use this function, update the absinfo for the desired axis
+        first::
+
+            >>> fd = open('/dev/input/event0', 'rb')
+            >>> d = libevdev.Device(fd)
+            >>> ai = InputAbsInfo(resolution=72)
+            >>> d.absinfo[libevdev.EV_ABS.ABS_X] = ai
+            >>> d.sync_absinfo_to_kernel(libevdev.EV_ABS.ABS_X)
+        """
+        a = self.absinfo[code]
+        data = {"minimum": a.minimum,
+                "maximum": a.maximum,
+                "fuzz": a.fuzz,
+                "flat": a.flat,
+                "resolution": a.resolution}
+        self._libevdev.absinfo(code.value, new_values=data, kernel=True)
+
     def events(self):
         """
         Returns an iterable with currently pending events.

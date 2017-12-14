@@ -50,10 +50,10 @@ class TestDevice(unittest.TestCase):
             if t == libevdev.EV_SYN:
                 continue
 
-            self.assertFalse(d.has_event(t))
+            self.assertFalse(d.has(t))
 
             for c in t.codes:
-                self.assertFalse(d.has_event(c))
+                self.assertFalse(d.has(c))
                 self.assertIsNone(d.value[c])
 
                 d.disable(c) # noop
@@ -240,7 +240,7 @@ class TestDevice(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             d.disable(libevdev.INPUT_PROP_BUTTONPAD)
 
-    def test_has_event(self):
+    def test_has(self):
         d = libevdev.Device()
 
         d.enable(libevdev.EV_REL.REL_X)
@@ -248,17 +248,17 @@ class TestDevice(unittest.TestCase):
         d.enable(libevdev.EV_KEY.KEY_A)
         d.enable(libevdev.EV_KEY.KEY_B)
 
-        self.assertTrue(d.has_event(libevdev.EV_REL))
-        self.assertTrue(d.has_event(libevdev.EV_REL.REL_X))
-        self.assertTrue(d.has_event(libevdev.EV_REL.REL_Y))
-        self.assertFalse(d.has_event(libevdev.EV_REL.REL_Z))
+        self.assertTrue(d.has(libevdev.EV_REL))
+        self.assertTrue(d.has(libevdev.EV_REL.REL_X))
+        self.assertTrue(d.has(libevdev.EV_REL.REL_Y))
+        self.assertFalse(d.has(libevdev.EV_REL.REL_Z))
 
-        self.assertTrue(d.has_event(libevdev.EV_KEY))
-        self.assertTrue(d.has_event(libevdev.EV_KEY.KEY_A))
-        self.assertTrue(d.has_event(libevdev.EV_KEY.KEY_B))
-        self.assertFalse(d.has_event(libevdev.EV_KEY.KEY_C))
+        self.assertTrue(d.has(libevdev.EV_KEY))
+        self.assertTrue(d.has(libevdev.EV_KEY.KEY_A))
+        self.assertTrue(d.has(libevdev.EV_KEY.KEY_B))
+        self.assertFalse(d.has(libevdev.EV_KEY.KEY_C))
 
-        self.assertFalse(d.has_event(libevdev.EV_ABS))
+        self.assertFalse(d.has(libevdev.EV_ABS))
 
     def test_enable_abs(self):
         d = libevdev.Device()

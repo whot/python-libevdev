@@ -20,7 +20,7 @@ def main(args):
 
     fd = open(path, 'rb')
     d = libevdev.Device(fd)
-    if not d.has_event(axis):
+    if not d.has(axis):
         print('Device does not have axis {}'.format(axis))
         sys.exit(1)
 

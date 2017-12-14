@@ -27,7 +27,7 @@ To read events from an existing device::
 
         fd = open('/dev/input/event0', 'rb')
         d = libevdev.Device(fd)
-        if not d.has_event(libevdev.EV_KEY.BTN_LEFT):
+        if not d.has(libevdev.EV_KEY.BTN_LEFT):
              print('This does not look like a mouse device')
              sys.exit(0)
 

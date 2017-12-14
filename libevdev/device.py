@@ -171,7 +171,7 @@ class Device(object):
         def __setitem__(self, code, absinfo):
             assert code.type == libevdev.EV_ABS
 
-            if not self._device.has_event(code):
+            if not self._device.has(code):
                 raise InvalidArgumentException()
 
             data = {}
@@ -317,12 +317,12 @@ class Device(object):
         """
         types = {}
         for t in libevdev.types:
-            if not self.has_event(t):
+            if not self.has(t):
                 continue
 
             codes = []
             for c in t.codes:
-                if not self.has_event(c):
+                if not self.has(c):
                     continue
                 codes.append(c)
             types[t] = codes
@@ -343,7 +343,7 @@ class Device(object):
         """
         return self._libevdev.has_property(prop.value)
 
-    def has_event(self, evcode):
+    def has(self, evcode):
         """
         :param evcode: the event type or event code
         :type evcode: EventType or EventCode

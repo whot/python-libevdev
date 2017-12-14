@@ -91,6 +91,7 @@ Contents:
 
    modules
    examples
+   python-evdev
 
 Indices and tables
 ==================

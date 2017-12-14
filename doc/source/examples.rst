@@ -6,8 +6,8 @@ source.
 
 .. contents:: :local:
 
-Priting the capabilities of a device and its events
-***************************************************
+Printing the capabilities of a device and its events
+****************************************************
 
 .. literalinclude:: ../../examples/evtest.py
 

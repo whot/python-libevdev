@@ -125,6 +125,7 @@ strings into a correct event code::
    :caption: Table of Contents
    :maxdepth: 2
 
+   tutorial
    API documentation <modules>
    examples
    python-evdev

@@ -9,24 +9,7 @@ between the two projects.
 
 The biggest difference and motivation for libevdev-python was that it wraps
 libevdev rather than just using the kernel directly. This provides a number
-of advantages:
-
-* access to the state of the device (rather than just the events)
-* correct handling of fake multitouch devices
-* synching of slots and per-slot state
-* transparent generation of missing tracking ids after SYN_DROPPED
-* disabling/enabling events on a per-context basis, so one can disable/enable ABS_FOO and then not care about quirks in the client-side code.
-* transparent handling of the UI_GET_SYSNAME ioctl
-* transparent handling of the UI_DEV_SETUP ioctl
-
-The above are all features that were added to libevdev (the C library) over
-time because of a need for it in projects like the Xorg drivers, libinput,
-evemu and others.
-
-Unfortunately, the evdev kernel API is very simple, but getting the behavior
-of the API correct is hard. Even kernel drivers frequently do it wrong.
-libevdev (the C library) does hide a lot of that and thus makes consuming
-evdev safer.
+of advantages, see **Why libevdev?** on the :doc:`index page <index>` for details.
 
 From an API perspective, libevdev-python and python-evdev have two slightly
 different approaches. For example,

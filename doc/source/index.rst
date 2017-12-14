@@ -1,21 +1,51 @@
 libevdev Python wrapper
 =======================
 
-This package is a wrapper around the libevdev C library, with a pythonic
-API. This provides a number of advantages over 'raw' evdev event handling,
-libevdev hides some of the quirks of the evdev protocol. For the precise
-behavior of the libevdev C library refer to the offical documentation at
-http://www.freedesktop.org/software/libevdev/doc/latest/ For the rest of
-this document, "libevdev" refers to this Python wrapper.
-
-The source code for this project is available at
-http://github.com/whot/libevdev-python
-
-libevdev makes it easy to
+**libevdev-python** is a wrapper around the libevdev C library, with a
+pythonic API. libevdev makes it easy to
 
 * read and parse events from an input device
 * create a virtual input device and make it send events
 * duplicate an existing device and modify the event stream
+
+See the `Basic examples`_ section below for simple code or the :doc:`examples`
+page for more detailed examples.
+
+Source code
+-----------
+
+The source code for this project is available at
+http://github.com/whot/libevdev-python
+
+Why libevdev?
+-------------
+
+**libevdev-python** uses libevdev for most operations. This provides a
+number of advantages over direct evdev event handling, libevdev hides some
+of the quirks of the evdev protocol. For example libevdev provides
+
+* access to the state of the device (rather than just the events)
+* correct handling of fake multitouch devices
+* synching of slots and per-slot state
+* transparent generation of missing tracking ids after SYN_DROPPED
+* disabling/enabling events on a per-context basis, so one can disable/enable ABS_FOO and then not care about quirks in the client-side code.
+* transparent handling of the UI_GET_SYSNAME and UI_DEV_SETUP ioctls
+
+The above are all features that were added to libevdev (the C library) over
+time because of a need for it in projects like the Xorg drivers, libinput,
+evemu and others.
+
+Unfortunately, the evdev kernel API is very simple, but getting the
+*behavior* of the API correct is hard. Even kernel drivers frequently do it
+wrong. libevdev (the C library) does hide a lot of that and thus makes
+consuming evdev safer.
+
+For the precise behavior of the libevdev C library refer to the offical
+documentation at
+http://www.freedesktop.org/software/libevdev/doc/latest/
+
+Basic examples
+--------------
 
 Below are examples that cover the most common cases that need to be done
 with libevdev. More specific examples can be found on the :doc:`examples`
@@ -43,6 +73,11 @@ To read events from an existing device::
                 elif e.matches(libevdev.EV_KEY.BTN_RIGHT):
                     print('Right button event')
 
+.. note::
+
+   Reading from and writing to input devices requires root access to the
+   device node. Any programs using libevdev need to run as root.
+
 
 To create a new uinput device with a specific set of events::
 
@@ -62,8 +97,15 @@ To create a new uinput device with a specific set of events::
                   InputEvent(libevdev.EV_SYN.SYN_REPORT, 0)]
         uinput.send_events(events)
 
+.. note::
 
-To compare a textual or binary representation of events to a device::
+   Creating uinput devices requires root access.
+   Any programs using libevdev need to run as root.
+
+
+It's common to read events or device descriptions from some file
+(e.g. evemu recordings). libevdev makes it easy to convert numbers or
+strings into a correct event code::
 
         >>> import libevdev
         >>> print(libevdev.evbit(0))
@@ -79,17 +121,11 @@ To compare a textual or binary representation of events to a device::
         >>> print(libevdev.evbit('ABS_X'))
         ABS_X:0
 
-.. note::
-
-   Reading from and writing to input devices requires root access to the
-   device node. Any programs using libevdev need to run as root.
-
-Contents:
-
 .. toctree::
-   :maxdepth: 1
+   :caption: Table of Contents
+   :maxdepth: 2
 
-   modules
+   API documentation <modules>
    examples
    python-evdev
 

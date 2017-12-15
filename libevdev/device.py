@@ -119,8 +119,8 @@ class InputAbsInfo(object):
 
     def __repr__(self):
         return 'min:{} max:{} fuzz:{} flat:{} resolution:{} value:{}'.format(
-                self.minimum, self.maximum, self.fuzz, self.flat,
-                self.resolution, self.value)
+               self.minimum, self.maximum, self.fuzz, self.flat,
+               self.resolution, self.value)
 
     def __eq__(self, other):
         return (self.minimum == other.minimum and
@@ -206,7 +206,6 @@ class Device(object):
                 data['value'] = absinfo.value
 
             self._device._libevdev.absinfo(code.value, data)
-
 
     def __init__(self, fd=None):
         self._libevdev = Libevdev(fd)

@@ -39,7 +39,19 @@ class InvalidFileError(Exception):
 
 
 class InvalidArgumentException(Exception):
-    pass
+    """
+    A function was called with an invalid argument. This indicates a bug in
+    the calling program.
+
+    .. attribute:: message
+
+        A human-readable error message
+    """
+    def __init__(self, msg=None):
+        self.message = msg
+
+    def __repr__(self):
+        return self.message
 
 
 class DeviceGrabError(Exception):
@@ -155,7 +167,7 @@ class Device(object):
             if (code.type == libevdev.EV_ABS and
                code >= libevdev.EV_ABS.ABS_MT_SLOT and
                self._device.num_slots is not None):
-                raise InvalidArgumentException()
+                raise InvalidArgumentException('Cannot fetch value for MT axes')
             return self._device._libevdev.event_value(code.type.value, code.value)
 
     class _InputAbsInfoSet:
@@ -177,7 +189,7 @@ class Device(object):
             assert code.type == libevdev.EV_ABS
 
             if not self._device.has(code):
-                raise InvalidArgumentException()
+                raise InvalidArgumentException('Device does not have event code')
 
             data = {}
             if absinfo.minimum is not None:
@@ -554,10 +566,10 @@ class Device(object):
         :raises: InvalidArgumentException
         """
         if self.num_slots is None or self.num_slots < slot:
-            raise InvalidArgumentException()
+            raise InvalidArgumentException('Device has no slots')
 
         if event_code.value <= libevdev.EV_ABS.ABS_MT_SLOT.value:
-            raise InvalidArgumentException()
+            raise InvalidArgumentException('Invalid axis code for slot values')
 
         return self._libevdev.slot_value(slot, event_code.value, new_value)
 
@@ -597,7 +609,7 @@ class Device(object):
         try:
             if event_code.type == libevdev.EV_ABS:
                 if data is None or not isinstance(data, InputAbsInfo):
-                    raise InvalidArgumentException()
+                    raise InvalidArgumentException('enabling EV_ABS codes requires an InputAbsInfo')
 
                 data = {"minimum": data.minimum or 0,
                         "maximum": data.maximum or 0,
@@ -606,7 +618,7 @@ class Device(object):
                         "resolution": data.resolution or 0}
             elif event_code.type == libevdev.EV_REP:
                 if data is None:
-                    raise InvalidArgumentException()
+                    raise InvalidArgumentException('enabling EV_REP codes requires an integer')
 
             self._libevdev.enable(event_code.type.value, event_code.value, data)
         except AttributeError:
@@ -726,10 +738,10 @@ class Device(object):
             raise InvalidFileError()
 
         if None in [e.code for e in events]:
-            raise InvalidArgumentException()
+            raise InvalidArgumentException('All events must have an event code')
 
         if None in [e.value for e in events]:
-            raise InvalidArgumentException()
+            raise InvalidArgumentException('All events must have a value')
 
         for e in events:
             self._uinput.write_event(e.type.value, e.code.value, e.value)

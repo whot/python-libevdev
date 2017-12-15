@@ -271,6 +271,42 @@ class TestDevice(unittest.TestCase):
         self.assertEqual(d.value[libevdev.EV_REL.REL_X], 0)
         self.assertIsNone(d.value[libevdev.EV_REL.REL_Y])
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
+    def test_mt_value(self):
+        # Unable to set ABS_MT_SLOT on a libevdev device, see
+        # https://bugs.freedesktop.org/show_bug.cgi?id=104270
+        d = libevdev.Device()
+        a = libevdev.InputAbsInfo(minimum=0, maximum=100)
+        d.name = 'test device'
+        d.enable(libevdev.EV_ABS.ABS_X, a)
+        d.enable(libevdev.EV_ABS.ABS_Y, a)
+        d.enable(libevdev.EV_ABS.ABS_MT_SLOT, a)
+        d.enable(libevdev.EV_ABS.ABS_MT_POSITION_X, a)
+        d.enable(libevdev.EV_ABS.ABS_MT_POSITION_Y, a)
+        d.enable(libevdev.EV_ABS.ABS_MT_TRACKING_ID, a)
+
+        uinput = d.create_uinput_device()
+
+        fd = open(uinput.devnode, 'rb')
+        d = libevdev.Device(fd)
+
+        self.assertEqual(d.num_slots, 101)
+        self.assertEqual(d.value[libevdev.EV_ABS.ABS_X], 0)
+        self.assertEqual(d.value[libevdev.EV_ABS.ABS_Y], 0)
+
+        with self.assertRaises(libevdev.InvalidArgumentException):
+            d.value[libevdev.EV_ABS.ABS_MT_POSITION_X]
+        with self.assertRaises(libevdev.InvalidArgumentException):
+            d.value[libevdev.EV_ABS.ABS_MT_POSITION_Y]
+        with self.assertRaises(libevdev.InvalidArgumentException):
+            d.value[libevdev.EV_ABS.ABS_MT_SLOT]
+        with self.assertRaises(libevdev.InvalidArgumentException):
+            d.value[libevdev.EV_ABS.ABS_MT_TRACKING_ID]
+        # also raises for non-existing axes
+        with self.assertRaises(libevdev.InvalidArgumentException):
+            d.value[libevdev.EV_ABS.ABS_MT_ORIENTATION]
+
+
     def test_absinfo(self):
         d = libevdev.Device()
         a = libevdev.InputAbsInfo(minimum=100, maximum=1000, resolution=50)

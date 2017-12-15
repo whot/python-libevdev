@@ -151,6 +151,11 @@ class Device(object):
             self._device = parent_device
 
         def __getitem__(self, code):
+            # calling device.value[slot axis] is a bug on MT devices
+            if (code.type == libevdev.EV_ABS and
+               code >= libevdev.EV_ABS.ABS_MT_SLOT and
+               self._device.num_slots is not None):
+                raise InvalidArgumentException()
             return self._device._libevdev.event_value(code.type.value, code.value)
 
     class _InputAbsInfoSet:

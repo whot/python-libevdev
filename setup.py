@@ -9,4 +9,12 @@ setup(name='libevdev',
       author_email='peter.hutterer@who-t.net',
       url='https://www.github.com/whot/libevdev-python/',
       packages=['libevdev'],
-      )
+      classifiers=[
+           'Development Status :: 3 - Alpha',
+           'Topic :: Software Development',
+           'Intended Audience :: Developers',
+           'License :: OSI Approved :: MIT License',
+           'Programming Language :: Python :: 3',
+          ],
+      python_requires='>=3',
+)

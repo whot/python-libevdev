@@ -17,6 +17,38 @@ Source code
 The source code for this project is available at
 http://github.com/whot/libevdev-python
 
+
+Installation
+------------
+
+A requirement for **libevdev-python** to work is that the libevdev C library
+is installed on your system. Install through your favourite package
+managers, but you almost certainly already have it installed anyway.
+
+The recommended way of installing **libevdev-python** is to use your
+distribution's package manager (``dnf``, ``yum``, ``apt``, ``pacman``, ...).
+If it isn't packaged for your distribution, you should use ``pip3``::
+
+        sudo pip3 install libevdev
+
+For more details on using pip and the PyPI, please see https://pypi.python.org/pypi
+
+Otherwise, you can install it from the git repository::
+
+        git clone http://github.com/whot/libevdev-python
+        cd libevdev-python
+        sudo ./setup.py install
+
+Finally, **libevdev-python** can be used directly from the source by simply
+setting ``PYTHONPATH``::
+
+        $> export PYTHONPATH=/path/to/source:$PYTHONPATH
+        $> python3 -c 'import libevdev; print(libevdev.EV_ABS)'
+        EV_ABS:3
+
+Once installed, the ``import libevdev`` statement will work and you can go
+from there.
+
 Why libevdev?
 -------------
 

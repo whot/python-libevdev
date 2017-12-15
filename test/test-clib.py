@@ -1,3 +1,4 @@
+import os
 import unittest
 import ctypes
 from libevdev._clib import Libevdev, UinputDevice
@@ -7,6 +8,8 @@ from libevdev._clib import Libevdev, UinputDevice
 # if properties 1-4 work the others will work too if libevdev works
 # correctly
 
+def is_root():
+    return os.getuid() == 0
 
 class TestNameConversion(unittest.TestCase):
 
@@ -195,6 +198,7 @@ class TestRealDevice(unittest.TestCase):
     def tearDown(self):
         self.fd.close()
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_set_fd(self):
         l = Libevdev()
         l.fd = self.fd
@@ -207,6 +211,7 @@ class TestRealDevice(unittest.TestCase):
         self.assertEqual(fd, fd2)
         fd2.close()
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_init_fd(self):
         l = Libevdev(self.fd)
         fd = l.fd
@@ -218,6 +223,7 @@ class TestRealDevice(unittest.TestCase):
         self.assertEqual(fd, fd2)
         fd2.close()
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_ids(self):
         l = Libevdev(self.fd)
         id = l.id
@@ -226,16 +232,19 @@ class TestRealDevice(unittest.TestCase):
         self.assertNotEqual(id["product"], 0)
         self.assertNotEqual(id["version"], 0)
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_name(self):
         l = Libevdev(self.fd)
         name = l.name
         self.assertNotEqual(name, "")
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_driver_version(self):
         l = Libevdev(self.fd)
         v = l.driver_version
         self.assertEqual(v, 0x010001)
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_set_clock_id(self):
         l = Libevdev(self.fd)
         try:
@@ -246,6 +255,7 @@ class TestRealDevice(unittest.TestCase):
         rc = l.set_clock_id(clock)
         self.assertEqual(rc, 0)
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_grab(self):
         l = Libevdev(self.fd)
         # no exception == success
@@ -253,6 +263,7 @@ class TestRealDevice(unittest.TestCase):
         l.grab(False)
         l.grab(True)
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_has_event(self):
         l = Libevdev(self.fd)
         self.assertTrue(l.has_event("EV_SYN", "SYN_REPORT"))
@@ -272,6 +283,7 @@ class TestRealDevice(unittest.TestCase):
 
         self.assertGreater(codes_supported, 0)
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_has_property(self):
         """
         Let's assume at least one between event0 and event10 is a device
@@ -292,6 +304,7 @@ class TestRealDevice(unittest.TestCase):
                 pass
         self.assertGreater(props_supported, 0)
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_num_slots(self):
         """
         Let's assume that our device doesn't have slots
@@ -328,6 +341,7 @@ class TestAbsDevice(unittest.TestCase):
     def tearDown(self):
         self.fd.close()
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_absinfo(self):
         l = Libevdev(self.fd)
         a = l.absinfo("ABS_Y")
@@ -338,6 +352,7 @@ class TestAbsDevice(unittest.TestCase):
         self.assertTrue("flat" in a)
         self.assertTrue("value" in a)
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_set_absinfo(self):
         l = Libevdev(self.fd)
         real_a = l.absinfo("ABS_Y")
@@ -372,15 +387,18 @@ class TestAbsDevice(unittest.TestCase):
         self.assertEqual(a2["resolution"], real_a["resolution"])
         self.assertEqual(a2["value"], real_a["value"])
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_set_absinfo_invalid(self):
         l = Libevdev(self.fd)
         with self.assertRaises(ValueError):
             l.absinfo("REL_X")
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_set_absinfo_kernel(self):
         # FIXME: yeah, nah, not testing that on a random device...
         pass
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_get_set_event_value(self):
         l = Libevdev(self.fd)
         v = l.event_value("EV_ABS", "ABS_Y")
@@ -390,6 +408,7 @@ class TestAbsDevice(unittest.TestCase):
         v = l.event_value(0x03, 0x01)
         self.assertEqual(v, 300)
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_get_set_event_value_invalid(self):
         l = Libevdev(self.fd)
         v = l.event_value("EV_ABS", 0x600)
@@ -397,6 +416,7 @@ class TestAbsDevice(unittest.TestCase):
         v = l.event_value(0x03, 0x600, new_value=300)
         self.assertIsNone(v)
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_enable_event_code(self):
         l = Libevdev(self.fd)
 
@@ -418,6 +438,7 @@ class TestAbsDevice(unittest.TestCase):
         l.disable("EV_ABS", "ABS_RY")
         self.assertFalse(l.has_event("EV_ABS", "ABS_RY"))
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_enable_property(self):
         l = Libevdev(self.fd)
         self.assertFalse(l.has_property("INPUT_PROP_ACCELEROMETER"))
@@ -450,14 +471,17 @@ class TestMTDevice(unittest.TestCase):
     def tearDown(self):
         self.fd.close()
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_num_slots(self):
         l = Libevdev(self.fd)
         self.assertGreater(l.num_slots, 0)
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_current_slot(self):
         l = Libevdev(self.fd)
         self.assertGreaterEqual(l.current_slot, 0)
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_slot_value(self):
         l = Libevdev(self.fd)
         a = l.absinfo("ABS_MT_POSITION_X")
@@ -465,6 +489,7 @@ class TestMTDevice(unittest.TestCase):
         self.assertLessEqual(a["minimum"], v)
         self.assertGreaterEqual(a["maximum"], v)
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def test_set_slot_value(self):
         l = Libevdev(self.fd)
         v = l.slot_value(l.current_slot, "ABS_MT_POSITION_X")
@@ -491,6 +516,7 @@ class TestUinput(unittest.TestCase):
                     return False
         return True
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def testRelative(self):
         dev = Libevdev()
         dev.name = "test device"
@@ -503,6 +529,7 @@ class TestUinput(unittest.TestCase):
             newdev = Libevdev(f)
             self.assertTrue(self.is_identical(dev, newdev))
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def testButton(self):
         dev = Libevdev()
         dev.name = "test device"
@@ -515,6 +542,7 @@ class TestUinput(unittest.TestCase):
             newdev = Libevdev(f)
             self.assertTrue(self.is_identical(dev, newdev))
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def testAbsolute(self):
         absinfo = {"minimum": 0,
                    "maximum": 1}
@@ -530,6 +558,7 @@ class TestUinput(unittest.TestCase):
             newdev = Libevdev(f)
             self.assertTrue(self.is_identical(dev, newdev))
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def testDeviceNode(self):
         dev = Libevdev()
         dev.name = "test device"
@@ -538,6 +567,7 @@ class TestUinput(unittest.TestCase):
         uinput = UinputDevice(dev)
         self.assertTrue(uinput.devnode.startswith("/dev/input/event"))
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
     def testSyspath(self):
         dev = Libevdev()
         dev.name = "test device"

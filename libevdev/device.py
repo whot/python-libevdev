@@ -207,6 +207,31 @@ class Device(object):
 
             self._device._libevdev.absinfo(code.value, data)
 
+    class _SlotValue:
+        def __init__(self, device, slot):
+            self._device = device
+            self._slot = slot
+
+        def __getitem__(self, code):
+            if (code.type is not libevdev.EV_ABS or
+               code <= libevdev.EV_ABS.ABS_MT_SLOT):
+                raise InvalidArgumentException('Event code must be one of EV_ABS.ABS_MT_*')
+
+            if not self._device.has(code):
+                return None
+
+            return self._device._libevdev.slot_value(self._slot, code.value)
+
+        def __setitem__(self, code, value):
+            if (code.type is not libevdev.EV_ABS or
+               code <= libevdev.EV_ABS.ABS_MT_SLOT):
+                raise InvalidArgumentException('Event code must be one of EV_ABS.ABS_MT_*')
+
+            if not self._device.has(code):
+                raise InvalidArgumentException('Event code does not exist')
+
+            self._device._libevdev.slot_value(self._slot, code.value, new_value=value)
+
     def __init__(self, fd=None):
         self._libevdev = Libevdev(fd)
         self._uinput = None
@@ -550,27 +575,39 @@ class Device(object):
         """
         return self._values
 
-    def slot_value(self, slot, event_code, new_value=None):
+    @property
+    def slots(self):
         """
-        Retrieve the current value of the given event code for the given
-        slot. If the event code is not a valid slot event code or the slot
-        exceeds the value of :func:`num_slots`, an
-        InvalidArgumentException is raised.
+        Returns a tuple with the available slots, each of which contains a
+        wrapper object to access a slot value::
 
-        :param slot: the numeric slot number
-        :param event_code: the ``libevdev.EV_ABS.ABS_MT_*`` event code
-        :param new_value: optional, the value to set this slot to
-        :returns: the current value of the slot's code, or ``None`` if it doesn't
-                 exist on this device
-        :raises: InvalidArgumentException
+           >>> d = libevdev.Device(fd)
+           >>> print(d.slots[0][libevdev.EV_ABS.ABS_MT_POSITION_X])
+           1000
+           >>> print(d.slots[0][libevdev.EV_ABS.ABS_MT_POSITION_Y])
+           500
+           >>> print(d.slots[1][libevdev.EV_ABS.ABS_MT_POSITION_X])
+           200
+           >>> print(d.slots[1][libevdev.EV_ABS.ABS_MT_POSITION_Y])
+           300
+
+        Alternatively, the tuple can be iterated on::
+
+           xcode = libevdev.EV_ABS.ABS_MT_POSITION_X
+           ycode = libevdev.EV_ABS.ABS_MT_POSITION_Y
+
+           for s in d.slots:
+                position = (s[xcode], s[ycode])
+
+        The only values available for each slot are the ones in the
+        ``libevdev.EV_ABS.ABS_MT_*`` range (but not
+        ``libevdev.EV_ABS.ABS_MT_SLOT``).
         """
-        if self.num_slots is None or self.num_slots < slot:
+
+        if self.num_slots is None:
             raise InvalidArgumentException('Device has no slots')
 
-        if event_code.value <= libevdev.EV_ABS.ABS_MT_SLOT.value:
-            raise InvalidArgumentException('Invalid axis code for slot values')
-
-        return self._libevdev.slot_value(slot, event_code.value, new_value)
+        return tuple(Device._SlotValue(self, slot) for slot in range(self.num_slots))
 
     def enable(self, event_code, data=None):
         """

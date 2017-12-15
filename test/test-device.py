@@ -73,7 +73,7 @@ class TestDevice(unittest.TestCase):
         self.assertEqual([e for e in d.sync()], [])
 
         with self.assertRaises(libevdev.InvalidArgumentException):
-            d.slot_value(0, libevdev.EV_ABS.ABS_MT_POSITION_X)
+            d.slots[0][libevdev.EV_ABS.ABS_MT_POSITION_X]
 
     def test_device_name(self):
         d = libevdev.Device()
@@ -306,6 +306,78 @@ class TestDevice(unittest.TestCase):
         with self.assertRaises(libevdev.InvalidArgumentException):
             d.value[libevdev.EV_ABS.ABS_MT_ORIENTATION]
 
+    @unittest.skipUnless(is_root(), 'Test requires root')
+    def test_slot_value(self):
+        # Unable to set ABS_MT_SLOT on a libevdev device, see
+        # https://bugs.freedesktop.org/show_bug.cgi?id=104270
+        d = libevdev.Device()
+        a = libevdev.InputAbsInfo(minimum=0, maximum=100)
+        d.name = 'test device'
+        d.enable(libevdev.EV_ABS.ABS_X, a)
+        d.enable(libevdev.EV_ABS.ABS_Y, a)
+        d.enable(libevdev.EV_ABS.ABS_MT_SLOT, a)
+        d.enable(libevdev.EV_ABS.ABS_MT_POSITION_X, a)
+        d.enable(libevdev.EV_ABS.ABS_MT_POSITION_Y, a)
+        d.enable(libevdev.EV_ABS.ABS_MT_TRACKING_ID, a)
+
+        uinput = d.create_uinput_device()
+        events = [libevdev.InputEvent(libevdev.EV_ABS.ABS_MT_SLOT, 0),
+                  libevdev.InputEvent(libevdev.EV_ABS.ABS_MT_TRACKING_ID, 1),
+                  libevdev.InputEvent(libevdev.EV_ABS.ABS_MT_POSITION_X, 100),
+                  libevdev.InputEvent(libevdev.EV_ABS.ABS_MT_POSITION_Y, 110),
+                  libevdev.InputEvent(libevdev.EV_ABS.ABS_MT_SLOT, 1),
+                  libevdev.InputEvent(libevdev.EV_ABS.ABS_MT_TRACKING_ID, 2),
+                  libevdev.InputEvent(libevdev.EV_ABS.ABS_MT_POSITION_X, 200),
+                  libevdev.InputEvent(libevdev.EV_ABS.ABS_MT_POSITION_Y, 210),
+                  libevdev.InputEvent(libevdev.EV_SYN.SYN_REPORT, 0)]
+        uinput.send_events(events)
+
+        fd = open(uinput.devnode, 'rb')
+        d = libevdev.Device(fd)
+
+        self.assertEqual(d.slots[0][libevdev.EV_ABS.ABS_MT_POSITION_X], 100)
+        self.assertEqual(d.slots[1][libevdev.EV_ABS.ABS_MT_POSITION_X], 200)
+        self.assertEqual(d.slots[0][libevdev.EV_ABS.ABS_MT_POSITION_Y], 110)
+        self.assertEqual(d.slots[1][libevdev.EV_ABS.ABS_MT_POSITION_Y], 210)
+
+        self.assertIsNone(d.slots[0][libevdev.EV_ABS.ABS_MT_ORIENTATION])
+
+        for idx, s in enumerate(d.slots[:2]):
+            idx += 1
+            self.assertEqual(s[libevdev.EV_ABS.ABS_MT_POSITION_X], idx * 100)
+            self.assertEqual(s[libevdev.EV_ABS.ABS_MT_POSITION_Y], idx * 100 + 10)
+
+        for s in d.slots[2:]:
+            self.assertEqual(s[libevdev.EV_ABS.ABS_MT_POSITION_X], 0)
+            self.assertEqual(s[libevdev.EV_ABS.ABS_MT_POSITION_Y], 0)
+
+        with self.assertRaises(IndexError):
+            d.slots[200]
+
+        with self.assertRaises(libevdev.InvalidArgumentException):
+            d.slots[0][libevdev.EV_ABS.ABS_X]
+        with self.assertRaises(libevdev.InvalidArgumentException):
+            d.slots[0][libevdev.EV_ABS.ABS_MT_SLOT]
+        with self.assertRaises(libevdev.InvalidArgumentException):
+            d.slots[0][libevdev.EV_REL.REL_X]
+        with self.assertRaises(AttributeError):
+            d.slots[0][libevdev.EV_ABS]
+
+        d.slots[0][libevdev.EV_ABS.ABS_MT_POSITION_X] = 10
+        self.assertEqual(d.slots[0][libevdev.EV_ABS.ABS_MT_POSITION_X], 10)
+        d.slots[1][libevdev.EV_ABS.ABS_MT_POSITION_Y] = 50
+        self.assertEqual(d.slots[1][libevdev.EV_ABS.ABS_MT_POSITION_Y], 50)
+
+        with self.assertRaises(libevdev.InvalidArgumentException):
+            d.slots[0][libevdev.EV_ABS.ABS_MT_ORIENTATION] = 50
+        with self.assertRaises(libevdev.InvalidArgumentException):
+            d.slots[0][libevdev.EV_ABS.ABS_X] = 10
+        with self.assertRaises(libevdev.InvalidArgumentException):
+            d.slots[0][libevdev.EV_ABS.ABS_MT_SLOT] = 10
+        with self.assertRaises(libevdev.InvalidArgumentException):
+            d.slots[0][libevdev.EV_REL.REL_X] = 10
+        with self.assertRaises(AttributeError):
+            d.slots[0][libevdev.EV_ABS] = 10
 
     def test_absinfo(self):
         d = libevdev.Device()

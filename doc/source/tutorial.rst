@@ -144,13 +144,13 @@ device is a mouse::
         if device.has(libevdev.EV_KEY.BTN_MIDDLE):
             print('Fancy, a mouse with a middle button!')
             device.disable(libevdev.EV_KEY.BTN_MIDDLE)
-            print('... but you don't get to use it')
+            print('... but you do not get to use it')
 
 The :func:`has <libevdev.device.Device.has>` calls are self-explanatory. The
 call to :func:`disable <libevdev.device.Device.disable>` disables the
 given event code or event type. When disabled, no events from this code or
-type are forwarded to the caller and future calls to :func:`has <libevdev.device.Device.has>` 
-return ``False``.
+type are forwarded to the caller and future calls to
+:func:`has <libevdev.device.Device.has>` return ``False``.
 
 The inverse is possible too, enabling a non-existing event code::
 
@@ -158,9 +158,10 @@ The inverse is possible too, enabling a non-existing event code::
             device.enable(libevdev.EV_KEY.BTN_MIDDLE)
             print('Free middle buttons for everyone!')
 
-Unsurprisingly, the device won't generate events for axes it doesn't have.
-So this is usually only useful to have device-specific quirks in one place
-and then assume that devices are behaving correctly.
+Unsurprisingly, the physical device won't generate events for axes it
+doesn't have. Enabling event codes is generally only useful to fix
+device-specific quirks in one place and then assume that devices are
+behaving correctly.
 
 .. note::
 
@@ -203,13 +204,13 @@ types, codes and/or values::
             elif e.matches(libevdev.EV_KEY.BTN_MIDDLE, value=1):
                 printf('How did we manage to get a middle button press?')
 
-Alternatively, you can pre-construct input events and use those for
+Alternatively, you can create input events and use those for
 comparisons::
 
         btn = InputEvent(libevdev.EV_KEY.BTN_MIDDLE, value=1)
 
         if btn in device.events():
-            print('There's a button event in there')
+            print('There is a button event in there')
 
 Creating uinput devices
 -----------------------
@@ -252,8 +253,8 @@ middle click press, followed by a release.
 That's really it. The uinput device can be created from any context. By
 using a real device as source context it's easy to duplicate an existing
 device with exactly the same attributes. The resulting uinput device is a
-libedev context too, so all the previously mentioned methods work on it - it
-just won't ever send events. Usually you'd create a new libevdev context
+libevdev context too, so all the previously mentioned methods work on it -
+it just won't ever send events. Usually you'd create a new libevdev context
 from the device at the uinput's device node::
 
         uinput = device.create_uinput_device()

@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='libevdev',
-      version='0.3',
+      version='0.4',
       description='Python wrapper for libevdev',
       author='Peter Hutterer',
       author_email='peter.hutterer@who-t.net',

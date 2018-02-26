@@ -2,7 +2,7 @@ Difference between python-libevdev and python-evdev
 ===================================================
 
 python-evdev is an existing package that provides python access to the evdev
-protocol. It's documentation is found here: https://python-evdev.readthedocs.io/en/latest/
+protocol. Its documentation is found here: https://python-evdev.readthedocs.io/en/latest/
 
 They both wrap the same kernel protocol, so there is a large overlap
 between the two projects.

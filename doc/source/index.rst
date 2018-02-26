@@ -1,7 +1,7 @@
 libevdev Python wrapper
 =======================
 
-**libevdev-python** is a wrapper around the libevdev C library, with a
+**python-libevdev** is a wrapper around the libevdev C library, with a
 pythonic API. libevdev makes it easy to
 
 * read and parse events from an input device
@@ -15,17 +15,17 @@ Source code
 -----------
 
 The source code for this project is available at
-http://github.com/whot/libevdev-python
+http://github.com/whot/python-libevdev
 
 
 Installation
 ------------
 
-A requirement for **libevdev-python** to work is that the libevdev C library
+A requirement for **python-libevdev** to work is that the libevdev C library
 is installed on your system. Install through your favourite package
 managers, but you almost certainly already have it installed anyway.
 
-The recommended way of installing **libevdev-python** is to use your
+The recommended way of installing **python-libevdev** is to use your
 distribution's package manager (``dnf``, ``yum``, ``apt``, ``pacman``, ...).
 If it isn't packaged for your distribution, you should use ``pip3``::
 
@@ -35,11 +35,11 @@ For more details on using pip and the PyPI, please see https://pypi.python.org/p
 
 Otherwise, you can install it from the git repository::
 
-        git clone http://github.com/whot/libevdev-python
-        cd libevdev-python
+        git clone http://github.com/whot/python-libevdev
+        cd python-libevdev
         sudo ./setup.py install
 
-Finally, **libevdev-python** can be used directly from the source by simply
+Finally, **python-libevdev** can be used directly from the source by simply
 setting ``PYTHONPATH``::
 
         $> export PYTHONPATH=/path/to/source:$PYTHONPATH
@@ -52,7 +52,7 @@ from there.
 Why libevdev?
 -------------
 
-**libevdev-python** uses libevdev for most operations. This provides a
+**python-libevdev** uses libevdev for most operations. This provides a
 number of advantages over direct evdev event handling, libevdev hides some
 of the quirks of the evdev protocol. For example libevdev provides
 

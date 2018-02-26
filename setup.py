@@ -7,7 +7,7 @@ setup(name='libevdev',
       description='Python wrapper for libevdev',
       author='Peter Hutterer',
       author_email='peter.hutterer@who-t.net',
-      url='https://www.github.com/whot/libevdev-python/',
+      url='https://www.github.com/whot/python-libevdev/',
       packages=['libevdev'],
       classifiers=[
            'Development Status :: 3 - Alpha',

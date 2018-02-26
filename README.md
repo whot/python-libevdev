@@ -1,4 +1,4 @@
-libevdev-python - Python wrapper for libevdev
+python-libevdev - Python wrapper for libevdev
 =============================================
 
 ***This project is still under heavy development. Until further notice,
@@ -12,13 +12,13 @@ https://freedesktop.org/wiki/Software/libevdev/
 Source code
 -----------
 
-The source code of libevdev-python can be found at:
-http://github.com/whot/libevdev-python
+The source code of python-libevdev can be found at:
+http://github.com/whot/python-libevdev
 
 License
 -------
 
-libevdev-python is licensed under the MIT license.
+python-libevdev is licensed under the MIT license.
 
 > Permission is hereby granted, free of charge, to any person obtaining a
 > copy of this software and associated documentation files (the "Software"),
@@ -27,7 +27,7 @@ libevdev-python is licensed under the MIT license.
 > and/or sell copies of the Software, and to permit persons to whom the
 > Software is furnished to do so, subject to the following conditions: [...]
 
-See the [COPYING](http://github.com/whot/libevdev-python/blob/master/COPYING)
+See the [COPYING](http://github.com/whot/python-libevdev/blob/master/COPYING)
 file for the full license information.
 
 TODO

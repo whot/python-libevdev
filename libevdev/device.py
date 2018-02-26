@@ -741,7 +741,7 @@ class Device(object):
                 if t == libevdev.EV_ABS:
                     data = self.absinfo[c]
                 elif t == libevdev.EV_REP:
-                    data = self.event_value(c)
+                    data = self.value[c]
                 else:
                     data = None
                 d.enable(c, data)

@@ -1,12 +1,17 @@
 python-libevdev - Python wrapper for libevdev
 =============================================
 
-***This project is still under heavy development. Until further notice,
-expect non-fast-forward pushes to master***
+This project is a Python wrapper around libevdev, taking advantage of
+libevdev's advanced event handling. Documentation is available here:
+https://python-libevdev.readthedocs.io/en/latest/
 
-libevdev is a wrapper library for evdev devices written in C. This project
-is a Python wrapper around libevdev, taking advantage of libevdev's advanced
-event handling. For information about libevdev see here:
+libevdev makes it easy to
+
+* read and parse events from an input device
+* create a virtual input device and make it send events
+* duplicate an existing device and modify the event stream
+
+For information about libevdev see here:
 https://freedesktop.org/wiki/Software/libevdev/
 
 Source code

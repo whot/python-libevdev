@@ -29,10 +29,3 @@ python-libevdev is licensed under the MIT license.
 
 See the [COPYING](http://github.com/whot/python-libevdev/blob/master/COPYING)
 file for the full license information.
-
-TODO
-----
-
-* logging hooks and logging priority
-* libevdev_get_repeat
-* error handling is almost nonexistent

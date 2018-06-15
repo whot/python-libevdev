@@ -18,7 +18,7 @@ Source code
 -----------
 
 The source code of python-libevdev can be found at:
-http://github.com/whot/python-libevdev
+https://gitlab.freedesktop.org/libevdev/python-libevdev
 
 License
 -------

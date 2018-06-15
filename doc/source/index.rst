@@ -15,8 +15,7 @@ Source code
 -----------
 
 The source code for this project is available at
-http://github.com/whot/python-libevdev
-
+https://gitlab.freedesktop.org/libevdev/python-libevdev
 
 Installation
 ------------
@@ -35,7 +34,7 @@ For more details on using pip and the PyPI, please see https://pypi.python.org/p
 
 Otherwise, you can install it from the git repository::
 
-        git clone http://github.com/whot/python-libevdev
+        git clone https://gitlab.freedesktop.org/libevdev/python-libevdev.git
         cd python-libevdev
         sudo ./setup.py install
 

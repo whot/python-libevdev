@@ -287,6 +287,11 @@ class Libevdev(_LibraryWrapper):
             "argtypes": (c_void_p, c_int, ctypes.POINTER(_InputAbsinfo)),
             "restype": (c_int)
         },
+        # int libevdev_kernel_set_led_value(struct libevdev *dev, unsigned int, enum libevdev_led_value);
+        "libevdev_kernel_set_led_value": {
+            "argtypes": (c_void_p, c_int, c_int),
+            "restype": (c_int)
+        },
         ##########################
         # Various has_ functions #
         ##########################
@@ -836,7 +841,7 @@ class Libevdev(_LibraryWrapper):
         """
         t, c = self._code("EV_LED", led)
         which = 3 if on else 4
-        self._set_led_value(self._ctx, c, which)
+        self._kernel_set_led_value(self._ctx, c, which)
 
     def next_event(self, flags=READ_FLAG_NORMAL):
         """

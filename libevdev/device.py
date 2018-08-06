@@ -822,3 +822,21 @@ class Device(object):
         """
         self._libevdev.grab(False)
         self._is_grabbed = False
+
+    def set_leds(self, leds):
+        """
+        Write the LEDs to the device::
+
+             >>> fd = open(path, 'r+b', buffering=0)
+             >>> d = libevdev.Device(fd)
+             >>> d.set_leds([(libevdev.EV_LED.LED_NUML, 0),
+                             (libevdev.EV_LED.LED_SCROLLL, 1)])
+
+        Updating LED states require the fd to be in write-mode.
+        """
+        for led in leds:
+            if led[0].type is not libevdev.EV_LED:
+                raise InvalidArgumentException('Event code must be one of EV_LED.*')
+
+        for led in leds:
+            self._libevdev.set_led(led[0].value, led[1])

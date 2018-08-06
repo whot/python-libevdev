@@ -22,7 +22,7 @@ def print_capabilities(l):
 
         for c in cs:
             if t in [libevdev.EV_LED, libevdev.EV_SND, libevdev.EV_SW]:
-                v = l.event_value(t, c)
+                v = l.value[c]
                 print("    Event code {} ({}) state {}".format(c.value, c.name, v))
             else:
                 print("    Event code {} ({})".format(c.value, c.name))

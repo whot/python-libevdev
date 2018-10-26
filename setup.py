@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 long_description = '''
-python-libevdev is a Python wrapper arround the libevdev C library. It
+python-libevdev is a Python wrapper around the libevdev C library. It
 provides a Pythonic API to read events from the Linux kernel's input device
 nodes and to read and/or modify the device's state and capabilities.
 
@@ -17,7 +17,7 @@ setup(name='libevdev',
       long_description=long_description,
       author='Peter Hutterer',
       author_email='peter.hutterer@who-t.net',
-      url='https://www.github.com/whot/python-libevdev/',
+      url='https://gitlab.freedesktop.org/libevdev/python-libevdev',
       packages=['libevdev'],
       classifiers=[
            'Development Status :: 3 - Alpha',
@@ -27,4 +27,5 @@ setup(name='libevdev',
            'Programming Language :: Python :: 3',
           ],
       python_requires='>=3',
+      keywords='evdev input uinput libevdev',
 )

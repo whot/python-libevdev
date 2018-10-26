@@ -32,5 +32,5 @@ python-libevdev is licensed under the MIT license.
 > and/or sell copies of the Software, and to permit persons to whom the
 > Software is furnished to do so, subject to the following conditions: [...]
 
-See the [COPYING](http://github.com/whot/python-libevdev/blob/master/COPYING)
+See the [COPYING](https://gitlab.freedesktop.org/libevdev/python-libevdev/blob/master/COPYING)
 file for the full license information.

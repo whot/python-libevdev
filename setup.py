@@ -8,7 +8,7 @@ provides a Pythonic API to read events from the Linux kernel's input device
 nodes and to read and/or modify the device's state and capabilities.
 
 The documentation is available here:
-https://python-evdev.readthedocs.io/en/latest/
+https://python-libevdev.readthedocs.io/en/latest/
 '''
 
 setup(name='libevdev',

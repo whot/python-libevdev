@@ -88,6 +88,15 @@ class TestEventBits(unittest.TestCase):
         self.assertEqual(evbit('SYN_REPORT'), libevdev.EV_SYN.SYN_REPORT)
         self.assertEqual(evbit('REP_PERIOD'), libevdev.EV_REP.REP_PERIOD)
 
+    def test_evcode_is_defined(self):
+        for t in libevdev.types:
+            for c in t.codes:
+                fake_name = '{}_{:02X}'.format(t.name[3:], c.value)
+                if c.is_defined:
+                    self.assertNotEqual(c.name, fake_name)
+                else:
+                    self.assertEqual(c.name, fake_name)
+
     def test_propbit_string(self):
         self.assertEqual(propbit('INPUT_PROP_POINTER'), libevdev.INPUT_PROP_POINTER)
         self.assertEqual(propbit('INPUT_PROP_DIRECT'), libevdev.INPUT_PROP_DIRECT)

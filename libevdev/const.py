@@ -96,6 +96,15 @@ class EventCode(EvdevBit):
     .. attribute:: type
 
         The :class:`EventType` for this event code
+
+    .. attribute:: is_defined
+
+        ``True`` if this event bit has a ``#define`` in the kernel header.
+        :class:`EventCode` objects not defined in the header have a name
+        composed of the type name plus the hex code, e.g. ``KEY_2E8``.
+
+        Usually you will not need to check this property unless you need to
+        filter for known codes only.
     """
     __hash__ = super.__hash__
 
@@ -347,6 +356,7 @@ def _load_consts():
         codes = []
         for c in range(cmax + 1):
             cname = Libevdev.event_to_name(t, c)
+            has_name = cname is not None
             # For those without names, we just use the type name plus
             # hexcode
             if cname is None:
@@ -355,7 +365,8 @@ def _load_consts():
             new_class = type(cname, (EventCode, ),
                              {'type': type_object,
                               'name': cname,
-                              'value': c})
+                              'value': c,
+                              'is_defined': has_name})
             code_object = new_class()
             setattr(type_object, cname, code_object)
             codes.append(code_object)

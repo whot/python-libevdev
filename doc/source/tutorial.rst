@@ -4,7 +4,9 @@ Tutorial
 This is a tutorial on using libevdev's Python wrapper. It is not a tutorial
 on the evdev protocol, basic knowledge of how evdev works is assumed.
 Specifically, you're expected to know what an event type and an event code
-is. If you don't, read https://who-t.blogspot.com.au/2016/09/understanding-evdev.html first.
+is. If you don't, read
+`Understanding evdev
+<https://who-t.blogspot.com.au/2016/09/understanding-evdev.html/>`_ first.
 
 The basic building blocks
 -------------------------

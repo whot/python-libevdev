@@ -11,6 +11,7 @@ The documentation is available here:
 https://python-libevdev.readthedocs.io/en/latest/
 '''
 
+# When bumping the version, also bump it doc/source/conf.py
 setup(name='libevdev',
       version='0.6.1',
       description='Python wrapper for libevdev',

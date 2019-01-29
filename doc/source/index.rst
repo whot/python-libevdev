@@ -85,6 +85,7 @@ page.
 To read events from an existing device::
 
         import libevdev
+        import sys
 
         fd = open('/dev/input/event0', 'rb')
         d = libevdev.Device(fd)

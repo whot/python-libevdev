@@ -97,10 +97,6 @@ class InputAbsInfo(object):
     Any of the attributes may be set to None, those that are None are simply
     ignored by libevdev.
 
-    .. attribute:: minimum
-
-        the minimum value of this axis
-
     :property minimum: the minimum value for this axis
     :property maximum: the maximum value for this axis
     :property fuzz: the fuzz value for this axis

@@ -868,6 +868,8 @@ class Libevdev(_LibraryWrapper):
         rc = self._next_event(self._ctx, flags, ctypes.byref(ev))
         if rc == -errno.EAGAIN:
             return None
+        if rc < 0:
+            raise OSError(-rc, os.strerror(-rc))
 
         return ev
 

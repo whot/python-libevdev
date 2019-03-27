@@ -13,7 +13,7 @@ https://python-libevdev.readthedocs.io/en/latest/
 
 # When bumping the version, also bump it doc/source/conf.py
 setup(name='libevdev',
-      version='0.6.1',
+      version='0.7',
       description='Python wrapper for libevdev',
       long_description=long_description,
       author='Peter Hutterer',

@@ -107,6 +107,8 @@ example above, the event type isn't needed when converting from string.
 Ok, now that we know how to deal with event codes and types, we can move on
 to actually using those.
 
+.. _opening_a_device:
+
 Opening a device
 ----------------
 
@@ -118,9 +120,11 @@ devices either - you can easily figure that out yourself by looping through
 the file system or using libudev.
 
 The simplest case (and good enough for most applications) is a mere call to
-``open``::
+``open``, optionally followed by a call to ``fcntl`` to switch the file
+descriptor into non-blocking mode::
 
         >>> fd = open("/dev/input/event0", "rb")
+        >>> fcntl.fcntl(fd, fcntl.F_SETFL, os.O_NONBLOCK)
         >>> device = libevdev.Device(fd)
         >>> print(device.name)
         Lid Switch
@@ -130,7 +134,7 @@ events from it later or even modify the kernel device.
 
 That's it. libevdev doesn't really care how you opened the device, as long
 as ``fileno()`` works on it it'll take it. Now we can move on to actually
-handling the device
+handling the device.
 
 Querying and modifying device capabilities
 ------------------------------------------
@@ -213,6 +217,16 @@ comparisons::
 
         if btn in device.events():
             print('There is a button event in there')
+
+The above examples all depened on whether ``os.O_NONBLOCK`` was set on the
+file descriptor after the initial ``open`` call:
+
+- ``os.O_NONBLOCK`` is set: :func:`events <libevdev.device.Device.events>`
+  returns immediately when no events are available.
+- ``os.O_NONBLOCK`` is **not** set: :func:`events
+  <libevdev.device.Device.events>` blocks until events become available
+
+See :ref:`opening_a_device` for an example on setting ``os.O_NONBLOCK``.
 
 Creating uinput devices
 -----------------------

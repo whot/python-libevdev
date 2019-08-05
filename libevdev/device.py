@@ -495,11 +495,14 @@ class Device(object):
         Event processing should look like this::
 
             fd = open("/dev/input/event0", "rb")
+            fcntl.fcntl(fd, fcntl.F_SETFL, os.O_NONBLOCK)  # optional
             ctx = libevdev.Device(fd)
 
             while True:
                 for e in ctx.events():
                     print(e):
+
+                ... other mainloop code ...
 
         This function detects if the file descriptor is in blocking or
         non-blocking mode and adjusts its behavior accordingly. If the file

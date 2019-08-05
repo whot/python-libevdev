@@ -199,7 +199,7 @@ types, codes and/or values::
             if e.matches(libevdev.EV_MSC):
                 continue  # don't care about those
 
-            if e.matches(libevdev.EV_REL.REL_X:
+            if e.matches(libevdev.EV_REL.REL_X):
                 move_by(e.value, 0)
             elif e.matches(libevdev.EV_REL.REL_Y):
                 move_by(0, e.value)

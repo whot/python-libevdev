@@ -795,7 +795,7 @@ class Device(object):
             d.grab()
             # device is now exclusively grabbed
 
-            fd.close()
+            fd1.close()
             fd2 = open("/dev/input/event0", "rb")
             d.fd = fd2
             # device is now exclusively grabbed

@@ -97,6 +97,10 @@ class TestEventBits(unittest.TestCase):
                 else:
                     self.assertEqual(c.name, fake_name)
 
+    def test_evcode_undefined(self):
+        self.assertEqual(evbit('SYN_04'), libevdev.EV_SYN._SYN_04)
+        self.assertEqual(libevdev.EV_SYN._SYN_04.name, 'SYN_04')
+
     def test_propbit_string(self):
         self.assertEqual(propbit('INPUT_PROP_POINTER'), libevdev.INPUT_PROP_POINTER)
         self.assertEqual(propbit('INPUT_PROP_DIRECT'), libevdev.INPUT_PROP_DIRECT)

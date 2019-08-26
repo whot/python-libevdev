@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from distutils.core import setup
+from setuptools import setup
 
 long_description = '''
 python-libevdev is a Python wrapper around the libevdev C library. It

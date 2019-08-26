@@ -58,18 +58,18 @@ def main(args):
     path = args[1]
     try:
         with open(path, "rb") as fd:
-            l = libevdev.Device(fd)
-            print_capabilities(l)
+            dev = libevdev.Device(fd)
+            print_capabilities(dev)
             print("################################\n"
                   "#      Waiting for events      #\n"
                   "################################")
 
             while True:
                 try:
-                    for e in l.events():
+                    for e in dev.events():
                         print_event(e)
                 except libevdev.EventsDroppedException:
-                    for e in l.sync():
+                    for e in dev.sync():
                         print_event(e)
 
     except KeyboardInterrupt:

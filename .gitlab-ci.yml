@@ -1,0 +1,21 @@
+# vim: set expandtab shiftwidth=2 tabstop=8 textwidth=0:
+
+variables:
+  ARCH_PKGS: 'flake8'
+
+.default_setup:
+  image: archlinux/base
+  before_script:
+    - pacman -S --refresh
+    - pacman -S --sysupgrade --noconfirm
+    - pacman -S --noconfirm $ARCH_PKGS
+
+flake:
+  extends: .default_setup
+  script:
+    - python3 setup.py flake8
+
+install:
+  extends: .default_setup
+  script:
+    - python3 setup.py install

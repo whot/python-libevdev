@@ -8,8 +8,10 @@ from libevdev._clib import Libevdev, UinputDevice
 # if properties 1-4 work the others will work too if libevdev works
 # correctly
 
+
 def is_root():
     return os.getuid() == 0
+
 
 class TestNameConversion(unittest.TestCase):
 
@@ -444,6 +446,7 @@ class TestAbsDevice(unittest.TestCase):
         self.assertFalse(l.has_property("INPUT_PROP_ACCELEROMETER"))
         l.enable_property("INPUT_PROP_ACCELEROMETER")
         self.assertTrue(l.has_property("INPUT_PROP_ACCELEROMETER"))
+
 
 class TestMTDevice(unittest.TestCase):
     """

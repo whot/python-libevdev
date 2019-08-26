@@ -24,16 +24,18 @@ import os
 import unittest
 
 import libevdev
-from libevdev import evbit, propbit, InputEvent, Device, InvalidFileError, InvalidArgumentException
+from libevdev import InvalidFileError, InvalidArgumentException
+
 
 def is_root():
     return os.getuid() == 0
+
 
 class TestDevice(unittest.TestCase):
     def test_device_empty(self):
         d = libevdev.Device()
         id = {'bustype': 0, 'vendor': 0, 'product': 0, 'version': 0}
-        syns = { libevdev.EV_SYN : libevdev.EV_SYN.codes }
+        syns = {libevdev.EV_SYN: libevdev.EV_SYN.codes}
 
         self.assertEqual(d.name, '')
         self.assertEqual(d.id, id)
@@ -55,10 +57,8 @@ class TestDevice(unittest.TestCase):
             for c in t.codes:
                 self.assertFalse(d.has(c))
                 self.assertIsNone(d.value[c])
-
-                d.disable(c) # noop
-
-            d.disable(t) # noop
+                d.disable(c)  # noop
+            d.disable(t)  # noop
 
         for p in libevdev.props:
             self.assertFalse(d.has_property(p))
@@ -232,7 +232,7 @@ class TestDevice(unittest.TestCase):
 
         self.assertEqual(d.properties, props)
         for p in libevdev.props:
-            if not p in props:
+            if p not in props:
                 self.assertFalse(d.has_property(p))
             else:
                 self.assertTrue(d.has_property(p))

@@ -25,6 +25,7 @@ import unittest
 import libevdev
 from libevdev import evbit, propbit
 
+
 class TestEventBits(unittest.TestCase):
     def test_ev_types(self):
         self.assertIn(libevdev.EV_SYN, libevdev.types)

@@ -8,6 +8,7 @@
 import sys
 import libevdev
 
+
 def main(args):
     path = args[1]
     axis = args[2]
@@ -38,4 +39,3 @@ if __name__ == "__main__":
         print("   <value> .. the numeric value to set the axis field to")
         sys.exit(1)
     main(sys.argv)
-

@@ -26,7 +26,6 @@ setup(name='libevdev',
            'Intended Audience :: Developers',
            'License :: OSI Approved :: MIT License',
            'Programming Language :: Python :: 3',
-          ],
+      ],
       python_requires='>=3',
-      keywords='evdev input uinput libevdev',
-)
+      keywords='evdev input uinput libevdev')
